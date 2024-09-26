@@ -1,0 +1,6 @@
+sentence-transformers 
+pandas 
+matplotlib 
+seaborn 
+scikit-learn 
+streamlit
