@@ -1,0 +1,2 @@
+# KARIRI
+TRADUÇÃO 
