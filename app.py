@@ -1,3 +1,6 @@
+# Instalar as bibliotecas necessárias
+!pip install sentence-transformers pandas matplotlib seaborn scikit-learn streamlit scipy plotly
+
 # Importar as bibliotecas necessárias
 import pandas as pd
 import streamlit as st
@@ -53,24 +56,6 @@ def grafico_matriz_correlacao(pearson_corr, spearman_corr, kendall_corr):
 
     st.pyplot(fig)
 
-# Função para gerar gráficos de margem de erro
-def grafico_margem_erro(margem_erro):
-    """Gera gráfico de barras para margem de erro."""
-    fig, ax = plt.subplots()
-    margem_erro.plot(kind='bar', color=['blue', 'green', 'red'], ax=ax)
-    ax.set_title('Margem de Erro das Estimativas de Similaridade')
-    ax.set_ylabel('Margem de Erro')
-    st.pyplot(fig)
-
-# Função para gerar gráficos de ANOVA
-def grafico_anova(fvalue, pvalue):
-    """Gera gráfico de barras com os valores F e P da ANOVA."""
-    fig, ax = plt.subplots()
-    ax.bar(['F-value', 'P-value'], [fvalue, pvalue], color=['blue', 'green'])
-    ax.set_title('Resultados da ANOVA')
-    ax.set_ylabel('Valor')
-    st.pyplot(fig)
-
 # Função para gerar gráficos interativos com Plotly
 def grafico_interativo_plotly(similarity_df):
     """Gera gráficos interativos com Plotly."""
@@ -91,6 +76,12 @@ def grafico_regressao_plotly(similarity_df, y_pred):
                       yaxis_title="Similaridade Dzubukuá - Moderno")
     st.plotly_chart(fig)
 
+# Função para gerar Pairplot (visualiza múltiplas correlações)
+def grafico_pairplot(similarity_df):
+    """Gera um Pairplot para visualizar múltiplas correlações."""
+    fig = sns.pairplot(similarity_df)
+    st.pyplot(fig)
+
 # Função para realizar análise de componentes principais e plotar
 def grafico_pca(similarity_df, pca_result):
     """Plota os resultados da Análise de Componentes Principais (PCA)."""
@@ -100,18 +91,6 @@ def grafico_pca(similarity_df, pca_result):
     plt.xlabel('Componente 1')
     plt.ylabel('Componente 2')
     st.pyplot(fig)
-
-# Função para gerar Pairplot (visualiza múltiplas correlações)
-def grafico_pairplot(similarity_df):
-    """Gera um Pairplot para visualizar múltiplas correlações. Apenas colunas numéricas serão usadas."""
-    # Verificar se há colunas numéricas no DataFrame
-    numeric_df = similarity_df.select_dtypes(include=['float64', 'int64'])
-    
-    if numeric_df.empty:
-        st.error("O Pairplot requer colunas numéricas. O DataFrame atual não contém colunas numéricas suficientes.")
-    else:
-        fig = sns.pairplot(numeric_df)
-        st.pyplot(fig)
 
 # Função para calcular as similaridades de cosseno
 def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico, sentences_moderno):
@@ -200,10 +179,11 @@ def main():
     if uploaded_file is not None:
         # Carregar o arquivo CSV
         df = pd.read_csv(uploaded_file)
-
+        
         # Exibir dataset
         st.write("Primeiras linhas do dataset:")
         st.dataframe(df.head())
+
 
         # Similaridade semântica usando Sentence-BERT
         sentences_dzubukua = df[df['Idioma'] == 'Dzubukuá']['Texto Original'].tolist()
@@ -248,13 +228,11 @@ def main():
         st.subheader("Margem de Erro para as Estimativas de Similaridade")
         margem_erro = calcular_margem_erro(similarity_df)
         st.write(f"Margem de Erro: {margem_erro}")
-        grafico_margem_erro(margem_erro)
 
         # ANOVA (Análise de Variância)
         st.subheader("Análise de Variância (ANOVA) entre as Similaridades")
         fvalue, pvalue = calcular_anova(similarity_df)
         st.write(f"F-value: {fvalue}, P-value: {pvalue}")
-        grafico_anova(fvalue, pvalue)
 
         # Análise de Q-Exponencial
         st.subheader("Análise de Padrões Não-Lineares usando Q-Exponencial")
@@ -273,4 +251,3 @@ def main():
 # Rodar a aplicação Streamlit
 if __name__ == '__main__':
     main()
-
