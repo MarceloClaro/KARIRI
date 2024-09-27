@@ -104,7 +104,7 @@ def grafico_interativo_plotly(similarity_df):
         height=1200,  # Aumentando a altura do gráfico para evitar sobreposição
         width=1200,   # Aumentando a largura do gráfico
         xaxis_tickangle=-45,  # Rotacionar rótulos no eixo X para melhor legibilidade
-        yaxis_tickangle=0,    # Manter rótulos no eixo Y sem rotação
+        yaxis_tickangle=-45,    # Manter rótulos no eixo Y sem rotação
         margin=dict(l=150, r=150, b=150, t=150, pad=10),  # Aumentar margens para melhorar espaçamento
         font=dict(size=12),  # Ajustar o tamanho da fonte
     )
