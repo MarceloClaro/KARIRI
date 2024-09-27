@@ -47,17 +47,17 @@ def grafico_pca(similarity_df, pca_result):
     ax.scatter(pca_result[:, 0], pca_result[:, 1], c='blue', edgecolor='k', s=100)  # Tamanho dos pontos aumentado
 
     # Título claro e informativo
-    ax.set_title('Distribuição das Similaridades', fontsize=14, pad=10)
+    ax.set_title('Distribuição das Similaridades', fontsize=16, pad=20)
 
     # Legendas mais compreensíveis
-    ax.set_xlabel('Primeiro Padrão Principal', fontsize=10, labelpad=15)  # Eixo X
-    ax.set_ylabel('Segundo Padrão Principal', fontsize=10, labelpad=15)   # Eixo Y
+    ax.set_xlabel('Primeiro Padrão Principal', fontsize=14, labelpad=15)  # Eixo X
+    ax.set_ylabel('Segundo Padrão Principal', fontsize=14, labelpad=15)   # Eixo Y
 
     # Adicionar grades leves para melhor visualização
     ax.grid(True, which='both', linestyle='--', linewidth=0.5)
 
     # Ajustar espaçamento para as margens e elementos do gráfico
-    plt.tight_layout(pad=2.0)
+    plt.tight_layout(pad=3.0)
 
     # Exibir gráfico no Streamlit
     st.pyplot(fig)
@@ -71,25 +71,25 @@ def grafico_matriz_correlacao(pearson_corr, spearman_corr, kendall_corr):
     sns.heatmap(pearson_corr, annot=True, cmap='coolwarm', ax=axs[0])
     axs[0].set_title('Correlação de Pearson', pad=20)  # Aumentar espaçamento do título
     axs[0].tick_params(axis='x', rotation=45)  # Rotacionar rótulos do eixo X
-    axs[0].tick_params(axis='y', rotation=45)   # Manter rótulos do eixo Y
+    axs[0].tick_params(axis='y', rotation=0)   # Manter rótulos do eixo Y
     axs[0].set_xlabel('Eixo X Pearson', labelpad=15)  # Aumentar espaçamento da legenda do eixo X
     axs[0].set_ylabel('Eixo Y Pearson', labelpad=15)  # Aumentar espaçamento da legenda do eixo Y
 
     # Correlação de Spearman
     sns.heatmap(spearman_corr, annot=True, cmap='coolwarm', ax=axs[1])
-    axs[1].set_title('Correlação de Spearman', pad=10)  # Aumentar espaçamento do título
+    axs[1].set_title('Correlação de Spearman', pad=20)  # Aumentar espaçamento do título
     axs[1].tick_params(axis='x', rotation=45)  # Rotacionar rótulos do eixo X
-    axs[1].tick_params(axis='y', rotation=45)   # Manter rótulos do eixo Y
-    axs[1].set_xlabel('Eixo X Spearman', labelpad=5)  # Aumentar espaçamento da legenda do eixo X
-    axs[1].set_ylabel('Eixo Y Spearman', labelpad=5)  # Aumentar espaçamento da legenda do eixo Y
+    axs[1].tick_params(axis='y', rotation=0)   # Manter rótulos do eixo Y
+    axs[1].set_xlabel('Eixo X Spearman', labelpad=15)  # Aumentar espaçamento da legenda do eixo X
+    axs[1].set_ylabel('Eixo Y Spearman', labelpad=15)  # Aumentar espaçamento da legenda do eixo Y
 
     # Correlação de Kendall
     sns.heatmap(kendall_corr, annot=True, cmap='coolwarm', ax=axs[2])
-    axs[2].set_title('Correlação de Kendall', pad=10)  # Aumentar espaçamento do título
+    axs[2].set_title('Correlação de Kendall', pad=20)  # Aumentar espaçamento do título
     axs[2].tick_params(axis='x', rotation=45)  # Rotacionar rótulos do eixo X
-    axs[2].tick_params(axis='y', rotation=45)   # Manter rótulos do eixo Y
-    axs[2].set_xlabel('Eixo X Kendall', labelpad=5)  # Aumentar espaçamento da legenda do eixo X
-    axs[2].set_ylabel('Eixo Y Kendall', labelpad=5)  # Aumentar espaçamento da legenda do eixo Y
+    axs[2].tick_params(axis='y', rotation=0)   # Manter rótulos do eixo Y
+    axs[2].set_xlabel('Eixo X Kendall', labelpad=15)  # Aumentar espaçamento da legenda do eixo X
+    axs[2].set_ylabel('Eixo Y Kendall', labelpad=15)  # Aumentar espaçamento da legenda do eixo Y
 
     plt.tight_layout(pad=3.0)  # Aumentar espaçamento entre os subplots
     st.pyplot(fig)
@@ -101,12 +101,12 @@ def grafico_interativo_plotly(similarity_df):
 
     # Ajustando o layout para melhorar a visualização e espaçamento
     fig.update_layout(
-        height=1200,  # Aumentando a altura do gráfico para evitar sobreposição
-        width=1200,   # Aumentando a largura do gráfico
+        height=1000,  # Aumentando a altura do gráfico para evitar sobreposição
+        width=1000,   # Aumentando a largura do gráfico
         xaxis_tickangle=-45,  # Rotacionar rótulos no eixo X para melhor legibilidade
-        yaxis_tickangle=-45,    # Manter rótulos no eixo Y sem rotação
-        margin=dict(l=150, r=150, b=150, t=150, pad=10),  # Aumentar margens para melhorar espaçamento
-        font=dict(size=10),  # Ajustar o tamanho da fonte
+        yaxis_tickangle=45,   # Rotacionar rótulos no eixo Y para melhor legibilidade
+        margin=dict(l=100, r=100, b=150, t=150, pad=10),  # Aumentar margens para melhorar espaçamento
+        font=dict(size=12),  # Ajustar o tamanho da fonte
     )
     
     st.plotly_chart(fig)
@@ -136,7 +136,6 @@ def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico
     embeddings_arcaico = embeddings[len(sentences_dzubukua):len(sentences_dzubukua) + len(sentences_arcaico)]
     embeddings_moderno = embeddings[len(sentences_dzubukua) + len(sentences_arcaico):]
 
-   
     # Calculando a similaridade de cosseno entre os embeddings
     similarity_arcaico_dzubukua = cosine_similarity(embeddings_dzubukua, embeddings_arcaico).diagonal()
     similarity_moderno_dzubukua = cosine_similarity(embeddings_dzubukua, embeddings_moderno).diagonal()
@@ -225,6 +224,10 @@ def main():
     if uploaded_file is not None:
         df = pd.read_csv(uploaded_file)
 
+        # Exibir a tabela completa do dataset
+        st.subheader("Tabela Completa do Dataset")
+        st.dataframe(df)  # Exibe o dataset completo
+
         # Extrair frases de cada idioma
         sentences_dzubukua = df[df['Idioma'] == 'Dzubukuá']['Texto Original'].tolist()
         sentences_arcaico = df[df['Idioma'] == 'Português Arcaico']['Texto Original'].tolist()
@@ -260,10 +263,9 @@ def main():
         st.subheader("Similaridade Calculada entre as Três Línguas")
         st.dataframe(similarity_df)
 
-        # Correlações Avançadas (Pearson, Spearman, Kendall)
-        st.subheader("Correlação entre as Similaridades (Pearson, Spearman, Kendall)")
-        pearson_corr, spearman_corr, kendall_corr = calcular_correlacoes_avancadas(similarity_df)
-        grafico_matriz_correlacao(pearson_corr, spearman_corr, kendall_corr)
+        # Gráfico interativo de correlações usando Plotly com ajustes
+        st.subheader("Gráfico Interativo de Correlações entre Similaridades")
+        grafico_interativo_plotly(similarity_df)
 
         # Regressão Linear entre Dzubukuá e Moderno
         st.subheader("Análise de Regressão Linear entre Dzubukuá e Português Moderno")
@@ -271,15 +273,10 @@ def main():
         st.write(f"Coeficiente de Determinação (R²) da Regressão Linear: {r2:.2f}")
         grafico_regressao_plotly(similarity_df, y_pred)
 
-        # Gráfico interativo de correlações usando Plotly
-        st.subheader("Gráfico Interativo de Correlações entre Similaridades")
-        grafico_interativo_plotly(similarity_df)
-
         # Análise de Componentes Principais (PCA)
         st.subheader("Análise de Componentes Principais (PCA)")
         pca_result = aplicar_pca(similarity_df)
         grafico_pca(similarity_df, pca_result)
-
 
         # Perguntar se o usuário deseja baixar os resultados como CSV
         if st.checkbox("Deseja baixar os resultados como CSV?"):
@@ -296,7 +293,6 @@ def salvar_dataframe(similarity_df):
         mime='text/csv',
     )
 
-# Função principal para rodar a aplicação Streamlit
+# Função principal para rodar a aplicação no Streamlit
 if __name__ == '__main__':
     main()
-
