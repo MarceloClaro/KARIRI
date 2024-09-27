@@ -71,7 +71,7 @@ def grafico_matriz_correlacao(pearson_corr, spearman_corr, kendall_corr):
     sns.heatmap(pearson_corr, annot=True, cmap='coolwarm', ax=axs[0])
     axs[0].set_title('Correlação de Pearson', pad=20)  # Aumentar espaçamento do título
     axs[0].tick_params(axis='x', rotation=45)  # Rotacionar rótulos do eixo X
-    axs[0].tick_params(axis='y', rotation=0)   # Manter rótulos do eixo Y
+    axs[0].tick_params(axis='y', rotation=45)   # Manter rótulos do eixo Y
     axs[0].set_xlabel('Eixo X Pearson', labelpad=15)  # Aumentar espaçamento da legenda do eixo X
     axs[0].set_ylabel('Eixo Y Pearson', labelpad=15)  # Aumentar espaçamento da legenda do eixo Y
 
@@ -79,7 +79,7 @@ def grafico_matriz_correlacao(pearson_corr, spearman_corr, kendall_corr):
     sns.heatmap(spearman_corr, annot=True, cmap='coolwarm', ax=axs[1])
     axs[1].set_title('Correlação de Spearman', pad=20)  # Aumentar espaçamento do título
     axs[1].tick_params(axis='x', rotation=45)  # Rotacionar rótulos do eixo X
-    axs[1].tick_params(axis='y', rotation=0)   # Manter rótulos do eixo Y
+    axs[1].tick_params(axis='y', rotation=45)   # Manter rótulos do eixo Y
     axs[1].set_xlabel('Eixo X Spearman', labelpad=15)  # Aumentar espaçamento da legenda do eixo X
     axs[1].set_ylabel('Eixo Y Spearman', labelpad=15)  # Aumentar espaçamento da legenda do eixo Y
 
@@ -87,7 +87,7 @@ def grafico_matriz_correlacao(pearson_corr, spearman_corr, kendall_corr):
     sns.heatmap(kendall_corr, annot=True, cmap='coolwarm', ax=axs[2])
     axs[2].set_title('Correlação de Kendall', pad=20)  # Aumentar espaçamento do título
     axs[2].tick_params(axis='x', rotation=45)  # Rotacionar rótulos do eixo X
-    axs[2].tick_params(axis='y', rotation=0)   # Manter rótulos do eixo Y
+    axs[2].tick_params(axis='y', rotation=45)   # Manter rótulos do eixo Y
     axs[2].set_xlabel('Eixo X Kendall', labelpad=15)  # Aumentar espaçamento da legenda do eixo X
     axs[2].set_ylabel('Eixo Y Kendall', labelpad=15)  # Aumentar espaçamento da legenda do eixo Y
 
@@ -106,7 +106,7 @@ def grafico_interativo_plotly(similarity_df):
         xaxis_tickangle=-45,  # Rotacionar rótulos no eixo X para melhor legibilidade
         yaxis_tickangle=-45,    # Manter rótulos no eixo Y sem rotação
         margin=dict(l=150, r=150, b=150, t=150, pad=10),  # Aumentar margens para melhorar espaçamento
-        font=dict(size=12),  # Ajustar o tamanho da fonte
+        font=dict(size=10),  # Ajustar o tamanho da fonte
     )
     
     st.plotly_chart(fig)
