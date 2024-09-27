@@ -1,3 +1,4 @@
+
 # Importar as bibliotecas necessárias
 import pandas as pd
 import streamlit as st
@@ -105,6 +106,28 @@ def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico
     
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
 
+# Função para calcular a margem de erro
+def calcular_margem_erro(similarity_df, confidence=0.95):
+    """Calcula a margem de erro com base nas médias das similaridades."""
+    mean = similarity_df.mean()
+    std_err = similarity_df.sem()
+    margin_of_error = std_err * stats.t.ppf((1 + confidence) / 2., len(similarity_df) - 1)
+    return margin_of_error
+
+# Função para realizar ANOVA
+def calcular_anova(similarity_df):
+    """Realiza ANOVA para verificar se há diferenças significativas entre as médias das similaridades."""
+    fvalue, pvalue = stats.f_oneway(similarity_df['Dzubukuá - Arcaico'], 
+                                    similarity_df['Dzubukuá - Moderno'], 
+                                    similarity_df['Arcaico - Moderno'])
+    return fvalue, pvalue
+
+# Função para calcular Q-Exponencial
+def calcular_q_exponencial(similarity_df):
+    """Aplica o conceito de Q-exponencial para análise não-linear."""
+    q = 1.5  # Valor de ajuste da função Q
+    return np.exp(-q * similarity_df)
+
 # Função para salvar o dataframe como CSV para download
 def salvar_dataframe(similarity_df):
     """Permite o download do DataFrame em formato CSV."""
@@ -159,6 +182,7 @@ def main():
         st.write("Primeiras linhas do dataset:")
         st.dataframe(df.head())
 
+
         # Similaridade semântica usando Sentence-BERT
         sentences_dzubukua = df[df['Idioma'] == 'Dzubukuá']['Texto Original'].tolist()
         sentences_arcaico = df[df['Idioma'] == 'Português Arcaico']['Texto Original'].tolist()
@@ -175,15 +199,14 @@ def main():
         })
 
         # Correlações Avançadas
+        st.subheader("Correlação entre as Similaridades (Pearson, Spearman, Kendall)")
         pearson_corr, spearman_corr, kendall_corr = calcular_correlacoes_avancadas(similarity_df)
         grafico_matriz_correlacao(pearson_corr, spearman_corr, kendall_corr)
 
         # Regressão Linear
+        st.subheader("Análise de Regressão Linear entre as Similaridades")
         y_pred, r2 = regressao_linear(similarity_df)
         st.write(f"Coeficiente de Determinação (R²) da Regressão Linear: {r2:.2f}")
-
-        # Gráfico interativo da regressão linear
-        st.subheader("Gráfico Interativo da Regressão Linear")
         grafico_regressao_plotly(similarity_df, y_pred)
 
         # Gráfico interativo de correlações usando Plotly
@@ -199,6 +222,22 @@ def main():
         st.subheader("Pairplot para Visualizar Múltiplas Correlações")
         grafico_pairplot(similarity_df)
 
+        # Margem de Erro
+        st.subheader("Margem de Erro para as Estimativas de Similaridade")
+        margem_erro = calcular_margem_erro(similarity_df)
+        st.write(f"Margem de Erro: {margem_erro}")
+
+        # ANOVA (Análise de Variância)
+        st.subheader("Análise de Variância (ANOVA) entre as Similaridades")
+        fvalue, pvalue = calcular_anova(similarity_df)
+        st.write(f"F-value: {fvalue}, P-value: {pvalue}")
+
+        # Análise de Q-Exponencial
+        st.subheader("Análise de Padrões Não-Lineares usando Q-Exponencial")
+        q_exponencial_result = calcular_q_exponencial(similarity_df)
+        st.write("Resultados da análise Q-Exponencial:")
+        st.write(q_exponencial_result)
+
         # Perguntar se o usuário deseja baixar o CSV com os resultados
         if st.checkbox("Deseja baixar os resultados como CSV?"):
             salvar_dataframe(similarity_df)
@@ -207,5 +246,6 @@ def main():
         st.subheader("Dataset Completo")
         exibir_dataset(df)
 
+# Rodar a aplicação Streamlit
 if __name__ == '__main__':
     main()
