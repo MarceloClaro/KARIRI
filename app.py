@@ -1,3 +1,4 @@
+
 # Importar as bibliotecas necessárias
 import pandas as pd
 import streamlit as st
@@ -101,6 +102,18 @@ def grafico_pca(similarity_df, pca_result):
     plt.ylabel('Componente 2')
     st.pyplot(fig)
 
+# Função para gerar Pairplot (visualiza múltiplas correlações)
+def grafico_pairplot(similarity_df):
+    """Gera um Pairplot para visualizar múltiplas correlações. Apenas colunas numéricas serão usadas."""
+    # Verificar se há colunas numéricas no DataFrame
+    numeric_df = similarity_df.select_dtypes(include=['float64', 'int64'])
+    
+    if numeric_df.empty:
+        st.error("O Pairplot requer colunas numéricas. O DataFrame atual não contém colunas numéricas suficientes.")
+    else:
+        fig = sns.pairplot(numeric_df)
+        st.pyplot(fig)
+
 # Função para calcular as similaridades de cosseno
 def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico, sentences_moderno):
     """Calcula a similaridade semântica usando o modelo Sentence-BERT."""
@@ -159,6 +172,7 @@ def exibir_dataset(df):
     linhas_exibir = st.slider("Quantas linhas deseja exibir?", min_value=5, max_value=total_rows, value=10, step=5)
 
     # Exibir as primeiras linhas
+
     st.write(f"Exibindo as primeiras {linhas_exibir} de {total_rows} linhas:")
     st.dataframe(df.head(linhas_exibir))
 
@@ -178,7 +192,6 @@ def exibir_dataset(df):
 # Função principal para rodar a aplicação no Streamlit
 def main():
     """Função principal da aplicação no Streamlit."""
-
     # Título da aplicação
     st.title('Análises Estatísticas e Visualizações Avançadas para Dados Linguísticos')
 
@@ -189,7 +202,7 @@ def main():
     if uploaded_file is not None:
         # Carregar o arquivo CSV
         df = pd.read_csv(uploaded_file)
-        
+
         # Exibir dataset
         st.write("Primeiras linhas do dataset:")
         st.dataframe(df.head())
@@ -262,3 +275,4 @@ def main():
 # Rodar a aplicação Streamlit
 if __name__ == '__main__':
     main()
+
