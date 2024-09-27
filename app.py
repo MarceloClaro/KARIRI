@@ -1,4 +1,4 @@
-# Importar as bibliotecas necessárias
+# Importar as bibliotecas necessárias 
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
@@ -72,24 +72,24 @@ def grafico_matriz_correlacao(pearson_corr, spearman_corr, kendall_corr):
     axs[0].set_title('Correlação de Pearson', pad=20)  # Aumentar espaçamento do título
     axs[0].tick_params(axis='x', rotation=45)  # Rotacionar rótulos do eixo X
     axs[0].tick_params(axis='y', rotation=0)   # Manter rótulos do eixo Y
-    axs[0].set_xlabel('Eixo X Pearson', labelpad=15)  # Aumentar espaçamento da legenda do eixo X
-    axs[0].set_ylabel('Eixo Y Pearson', labelpad=15)  # Aumentar espaçamento da legenda do eixo Y
+    axs[0].set_xlabel('Variáveis', labelpad=15)  # Aumentar espaçamento da legenda do eixo X
+    axs[0].set_ylabel('Variáveis', labelpad=15)  # Aumentar espaçamento da legenda do eixo Y
 
     # Correlação de Spearman
     sns.heatmap(spearman_corr, annot=True, cmap='coolwarm', ax=axs[1])
     axs[1].set_title('Correlação de Spearman', pad=20)  # Aumentar espaçamento do título
     axs[1].tick_params(axis='x', rotation=45)  # Rotacionar rótulos do eixo X
     axs[1].tick_params(axis='y', rotation=0)   # Manter rótulos do eixo Y
-    axs[1].set_xlabel('Eixo X Spearman', labelpad=15)  # Aumentar espaçamento da legenda do eixo X
-    axs[1].set_ylabel('Eixo Y Spearman', labelpad=15)  # Aumentar espaçamento da legenda do eixo Y
+    axs[1].set_xlabel('Variáveis', labelpad=15)  # Aumentar espaçamento da legenda do eixo X
+    axs[1].set_ylabel('Variáveis', labelpad=15)  # Aumentar espaçamento da legenda do eixo Y
 
     # Correlação de Kendall
     sns.heatmap(kendall_corr, annot=True, cmap='coolwarm', ax=axs[2])
     axs[2].set_title('Correlação de Kendall', pad=20)  # Aumentar espaçamento do título
     axs[2].tick_params(axis='x', rotation=45)  # Rotacionar rótulos do eixo X
     axs[2].tick_params(axis='y', rotation=0)   # Manter rótulos do eixo Y
-    axs[2].set_xlabel('Eixo X Kendall', labelpad=15)  # Aumentar espaçamento da legenda do eixo X
-    axs[2].set_ylabel('Eixo Y Kendall', labelpad=15)  # Aumentar espaçamento da legenda do eixo Y
+    axs[2].set_xlabel('Variáveis', labelpad=15)  # Aumentar espaçamento da legenda do eixo X
+    axs[2].set_ylabel('Variáveis', labelpad=15)  # Aumentar espaçamento da legenda do eixo Y
 
     plt.tight_layout(pad=3.0)  # Aumentar espaçamento entre os subplots
     st.pyplot(fig)
@@ -126,12 +126,10 @@ def grafico_regressao_plotly(similarity_df, y_pred):
     st.plotly_chart(fig)
 
 # Função para calcular similaridade semântica usando Sentence-BERT
-
 def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico, sentences_moderno):
     """Calcula a similaridade semântica usando o modelo Sentence-BERT."""
     all_sentences = sentences_dzubukua + sentences_arcaico + sentences_moderno
-    # Definir explicitamente o parâmetro clean_up_tokenization_spaces
-    embeddings = model.encode(all_sentences, batch_size=32, clean_up_tokenization_spaces=True)
+    embeddings = model.encode(all_sentences, batch_size=32, normalize_embeddings=True)
 
     # Separar embeddings de cada conjunto de frases
     embeddings_dzubukua = embeddings[:len(sentences_dzubukua)]
@@ -145,16 +143,14 @@ def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico
 
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
 
-
 # Função para calcular similaridade de N-gramas
 def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentences_moderno, n=2):
     """Calcula a similaridade lexical usando N-gramas e Jaccard Similarity."""
-    from sklearn.metrics import jaccard_score
     from sklearn.feature_extraction.text import CountVectorizer
 
     # Função para gerar N-gramas binários
     def ngramas(sentences, n):
-        vectorizer = CountVectorizer(ngram_range=(n, n), binary=True, analyzer='word').fit(sentences)
+        vectorizer = CountVectorizer(ngram_range=(n, n), binary=True, analyzer='char_wb').fit(sentences)
         ngram_matrix = vectorizer.transform(sentences).toarray()
         return ngram_matrix
 
@@ -172,9 +168,10 @@ def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentenc
     ngramas_moderno = ngramas_moderno[:num_frases]
 
     # Certifique-se de que os vetores de N-gramas tenham o mesmo número de colunas (dimensão)
-    ngramas_dzubukua = ngramas_dzubukua[:, :min(ngramas_dzubukua.shape[1], ngramas_arcaico.shape[1], ngramas_moderno.shape[1])]
-    ngramas_arcaico = ngramas_arcaico[:, :ngramas_dzubukua.shape[1]]
-    ngramas_moderno = ngramas_moderno[:, :ngramas_dzubukua.shape[1]]
+    min_dim = min(ngramas_dzubukua.shape[1], ngramas_arcaico.shape[1], ngramas_moderno.shape[1])
+    ngramas_dzubukua = ngramas_dzubukua[:, :min_dim]
+    ngramas_arcaico = ngramas_arcaico[:, :min_dim]
+    ngramas_moderno = ngramas_moderno[:, :min_dim]
 
     # Calculando a similaridade de Jaccard entre os N-gramas
     similarity_arcaico_dzubukua = [
@@ -217,6 +214,37 @@ def calcular_similaridade_word2vec(sentences_dzubukua, sentences_arcaico, senten
 
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
 
+# Função para calcular similaridade fonológica
+def calcular_similaridade_fonologica(sentences_dzubukua, sentences_arcaico, sentences_moderno):
+    """Calcula a similaridade fonológica usando codificação fonética e distância de Levenshtein."""
+    import jellyfish
+
+    def average_levenshtein_similarity(s1_list, s2_list):
+        similarities = []
+        for s1, s2 in zip(s1_list, s2_list):
+            # Codificação fonética usando Double Metaphone
+            s1_phonetic = ''.join(jellyfish.metaphone(s1))
+            s2_phonetic = ''.join(jellyfish.metaphone(s2))
+            # Distância de Levenshtein
+            dist = jellyfish.levenshtein_distance(s1_phonetic, s2_phonetic)
+            # Normalizar a distância para obter a similaridade
+            max_len = max(len(s1_phonetic), len(s2_phonetic))
+            similarity = 1 - (dist / max_len) if max_len > 0 else 1
+            similarities.append(similarity)
+        return similarities
+
+    # Garantir que as listas tenham o mesmo comprimento
+    min_length = min(len(sentences_dzubukua), len(sentences_arcaico), len(sentences_moderno))
+    sentences_dzubukua = sentences_dzubukua[:min_length]
+    sentences_arcaico = sentences_arcaico[:min_length]
+    sentences_moderno = sentences_moderno[:min_length]
+
+    similarity_arcaico_dzubukua_phon = average_levenshtein_similarity(sentences_dzubukua, sentences_arcaico)
+    similarity_moderno_dzubukua_phon = average_levenshtein_similarity(sentences_dzubukua, sentences_moderno)
+    similarity_arcaico_moderno_phon = average_levenshtein_similarity(sentences_arcaico, sentences_moderno)
+
+    return similarity_arcaico_dzubukua_phon, similarity_moderno_dzubukua_phon, similarity_arcaico_moderno_phon
+
 # Função principal para rodar a aplicação no Streamlit
 def main():
     st.title('Análises Estatísticas e Visualizações Avançadas para Dados Linguísticos')
@@ -249,6 +277,10 @@ def main():
         similarity_arcaico_dzubukua_w2v, similarity_moderno_dzubukua_w2v, similarity_arcaico_moderno_w2v = calcular_similaridade_word2vec(
             sentences_dzubukua, sentences_arcaico, sentences_moderno)
 
+        # Similaridade Fonológica
+        similarity_arcaico_dzubukua_phon, similarity_moderno_dzubukua_phon, similarity_arcaico_moderno_phon = calcular_similaridade_fonologica(
+            sentences_dzubukua, sentences_arcaico, sentences_moderno)
+
         # Criando DataFrame com as similaridades calculadas
         similarity_df = pd.DataFrame({
             'Dzubukuá - Arcaico (Semântica)': similarity_arcaico_dzubukua_sem,
@@ -259,7 +291,10 @@ def main():
             'Arcaico - Moderno (N-gramas)': similarity_arcaico_moderno_ng,
             'Dzubukuá - Arcaico (Word2Vec)': similarity_arcaico_dzubukua_w2v,
             'Dzubukuá - Moderno (Word2Vec)': similarity_moderno_dzubukua_w2v,
-            'Arcaico - Moderno (Word2Vec)': similarity_arcaico_moderno_w2v
+            'Arcaico - Moderno (Word2Vec)': similarity_arcaico_moderno_w2v,
+            'Dzubukuá - Arcaico (Fonológica)': similarity_arcaico_dzubukua_phon,
+            'Dzubukuá - Moderno (Fonológica)': similarity_moderno_dzubukua_phon,
+            'Arcaico - Moderno (Fonológica)': similarity_arcaico_moderno_phon
         })
 
         # Exibir o DataFrame das similaridades
@@ -281,6 +316,31 @@ def main():
         pca_result = aplicar_pca(similarity_df)
         grafico_pca(similarity_df, pca_result)
 
+        # Mapas de Correlações nas Áreas Lexical, Semântica e Fonológica
+        st.subheader("Mapas de Correlações nas Áreas Lexical, Semântica e Fonológica")
+
+        # Correlações Semânticas
+        st.markdown("### Correlações Semânticas")
+        semantic_columns = ['Dzubukuá - Arcaico (Semântica)', 'Dzubukuá - Moderno (Semântica)', 'Arcaico - Moderno (Semântica)']
+        semantic_df = similarity_df[semantic_columns]
+        pearson_corr_sem, spearman_corr_sem, kendall_corr_sem = calcular_correlacoes_avancadas(semantic_df)
+        grafico_matriz_correlacao(pearson_corr_sem, spearman_corr_sem, kendall_corr_sem)
+
+        # Correlações Lexicais
+        st.markdown("### Correlações Lexicais")
+        lexical_columns = ['Dzubukuá - Arcaico (N-gramas)', 'Dzubukuá - Moderno (N-gramas)', 'Arcaico - Moderno (N-gramas)',
+                           'Dzubukuá - Arcaico (Word2Vec)', 'Dzubukuá - Moderno (Word2Vec)', 'Arcaico - Moderno (Word2Vec)']
+        lexical_df = similarity_df[lexical_columns]
+        pearson_corr_lex, spearman_corr_lex, kendall_corr_lex = calcular_correlacoes_avancadas(lexical_df)
+        grafico_matriz_correlacao(pearson_corr_lex, spearman_corr_lex, kendall_corr_lex)
+
+        # Correlações Fonológicas
+        st.markdown("### Correlações Fonológicas")
+        phonological_columns = ['Dzubukuá - Arcaico (Fonológica)', 'Dzubukuá - Moderno (Fonológica)', 'Arcaico - Moderno (Fonológica)']
+        phonological_df = similarity_df[phonological_columns]
+        pearson_corr_phon, spearman_corr_phon, kendall_corr_phon = calcular_correlacoes_avancadas(phonological_df)
+        grafico_matriz_correlacao(pearson_corr_phon, spearman_corr_phon, kendall_corr_phon)
+
         # Perguntar se o usuário deseja baixar os resultados como CSV
         if st.checkbox("Deseja baixar os resultados como CSV?"):
             salvar_dataframe(similarity_df)
@@ -292,7 +352,7 @@ def salvar_dataframe(similarity_df):
     st.download_button(
         label="Baixar Similaridades em CSV",
         data=csv,
-        file_name='similaridades_semanticas_lexicais.csv',
+        file_name='similaridades_semanticas_lexicais_fonologicas.csv',
         mime='text/csv',
     )
 
