@@ -176,10 +176,10 @@ def main():
     if uploaded_file is not None:
         # Carregar o arquivo CSV
         df = pd.read_csv(uploaded_file)
-        
-        # Exibir dataset
+
+        # Exibir dataset com opção de controle de linhas
         st.write("Primeiras linhas do dataset:")
-        st.dataframe(df.head())
+        exibir_dataset(df)
 
 
         # Similaridade semântica usando Sentence-BERT
