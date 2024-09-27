@@ -106,7 +106,7 @@ def grafico_interativo_plotly(similarity_df):
         xaxis_tickangle=-45,  # Rotacionar rótulos no eixo X para melhor legibilidade
         yaxis_tickangle=45,   # Rotacionar rótulos no eixo Y para melhor legibilidade
         margin=dict(l=100, r=100, b=150, t=150, pad=10),  # Aumentar margens para melhorar espaçamento
-        font=dict(size=12),  # Ajustar o tamanho da fonte
+        font=dict(size=8),  # Ajustar o tamanho da fonte
     )
     
     st.plotly_chart(fig)
