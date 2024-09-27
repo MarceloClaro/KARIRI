@@ -126,10 +126,11 @@ def grafico_regressao_plotly(similarity_df, y_pred):
     st.plotly_chart(fig)
 
 # Função para calcular similaridade semântica usando Sentence-BERT
+
 def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico, sentences_moderno):
     """Calcula a similaridade semântica usando o modelo Sentence-BERT."""
     all_sentences = sentences_dzubukua + sentences_arcaico + sentences_moderno
-    # Ajustar explicitamente o parâmetro clean_up_tokenization_spaces
+    # Definir explicitamente o parâmetro clean_up_tokenization_spaces
     embeddings = model.encode(all_sentences, batch_size=32, clean_up_tokenization_spaces=True)
 
     # Separar embeddings de cada conjunto de frases
@@ -143,6 +144,7 @@ def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico
     similarity_arcaico_moderno = cosine_similarity(embeddings_arcaico, embeddings_moderno).diagonal()
 
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
+
 
 # Função para calcular similaridade de N-gramas
 def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentences_moderno, n=2):
