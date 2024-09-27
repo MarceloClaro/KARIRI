@@ -156,6 +156,7 @@ def calcular_similaridade_word2vec(sentences_dzubukua, sentences_arcaico, senten
     similarity_moderno_dzubukua = cosine_similarity(vectors_dzubukua, vectors_moderno).diagonal()
     similarity_arcaico_moderno = cosine_similarity(vectors_arcaico, vectors_moderno).diagonal()
 
+
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
 
 # Função principal para rodar a aplicação no Streamlit
@@ -165,7 +166,6 @@ def main():
     # Upload do arquivo CSV
     uploaded_file = st.file_uploader("Faça o upload do arquivo CSV", type="csv")
 
-    # Se o arquivo foi carregado
     if uploaded_file is not None:
         df = pd.read_csv(uploaded_file)
 
@@ -242,4 +242,3 @@ def salvar_dataframe(similarity_df):
 # Rodar a aplicação Streamlit
 if __name__ == '__main__':
     main()
-
