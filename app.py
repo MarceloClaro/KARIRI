@@ -129,7 +129,8 @@ def grafico_regressao_plotly(similarity_df, y_pred):
 def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico, sentences_moderno):
     """Calcula a similaridade semântica usando o modelo Sentence-BERT."""
     all_sentences = sentences_dzubukua + sentences_arcaico + sentences_moderno
-    embeddings = model.encode(all_sentences, batch_size=32)
+    # Ajustar explicitamente o parâmetro clean_up_tokenization_spaces
+    embeddings = model.encode(all_sentences, batch_size=32, clean_up_tokenization_spaces=True)
 
     # Separar embeddings de cada conjunto de frases
     embeddings_dzubukua = embeddings[:len(sentences_dzubukua)]
