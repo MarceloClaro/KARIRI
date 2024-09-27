@@ -101,15 +101,30 @@ def grafico_interativo_plotly(similarity_df):
     
     # Ajustando o layout para melhorar a visualização e espaçamento
     fig.update_layout(
-        height=800,  # Altura maior para evitar compressão
-        width=800,   # Largura maior
+        height=900,  # Altura maior para evitar compressão
+        width=900,   # Largura maior
         xaxis_tickangle=-45,  # Rotacionar rótulos no eixo X
         yaxis_tickangle=0,    # Manter rótulos no eixo Y sem rotação
-        margin=dict(l=100, r=100, b=150, t=150, pad=10),  # Aumentar margens para melhorar espaçamento
-        font=dict(size=12),  # Ajustar o tamanho da fonte
+        margin=dict(l=200, r=200, b=300, t=300, pad=20),  # Aumentar margens para melhorar espaçamento
+        font=dict(size=8),  # Ajustar o tamanho da fonte
     )
     
     st.plotly_chart(fig)
+
+# Função para gerar gráficos de dispersão interativos com Plotly
+def grafico_regressao_plotly(similarity_df, y_pred):
+    """Gera gráfico interativo com a linha de regressão."""
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=similarity_df['Dzubukuá - Arcaico (Semântica)'], 
+                             y=similarity_df['Dzubukuá - Moderno (Semântica)'], 
+                             mode='markers', name='Dados'))
+    fig.add_trace(go.Scatter(x=similarity_df['Dzubukuá - Arcaico (Semântica)'], 
+                             y=y_pred, mode='lines', name='Regressão Linear'))
+    fig.update_layout(title="Regressão Linear - Dzubukuá vs. Moderno (Semântica)",
+                      xaxis_title="Similaridade Dzubukuá - Arcaico (Semântica)",
+                      yaxis_title="Similaridade Dzubukuá - Moderno (Semântica)")
+    st.plotly_chart(fig)
+
 
 # Função para calcular similaridade semântica usando Sentence-BERT
 def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico, sentences_moderno):
@@ -117,14 +132,16 @@ def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico
     all_sentences = sentences_dzubukua + sentences_arcaico + sentences_moderno
     embeddings = model.encode(all_sentences, batch_size=32)
 
+    # Separar embeddings de cada conjunto de frases
     embeddings_dzubukua = embeddings[:len(sentences_dzubukua)]
     embeddings_arcaico = embeddings[len(sentences_dzubukua):len(sentences_dzubukua) + len(sentences_arcaico)]
     embeddings_moderno = embeddings[len(sentences_dzubukua) + len(sentences_arcaico):]
 
+    # Calculando a similaridade de cosseno entre os embeddings
     similarity_arcaico_dzubukua = cosine_similarity(embeddings_dzubukua, embeddings_arcaico).diagonal()
     similarity_moderno_dzubukua = cosine_similarity(embeddings_dzubukua, embeddings_moderno).diagonal()
     similarity_arcaico_moderno = cosine_similarity(embeddings_arcaico, embeddings_moderno).diagonal()
-    
+
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
 
 # Função para calcular similaridade de N-gramas
@@ -247,6 +264,7 @@ def main():
         st.subheader("Correlação entre as Similaridades (Pearson, Spearman, Kendall)")
         pearson_corr, spearman_corr, kendall_corr = calcular_correlacoes_avancadas(similarity_df)
         grafico_matriz_correlacao(pearson_corr, spearman_corr, kendall_corr)
+
 
         # Regressão Linear entre Dzubukuá e Moderno
         st.subheader("Análise de Regressão Linear entre Dzubukuá e Português Moderno")
