@@ -47,11 +47,11 @@ def grafico_pca(similarity_df, pca_result):
     ax.scatter(pca_result[:, 0], pca_result[:, 1], c='blue', edgecolor='k', s=100)  # Tamanho dos pontos aumentado
 
     # Título claro e informativo
-    ax.set_title('Distribuição das Similaridades', fontsize=14, pad=20)
+    ax.set_title('Distribuição das Similaridades', fontsize=14, pad=10)
 
     # Legendas mais compreensíveis
-    ax.set_xlabel('Primeiro Padrão Principal', fontsize=12, labelpad=15)  # Eixo X
-    ax.set_ylabel('Segundo Padrão Principal', fontsize=12, labelpad=15)   # Eixo Y
+    ax.set_xlabel('Primeiro Padrão Principal', fontsize=10, labelpad=15)  # Eixo X
+    ax.set_ylabel('Segundo Padrão Principal', fontsize=10, labelpad=15)   # Eixo Y
 
     # Adicionar grades leves para melhor visualização
     ax.grid(True, which='both', linestyle='--', linewidth=0.5)
@@ -85,11 +85,11 @@ def grafico_matriz_correlacao(pearson_corr, spearman_corr, kendall_corr):
 
     # Correlação de Kendall
     sns.heatmap(kendall_corr, annot=True, cmap='coolwarm', ax=axs[2])
-    axs[2].set_title('Correlação de Kendall', pad=20)  # Aumentar espaçamento do título
+    axs[2].set_title('Correlação de Kendall', pad=10)  # Aumentar espaçamento do título
     axs[2].tick_params(axis='x', rotation=45)  # Rotacionar rótulos do eixo X
     axs[2].tick_params(axis='y', rotation=45)   # Manter rótulos do eixo Y
-    axs[2].set_xlabel('Eixo X Kendall', labelpad=15)  # Aumentar espaçamento da legenda do eixo X
-    axs[2].set_ylabel('Eixo Y Kendall', labelpad=15)  # Aumentar espaçamento da legenda do eixo Y
+    axs[2].set_xlabel('Eixo X Kendall', labelpad=5)  # Aumentar espaçamento da legenda do eixo X
+    axs[2].set_ylabel('Eixo Y Kendall', labelpad=5)  # Aumentar espaçamento da legenda do eixo Y
 
     plt.tight_layout(pad=3.0)  # Aumentar espaçamento entre os subplots
     st.pyplot(fig)
