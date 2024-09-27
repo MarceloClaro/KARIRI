@@ -10,3 +10,8 @@ scipy
 numpy
 jellyfish
 gensim
+spacy 
+networkx 
+ete3 
+statsmodels 
+Levenshtein
