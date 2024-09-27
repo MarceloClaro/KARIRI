@@ -66,13 +66,16 @@ def grafico_pca(similarity_df, pca_result, explained_variance):
 # Função para gerar dendrograma (Análise de Agrupamento Hierárquico)
 def grafico_dendrograma(similarity_df):
     """Gera um dendrograma para visualizar relações hierárquicas entre as variáveis."""
+    from scipy.cluster.hierarchy import linkage
+
     linked = linkage(similarity_df.T, 'single', metric='euclidean')
     labelList = similarity_df.columns
-    fig, ax = plt.subplots(figsize=(10, 7))
+    fig, ax = plt.subplots(figsize=(12, 8))  # Aumentei o tamanho da figura
     dendrogram(linked, labels=labelList, ax=ax, orientation='top')
     ax.set_title('Dendrograma das Similaridades', fontsize=16, pad=20)
     ax.set_xlabel('Variáveis', fontsize=14, labelpad=15)
     ax.set_ylabel('Distância Euclidiana', fontsize=14, labelpad=15)
+    plt.setp(ax.get_xticklabels(), rotation=45, ha='right')  # Rotaciona os rótulos do eixo X
     plt.tight_layout(pad=3.0)
     st.pyplot(fig)
 
@@ -112,12 +115,14 @@ def grafico_matriz_correlacao(pearson_corr, spearman_corr, kendall_corr):
 def grafico_interativo_plotly(similarity_df):
     """Gera gráficos interativos com Plotly."""
     fig = px.scatter_matrix(similarity_df, dimensions=similarity_df.columns, title="Correlação entre Similaridades")
+
+    # Ajuste dos rótulos dos eixos
     fig.update_layout(
         height=800,
         width=800,
-        xaxis_tickangle=-45,
-        yaxis_tickangle=45,
-        margin=dict(l=50, r=50, b=100, t=100, pad=10),
+        xaxis=dict(tickangle=45),
+        yaxis=dict(tickangle=0),
+        margin=dict(l=50, r=50, b=150, t=100, pad=10),
         font=dict(size=12),
     )
     st.plotly_chart(fig)
@@ -134,7 +139,9 @@ def grafico_regressao_plotly(similarity_df, y_pred, r2, p_value):
     fig.update_layout(
         title=f"Regressão Linear - R²: {r2:.2f}, p-value: {p_value:.4f}",
         xaxis_title="Similaridade Dzubukuá - Arcaico (Semântica)",
-        yaxis_title="Similaridade Dzubukuá - Moderno (Semântica)"
+        yaxis_title="Similaridade Dzubukuá - Moderno (Semântica)",
+        xaxis=dict(title_font=dict(size=14), tickangle=-45),  # Rotaciona os rótulos do eixo X
+        yaxis=dict(title_font=dict(size=14)),
     )
     st.plotly_chart(fig)
 
@@ -188,7 +195,9 @@ def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentenc
 
     # Calculando o Coeficiente de Sorensen-Dice entre os N-gramas
     def sorensen_dice(a, b):
-        return 2 * np.sum(a & b) / (np.sum(a) + np.sum(b))
+        intersection = np.sum(np.minimum(a, b))
+        total = np.sum(a) + np.sum(b)
+        return 2 * intersection / total if total > 0 else 0
 
     similarity_arcaico_dzubukua = [
         sorensen_dice(ngramas_dzubukua[i], ngramas_arcaico[i]) 
@@ -381,9 +390,6 @@ def salvar_dataframe(similarity_df):
         file_name='similaridades_linguisticas.csv',
         mime='text/csv',
     )
-
-# Importações adicionais necessárias
-from scipy.cluster.hierarchy import linkage
 
 # Função principal para rodar a aplicação no Streamlit
 if __name__ == '__main__':
