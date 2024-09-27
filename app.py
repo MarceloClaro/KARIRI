@@ -94,23 +94,6 @@ def grafico_matriz_correlacao(pearson_corr, spearman_corr, kendall_corr):
     plt.tight_layout(pad=3.0)  # Aumentar espaçamento entre os subplots
     st.pyplot(fig)
 
-# Função para gerar gráficos interativos com Plotly ajustado para clareza
-def grafico_interativo_plotly(similarity_df):
-    """Gera gráficos interativos com Plotly, ajustando a rotação dos rótulos e espaçamento."""
-    fig = px.scatter_matrix(similarity_df, dimensions=similarity_df.columns, title="Correlação entre Similaridades")
-
-    # Ajustando o layout para melhorar a visualização e espaçamento
-    fig.update_layout(
-        height=1000,  # Aumentando a altura do gráfico para evitar sobreposição
-        width=1000,   # Aumentando a largura do gráfico
-        xaxis_tickangle=-45,  # Rotacionar rótulos no eixo X para melhor legibilidade
-        yaxis_tickangle=45,   # Rotacionar rótulos no eixo Y para melhor legibilidade
-        margin=dict(l=100, r=100, b=150, t=150, pad=10),  # Aumentar margens para melhorar espaçamento
-        font=dict(size=12),  # Ajustar o tamanho da fonte
-    )
-    
-    st.plotly_chart(fig)
-
 # Função para gerar gráficos de dispersão interativos com Plotly
 def grafico_regressao_plotly(similarity_df, y_pred):
     """Gera gráfico interativo com a linha de regressão."""
@@ -126,25 +109,20 @@ def grafico_regressao_plotly(similarity_df, y_pred):
     st.plotly_chart(fig)
 
 # Função para calcular similaridade semântica usando Sentence-BERT
-
 def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico, sentences_moderno):
     """Calcula a similaridade semântica usando o modelo Sentence-BERT."""
     all_sentences = sentences_dzubukua + sentences_arcaico + sentences_moderno
-    # Definir explicitamente o parâmetro clean_up_tokenization_spaces
     embeddings = model.encode(all_sentences, batch_size=32, clean_up_tokenization_spaces=True)
 
-    # Separar embeddings de cada conjunto de frases
     embeddings_dzubukua = embeddings[:len(sentences_dzubukua)]
     embeddings_arcaico = embeddings[len(sentences_dzubukua):len(sentences_dzubukua) + len(sentences_arcaico)]
     embeddings_moderno = embeddings[len(sentences_dzubukua) + len(sentences_arcaico):]
 
-    # Calculando a similaridade de cosseno entre os embeddings
     similarity_arcaico_dzubukua = cosine_similarity(embeddings_dzubukua, embeddings_arcaico).diagonal()
     similarity_moderno_dzubukua = cosine_similarity(embeddings_dzubukua, embeddings_moderno).diagonal()
     similarity_arcaico_moderno = cosine_similarity(embeddings_arcaico, embeddings_moderno).diagonal()
 
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
-
 
 # Função para calcular similaridade de N-gramas
 def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentences_moderno, n=2):
@@ -152,13 +130,11 @@ def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentenc
     from sklearn.metrics import jaccard_score
     from sklearn.feature_extraction.text import CountVectorizer
 
-    # Função para gerar N-gramas binários
     def ngramas(sentences, n):
         vectorizer = CountVectorizer(ngram_range=(n, n), binary=True, analyzer='word').fit(sentences)
         ngram_matrix = vectorizer.transform(sentences).toarray()
         return ngram_matrix
 
-    # Gerar N-gramas para cada conjunto de frases
     ngramas_dzubukua = ngramas(sentences_dzubukua, n)
     ngramas_arcaico = ngramas(sentences_arcaico, n)
     ngramas_moderno = ngramas(sentences_moderno, n)
@@ -217,6 +193,31 @@ def calcular_similaridade_word2vec(sentences_dzubukua, sentences_arcaico, senten
 
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
 
+# Função para gerar os gráficos de correlação semântica e lexical
+def gerar_graficos_correlacao_semantica_lexical(similarity_df):
+    """Gera gráficos individuais de correlação semântica e lexical, incluindo uma matriz de convolução."""
+
+    # Gráfico de correlação semântica
+    st.subheader("Correlação Semântica")
+    fig_sem, ax_sem = plt.subplots(figsize=(10, 6))
+    sns.heatmap(similarity_df[['Dzubukuá - Arcaico (Semântica)', 'Dzubukuá - Moderno (Semântica)', 'Arcaico - Moderno (Semântica)']].corr(), annot=True, cmap='coolwarm', ax=ax_sem)
+    ax_sem.set_title('Matriz de Correlação Semântica', pad=20)
+    st.pyplot(fig_sem)
+
+    # Gráfico de correlação lexical (N-gramas)
+    st.subheader("Correlação Lexical (N-gramas)")
+    fig_lex_ng, ax_lex_ng = plt.subplots(figsize=(10, 6))
+    sns.heatmap(similarity_df[['Dzubukuá - Arcaico (N-gramas)', 'Dzubukuá - Moderno (N-gramas)', 'Arcaico - Moderno (N-gramas)']].corr(), annot=True, cmap='coolwarm', ax=ax_lex_ng)
+    ax_lex_ng.set_title('Matriz de Correlação Lexical (N-gramas)', pad=20)
+    st.pyplot(fig_lex_ng)
+
+    # Gráfico de correlação lexical (Word2Vec)
+    st.subheader("Correlação Lexical (Word2Vec)")
+    fig_lex_w2v, ax_lex_w2v = plt.subplots(figsize=(10, 6))
+    sns.heatmap(similarity_df[['Dzubukuá - Arcaico (Word2Vec)', 'Dzubukuá - Moderno (Word2Vec)', 'Arcaico - Moderno (Word2Vec)']].corr(), annot=True, cmap='coolwarm', ax=ax_lex_w2v)
+    ax_lex_w2v.set_title('Matriz de Correlação Lexical (Word2Vec)', pad=20)
+    st.pyplot(fig_lex_w2v)
+
 # Função principal para rodar a aplicação no Streamlit
 def main():
     st.title('Análises Estatísticas e Visualizações Avançadas para Dados Linguísticos')
@@ -273,6 +274,8 @@ def main():
         # Regressão Linear entre Dzubukuá e Moderno
         st.subheader("Análise de Regressão Linear entre Dzubukuá e Português Moderno")
         y_pred, r2 = regressao_linear(similarity_df)
+    
+        # Exibir o coeficiente de determinação da regressão linear
         st.write(f"Coeficiente de Determinação (R²) da Regressão Linear: {r2:.2f}")
         grafico_regressao_plotly(similarity_df, y_pred)
 
@@ -280,6 +283,10 @@ def main():
         st.subheader("Análise de Componentes Principais (PCA)")
         pca_result = aplicar_pca(similarity_df)
         grafico_pca(similarity_df, pca_result)
+
+        # Gerar gráficos individuais para correlações semânticas e lexicais
+        st.subheader("Gráficos de Correlações Semânticas e Lexicais")
+        gerar_graficos_correlacao_semantica_lexical(similarity_df)
 
         # Perguntar se o usuário deseja baixar os resultados como CSV
         if st.checkbox("Deseja baixar os resultados como CSV?"):
@@ -296,6 +303,7 @@ def salvar_dataframe(similarity_df):
         mime='text/csv',
     )
 
-# Função principal para rodar a aplicação no Streamlit
+# Rodar a aplicação Streamlit
 if __name__ == '__main__':
     main()
+        
