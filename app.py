@@ -6,123 +6,136 @@ import seaborn as sns
 import plotly.express as px
 import plotly.graph_objects as go
 from sklearn.metrics.pairwise import cosine_similarity
-from sentence_transformers import SentenceTransformer
-from scipy import stats
 from sklearn.decomposition import PCA
 import numpy as np
 from gensim.models import Word2Vec
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import jaccard_score
+import scipy.stats as stats
+from sklearn.cluster import AgglomerativeClustering
+from scipy.cluster.hierarchy import dendrogram
+import jellyfish
 
 # Função para calcular correlações de Pearson, Spearman e Kendall
 def calcular_correlacoes_avancadas(similarity_df):
-    """Calcula as correlações de Pearson, Spearman e Kendall."""
+    """Calcula as correlações de Pearson, Spearman e Kendall entre as variáveis de similaridade."""
     pearson_corr = similarity_df.corr(method='pearson')
     spearman_corr = similarity_df.corr(method='spearman')
     kendall_corr = similarity_df.corr(method='kendall')
     return pearson_corr, spearman_corr, kendall_corr
 
-# Função para realizar regressão linear
+# Função para realizar regressão linear com teste de significância
 def regressao_linear(similarity_df):
-    """Aplica regressão linear entre as variáveis de similaridade."""
+    """Aplica regressão linear entre as variáveis de similaridade e realiza testes de significância estatística."""
     X = similarity_df['Dzubukuá - Arcaico (Semântica)'].values.reshape(-1, 1)
     y = similarity_df['Dzubukuá - Moderno (Semântica)'].values
     reg = LinearRegression().fit(X, y)
     y_pred = reg.predict(X)
     r2 = reg.score(X, y)
-    return y_pred, r2
+
+    # Teste de significância estatística
+    n = len(X)
+    p = 1  # Número de preditores
+    dof = n - p - 1  # Graus de liberdade
+    t_stat = reg.coef_ / (np.sqrt((1 - r2) / dof))
+    p_value = 2 * (1 - stats.t.cdf(abs(t_stat), dof))
+
+    return y_pred, r2, p_value[0]
 
 # Função para aplicar PCA (Análise de Componentes Principais)
 def aplicar_pca(similarity_df):
     """Reduz a dimensionalidade usando PCA para entender os padrões nas similaridades."""
     pca = PCA(n_components=2)
     pca_result = pca.fit_transform(similarity_df)
-    return pca_result
+    explained_variance = pca.explained_variance_ratio_
+    return pca_result, explained_variance
 
-# Função para gerar o gráfico de PCA com títulos e legendas claros
-def grafico_pca(similarity_df, pca_result):
-    """Plota os resultados da Análise de Componentes Principais (PCA) com legendas simplificadas."""
-    fig, ax = plt.subplots(figsize=(10, 6))  # Ajuste do tamanho do gráfico para melhorar a visualização
-    ax.scatter(pca_result[:, 0], pca_result[:, 1], c='blue', edgecolor='k', s=100)  # Tamanho dos pontos aumentado
-
-    # Título claro e informativo
-    ax.set_title('Distribuição das Similaridades', fontsize=16, pad=20)
-
-    # Legendas mais compreensíveis
-    ax.set_xlabel('Primeiro Padrão Principal', fontsize=14, labelpad=15)  # Eixo X
-    ax.set_ylabel('Segundo Padrão Principal', fontsize=14, labelpad=15)   # Eixo Y
-
-    # Adicionar grades leves para melhor visualização
+# Função para gerar o gráfico de PCA
+def grafico_pca(similarity_df, pca_result, explained_variance):
+    """Plota os resultados da Análise de Componentes Principais (PCA)."""
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.scatter(pca_result[:, 0], pca_result[:, 1], c='blue', edgecolor='k', s=100)
+    ax.set_title('Análise de Componentes Principais (PCA)', fontsize=16, pad=20)
+    ax.set_xlabel(f'Componente Principal 1 ({explained_variance[0]*100:.2f}% da variância)', fontsize=14, labelpad=15)
+    ax.set_ylabel(f'Componente Principal 2 ({explained_variance[1]*100:.2f}% da variância)', fontsize=14, labelpad=15)
     ax.grid(True, which='both', linestyle='--', linewidth=0.5)
-
-    # Ajustar espaçamento para as margens e elementos do gráfico
     plt.tight_layout(pad=3.0)
+    st.pyplot(fig)
 
-    # Exibir gráfico no Streamlit
+# Função para gerar dendrograma (Análise de Agrupamento Hierárquico)
+def grafico_dendrograma(similarity_df):
+    """Gera um dendrograma para visualizar relações hierárquicas entre as variáveis."""
+    linked = linkage(similarity_df.T, 'single', metric='euclidean')
+    labelList = similarity_df.columns
+    fig, ax = plt.subplots(figsize=(10, 7))
+    dendrogram(linked, labels=labelList, ax=ax, orientation='top')
+    ax.set_title('Dendrograma das Similaridades', fontsize=16, pad=20)
+    ax.set_xlabel('Variáveis', fontsize=14, labelpad=15)
+    ax.set_ylabel('Distância Euclidiana', fontsize=14, labelpad=15)
+    plt.tight_layout(pad=3.0)
     st.pyplot(fig)
 
 # Função para gerar gráficos de correlações
 def grafico_matriz_correlacao(pearson_corr, spearman_corr, kendall_corr):
-    """Gera gráficos para as correlações Pearson, Spearman e Kendall, ajustando os rótulos e espaçamento."""
-    fig, axs = plt.subplots(1, 3, figsize=(18, 6))  # Aumentar o tamanho do gráfico
+    """Gera gráficos para as correlações Pearson, Spearman e Kendall."""
+    fig, axs = plt.subplots(1, 3, figsize=(24, 6))
 
     # Correlação de Pearson
     sns.heatmap(pearson_corr, annot=True, cmap='coolwarm', ax=axs[0])
-    axs[0].set_title('Correlação de Pearson', pad=20)  # Aumentar espaçamento do título
-    axs[0].tick_params(axis='x', rotation=45)  # Rotacionar rótulos do eixo X
-    axs[0].tick_params(axis='y', rotation=0)   # Manter rótulos do eixo Y
-    axs[0].set_xlabel('Variáveis', labelpad=15)  # Aumentar espaçamento da legenda do eixo X
-    axs[0].set_ylabel('Variáveis', labelpad=15)  # Aumentar espaçamento da legenda do eixo Y
+    axs[0].set_title('Correlação de Pearson', pad=20)
+    axs[0].tick_params(axis='x', rotation=45)
+    axs[0].tick_params(axis='y', rotation=0)
+    axs[0].set_xlabel('Variáveis', labelpad=15)
+    axs[0].set_ylabel('Variáveis', labelpad=15)
 
     # Correlação de Spearman
     sns.heatmap(spearman_corr, annot=True, cmap='coolwarm', ax=axs[1])
-    axs[1].set_title('Correlação de Spearman', pad=20)  # Aumentar espaçamento do título
-    axs[1].tick_params(axis='x', rotation=45)  # Rotacionar rótulos do eixo X
-    axs[1].tick_params(axis='y', rotation=0)   # Manter rótulos do eixo Y
-    axs[1].set_xlabel('Variáveis', labelpad=15)  # Aumentar espaçamento da legenda do eixo X
-    axs[1].set_ylabel('Variáveis', labelpad=15)  # Aumentar espaçamento da legenda do eixo Y
+    axs[1].set_title('Correlação de Spearman', pad=20)
+    axs[1].tick_params(axis='x', rotation=45)
+    axs[1].tick_params(axis='y', rotation=0)
+    axs[1].set_xlabel('Variáveis', labelpad=15)
+    axs[1].set_ylabel('Variáveis', labelpad=15)
 
     # Correlação de Kendall
     sns.heatmap(kendall_corr, annot=True, cmap='coolwarm', ax=axs[2])
-    axs[2].set_title('Correlação de Kendall', pad=20)  # Aumentar espaçamento do título
-    axs[2].tick_params(axis='x', rotation=45)  # Rotacionar rótulos do eixo X
-    axs[2].tick_params(axis='y', rotation=0)   # Manter rótulos do eixo Y
-    axs[2].set_xlabel('Variáveis', labelpad=15)  # Aumentar espaçamento da legenda do eixo X
-    axs[2].set_ylabel('Variáveis', labelpad=15)  # Aumentar espaçamento da legenda do eixo Y
+    axs[2].set_title('Correlação de Kendall', pad=20)
+    axs[2].tick_params(axis='x', rotation=45)
+    axs[2].tick_params(axis='y', rotation=0)
+    axs[2].set_xlabel('Variáveis', labelpad=15)
+    axs[2].set_ylabel('Variáveis', labelpad=15)
 
-    plt.tight_layout(pad=3.0)  # Aumentar espaçamento entre os subplots
+    plt.tight_layout(pad=3.0)
     st.pyplot(fig)
 
-# Função para gerar gráficos interativos com Plotly ajustado para clareza
+# Função para gerar gráficos interativos com Plotly
 def grafico_interativo_plotly(similarity_df):
-    """Gera gráficos interativos com Plotly, ajustando a rotação dos rótulos e espaçamento."""
+    """Gera gráficos interativos com Plotly."""
     fig = px.scatter_matrix(similarity_df, dimensions=similarity_df.columns, title="Correlação entre Similaridades")
-
-    # Ajustando o layout para melhorar a visualização e espaçamento
     fig.update_layout(
-        height=1000,  # Aumentando a altura do gráfico para evitar sobreposição
-        width=1000,   # Aumentando a largura do gráfico
-        xaxis_tickangle=-45,  # Rotacionar rótulos no eixo X para melhor legibilidade
-        yaxis_tickangle=45,   # Rotacionar rótulos no eixo Y para melhor legibilidade
-        margin=dict(l=100, r=100, b=150, t=150, pad=10),  # Aumentar margens para melhorar espaçamento
-        font=dict(size=12),  # Ajustar o tamanho da fonte
+        height=800,
+        width=800,
+        xaxis_tickangle=-45,
+        yaxis_tickangle=45,
+        margin=dict(l=50, r=50, b=100, t=100, pad=10),
+        font=dict(size=12),
     )
-    
     st.plotly_chart(fig)
 
 # Função para gerar gráficos de dispersão interativos com Plotly
-def grafico_regressao_plotly(similarity_df, y_pred):
-    """Gera gráfico interativo com a linha de regressão."""
+def grafico_regressao_plotly(similarity_df, y_pred, r2, p_value):
+    """Gera gráfico interativo com a linha de regressão e informações estatísticas."""
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=similarity_df['Dzubukuá - Arcaico (Semântica)'], 
                              y=similarity_df['Dzubukuá - Moderno (Semântica)'], 
                              mode='markers', name='Dados'))
     fig.add_trace(go.Scatter(x=similarity_df['Dzubukuá - Arcaico (Semântica)'], 
                              y=y_pred, mode='lines', name='Regressão Linear'))
-    fig.update_layout(title="Regressão Linear - Dzubukuá vs. Moderno (Semântica)",
-                      xaxis_title="Similaridade Dzubukuá - Arcaico (Semântica)",
-                      yaxis_title="Similaridade Dzubukuá - Moderno (Semântica)")
+    fig.update_layout(
+        title=f"Regressão Linear - R²: {r2:.2f}, p-value: {p_value:.4f}",
+        xaxis_title="Similaridade Dzubukuá - Arcaico (Semântica)",
+        yaxis_title="Similaridade Dzubukuá - Moderno (Semântica)"
+    )
     st.plotly_chart(fig)
 
 # Função para calcular similaridade semântica usando Sentence-BERT
@@ -145,7 +158,7 @@ def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico
 
 # Função para calcular similaridade de N-gramas
 def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentences_moderno, n=2):
-    """Calcula a similaridade lexical usando N-gramas e Jaccard Similarity."""
+    """Calcula a similaridade lexical usando N-gramas e Coeficiente de Sorensen-Dice."""
     from sklearn.feature_extraction.text import CountVectorizer
 
     # Função para gerar N-gramas binários
@@ -173,17 +186,20 @@ def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentenc
     ngramas_arcaico = ngramas_arcaico[:, :min_dim]
     ngramas_moderno = ngramas_moderno[:, :min_dim]
 
-    # Calculando a similaridade de Jaccard entre os N-gramas
+    # Calculando o Coeficiente de Sorensen-Dice entre os N-gramas
+    def sorensen_dice(a, b):
+        return 2 * np.sum(a & b) / (np.sum(a) + np.sum(b))
+
     similarity_arcaico_dzubukua = [
-        jaccard_score(ngramas_dzubukua[i], ngramas_arcaico[i], average='binary') 
+        sorensen_dice(ngramas_dzubukua[i], ngramas_arcaico[i]) 
         for i in range(num_frases)
     ]
     similarity_moderno_dzubukua = [
-        jaccard_score(ngramas_dzubukua[i], ngramas_moderno[i], average='binary') 
+        sorensen_dice(ngramas_dzubukua[i], ngramas_moderno[i]) 
         for i in range(num_frases)
     ]
     similarity_arcaico_moderno = [
-        jaccard_score(ngramas_arcaico[i], ngramas_moderno[i], average='binary') 
+        sorensen_dice(ngramas_arcaico[i], ngramas_moderno[i]) 
         for i in range(num_frases)
     ]
 
@@ -247,7 +263,7 @@ def calcular_similaridade_fonologica(sentences_dzubukua, sentences_arcaico, sent
 
 # Função principal para rodar a aplicação no Streamlit
 def main():
-    st.title('Análises Estatísticas e Visualizações Avançadas para Dados Linguísticos')
+    st.title('Análises Avançadas de Similaridade Linguística para Línguas Mortas')
 
     # Upload do arquivo CSV
     uploaded_file = st.file_uploader("Faça o upload do arquivo CSV", type="csv")
@@ -257,7 +273,7 @@ def main():
 
         # Exibir a tabela completa do dataset
         st.subheader("Tabela Completa do Dataset")
-        st.dataframe(df)  # Exibe o dataset completo
+        st.dataframe(df)
 
         # Extrair frases de cada idioma
         sentences_dzubukua = df[df['Idioma'] == 'Dzubukuá']['Texto Original'].tolist()
@@ -265,19 +281,24 @@ def main():
         sentences_moderno = df['Tradução para o Português Moderno'].tolist()
 
         # Similaridade Semântica (Sentence-BERT)
+        st.info("Calculando similaridade semântica...")
+        from sentence_transformers import SentenceTransformer
         model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
         similarity_arcaico_dzubukua_sem, similarity_moderno_dzubukua_sem, similarity_arcaico_moderno_sem = calcular_similaridade_semantica(
             model, sentences_dzubukua, sentences_arcaico, sentences_moderno)
 
         # Similaridade Lexical (N-gramas)
+        st.info("Calculando similaridade lexical (N-gramas)...")
         similarity_arcaico_dzubukua_ng, similarity_moderno_dzubukua_ng, similarity_arcaico_moderno_ng = calcular_similaridade_ngramas(
             sentences_dzubukua, sentences_arcaico, sentences_moderno)
 
         # Similaridade Lexical (Word2Vec)
+        st.info("Calculando similaridade lexical (Word2Vec)...")
         similarity_arcaico_dzubukua_w2v, similarity_moderno_dzubukua_w2v, similarity_arcaico_moderno_w2v = calcular_similaridade_word2vec(
             sentences_dzubukua, sentences_arcaico, sentences_moderno)
 
         # Similaridade Fonológica
+        st.info("Calculando similaridade fonológica...")
         similarity_arcaico_dzubukua_phon, similarity_moderno_dzubukua_phon, similarity_arcaico_moderno_phon = calcular_similaridade_fonologica(
             sentences_dzubukua, sentences_arcaico, sentences_moderno)
 
@@ -301,20 +322,21 @@ def main():
         st.subheader("Similaridade Calculada entre as Três Línguas")
         st.dataframe(similarity_df)
 
-        # Gráfico interativo de correlações usando Plotly com ajustes
+        # Gráfico interativo de correlações usando Plotly
         st.subheader("Gráfico Interativo de Correlações entre Similaridades")
         grafico_interativo_plotly(similarity_df)
 
         # Regressão Linear entre Dzubukuá e Moderno
-        st.subheader("Análise de Regressão Linear entre Dzubukuá e Português Moderno")
-        y_pred, r2 = regressao_linear(similarity_df)
-        st.write(f"Coeficiente de Determinação (R²) da Regressão Linear: {r2:.2f}")
-        grafico_regressao_plotly(similarity_df, y_pred)
+        st.subheader("Análise de Regressão Linear entre Dzubukuá e Português Moderno (Semântica)")
+        y_pred, r2, p_value = regressao_linear(similarity_df)
+        st.write(f"Coeficiente de Determinação (R²): {r2:.2f}")
+        st.write(f"Valor-p da Regressão: {p_value:.4f}")
+        grafico_regressao_plotly(similarity_df, y_pred, r2, p_value)
 
         # Análise de Componentes Principais (PCA)
         st.subheader("Análise de Componentes Principais (PCA)")
-        pca_result = aplicar_pca(similarity_df)
-        grafico_pca(similarity_df, pca_result)
+        pca_result, explained_variance = aplicar_pca(similarity_df)
+        grafico_pca(similarity_df, pca_result, explained_variance)
 
         # Mapas de Correlações nas Áreas Lexical, Semântica e Fonológica
         st.subheader("Mapas de Correlações nas Áreas Lexical, Semântica e Fonológica")
@@ -341,6 +363,10 @@ def main():
         pearson_corr_phon, spearman_corr_phon, kendall_corr_phon = calcular_correlacoes_avancadas(phonological_df)
         grafico_matriz_correlacao(pearson_corr_phon, spearman_corr_phon, kendall_corr_phon)
 
+        # Dendrograma (Análise de Agrupamento Hierárquico)
+        st.subheader("Análise de Agrupamento Hierárquico")
+        grafico_dendrograma(similarity_df)
+
         # Perguntar se o usuário deseja baixar os resultados como CSV
         if st.checkbox("Deseja baixar os resultados como CSV?"):
             salvar_dataframe(similarity_df)
@@ -352,9 +378,12 @@ def salvar_dataframe(similarity_df):
     st.download_button(
         label="Baixar Similaridades em CSV",
         data=csv,
-        file_name='similaridades_semanticas_lexicais_fonologicas.csv',
+        file_name='similaridades_linguisticas.csv',
         mime='text/csv',
     )
+
+# Importações adicionais necessárias
+from scipy.cluster.hierarchy import linkage
 
 # Função principal para rodar a aplicação no Streamlit
 if __name__ == '__main__':
