@@ -1,8 +1,10 @@
-sentence-transformers 
-pandas 
-matplotlib 
-seaborn 
-scikit-learn 
+pandas
 streamlit
-scipy
+matplotlib
+seaborn
 plotly
+scikit-learn
+sentence-transformers
+gensim
+scipy
+numpy
