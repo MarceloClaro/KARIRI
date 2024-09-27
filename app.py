@@ -93,14 +93,15 @@ def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
 
 # Função para calcular similaridade de N-gramas
+# Função para calcular similaridade de N-gramas
 def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentences_moderno, n=2):
     """Calcula a similaridade lexical usando N-gramas e Jaccard Similarity."""
     from sklearn.metrics import jaccard_score
     from sklearn.feature_extraction.text import CountVectorizer
 
-    # Função para gerar N-gramas
+    # Função para gerar N-gramas binários
     def ngramas(sentences, n):
-        vectorizer = CountVectorizer(ngram_range=(n, n), analyzer='word').fit(sentences)
+        vectorizer = CountVectorizer(ngram_range=(n, n), binary=True, analyzer='word').fit(sentences)
         ngram_matrix = vectorizer.transform(sentences).toarray()
         return ngram_matrix
 
@@ -117,6 +118,11 @@ def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentenc
     ngramas_arcaico = ngramas_arcaico[:num_frases]
     ngramas_moderno = ngramas_moderno[:num_frases]
 
+    # Certifique-se de que os vetores de N-gramas tenham o mesmo número de colunas (dimensão)
+    ngramas_dzubukua = ngramas_dzubukua[:, :min(ngramas_dzubukua.shape[1], ngramas_arcaico.shape[1], ngramas_moderno.shape[1])]
+    ngramas_arcaico = ngramas_arcaico[:, :ngramas_dzubukua.shape[1]]
+    ngramas_moderno = ngramas_moderno[:, :ngramas_dzubukua.shape[1]]
+
     # Calculando a similaridade de Jaccard entre os N-gramas
     similarity_arcaico_dzubukua = [
         jaccard_score(ngramas_dzubukua[i], ngramas_arcaico[i], average='binary') 
@@ -132,6 +138,7 @@ def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentenc
     ]
 
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
+
 
 # Função para calcular a similaridade usando Word2Vec
 def calcular_similaridade_word2vec(sentences_dzubukua, sentences_arcaico, sentences_moderno):
