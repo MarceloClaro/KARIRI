@@ -1,3 +1,6 @@
+# Instalar as bibliotecas necessárias
+!pip install sentence-transformers pandas matplotlib seaborn scikit-learn streamlit
+
 # Importar as bibliotecas necessárias
 import pandas as pd
 import streamlit as st
@@ -108,6 +111,11 @@ def grafico_heatmap(similarity_df):
     ax.set_title('Heatmap das Correlações')
     st.pyplot(fig)
 
+# Função para perguntar ao usuário se deseja continuar
+def perguntar_continuacao(mensagem):
+    # Pergunta ao usuário com um botão de rádio se ele quer continuar ou não
+    return st.radio(mensagem, ('Sim', 'Não')) == 'Sim'
+
 # Função principal para rodar a aplicação no Streamlit
 def main():
     # Título da aplicação
@@ -146,9 +154,9 @@ def main():
         # Mostrar gráfico de dispersão
         grafico_dispersao_comprimento(length_dzubukua, length_arcaico, length_moderno)
 
+
         # Perguntar se o usuário deseja continuar para a próxima etapa
         if perguntar_continuacao("Deseja continuar para o cálculo de similaridade semântica?"):
-
             # Calcular a similaridade semântica
             st.subheader('Cálculo de Similaridade Semântica usando Sentence-BERT')
             model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
@@ -168,7 +176,7 @@ def main():
             st.subheader('Estatísticas Descritivas das Similaridades de Cosseno')
             st.write(similarity_df.describe())
 
-            # Perguntar se o usuário deseja continuar para a matriz de correlação (heatmap)
+            # Perguntar se o usuário deseja visualizar o heatmap das correlações
             if perguntar_continuacao("Deseja visualizar o heatmap das correlações?"):
                 st.subheader("Heatmap das Correlações")
                 grafico_heatmap(similarity_df)
