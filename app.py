@@ -94,19 +94,19 @@ def grafico_matriz_correlacao(pearson_corr, spearman_corr, kendall_corr):
     plt.tight_layout(pad=3.0)  # Aumentar espaçamento entre os subplots
     st.pyplot(fig)
 
-# Função para gerar gráficos interativos com Plotly
+# Função para gerar gráficos interativos com Plotly ajustado para clareza
 def grafico_interativo_plotly(similarity_df):
     """Gera gráficos interativos com Plotly, ajustando a rotação dos rótulos e espaçamento."""
     fig = px.scatter_matrix(similarity_df, dimensions=similarity_df.columns, title="Correlação entre Similaridades")
-    
+
     # Ajustando o layout para melhorar a visualização e espaçamento
     fig.update_layout(
-        height=900,  # Altura maior para evitar compressão
-        width=900,   # Largura maior
-        xaxis_tickangle=-45,  # Rotacionar rótulos no eixo X
+        height=1200,  # Aumentando a altura do gráfico para evitar sobreposição
+        width=1200,   # Aumentando a largura do gráfico
+        xaxis_tickangle=-45,  # Rotacionar rótulos no eixo X para melhor legibilidade
         yaxis_tickangle=0,    # Manter rótulos no eixo Y sem rotação
-        margin=dict(l=200, r=200, b=300, t=300, pad=20),  # Aumentar margens para melhorar espaçamento
-        font=dict(size=8),  # Ajustar o tamanho da fonte
+        margin=dict(l=150, r=150, b=150, t=150, pad=10),  # Aumentar margens para melhorar espaçamento
+        font=dict(size=12),  # Ajustar o tamanho da fonte
     )
     
     st.plotly_chart(fig)
@@ -125,7 +125,6 @@ def grafico_regressao_plotly(similarity_df, y_pred):
                       yaxis_title="Similaridade Dzubukuá - Moderno (Semântica)")
     st.plotly_chart(fig)
 
-
 # Função para calcular similaridade semântica usando Sentence-BERT
 def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico, sentences_moderno):
     """Calcula a similaridade semântica usando o modelo Sentence-BERT."""
@@ -137,6 +136,7 @@ def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico
     embeddings_arcaico = embeddings[len(sentences_dzubukua):len(sentences_dzubukua) + len(sentences_arcaico)]
     embeddings_moderno = embeddings[len(sentences_dzubukua) + len(sentences_arcaico):]
 
+   
     # Calculando a similaridade de cosseno entre os embeddings
     similarity_arcaico_dzubukua = cosine_similarity(embeddings_dzubukua, embeddings_arcaico).diagonal()
     similarity_moderno_dzubukua = cosine_similarity(embeddings_dzubukua, embeddings_moderno).diagonal()
@@ -265,7 +265,6 @@ def main():
         pearson_corr, spearman_corr, kendall_corr = calcular_correlacoes_avancadas(similarity_df)
         grafico_matriz_correlacao(pearson_corr, spearman_corr, kendall_corr)
 
-
         # Regressão Linear entre Dzubukuá e Moderno
         st.subheader("Análise de Regressão Linear entre Dzubukuá e Português Moderno")
         y_pred, r2 = regressao_linear(similarity_df)
@@ -280,6 +279,7 @@ def main():
         st.subheader("Análise de Componentes Principais (PCA)")
         pca_result = aplicar_pca(similarity_df)
         grafico_pca(similarity_df, pca_result)
+
 
         # Perguntar se o usuário deseja baixar os resultados como CSV
         if st.checkbox("Deseja baixar os resultados como CSV?"):
@@ -296,6 +296,7 @@ def salvar_dataframe(similarity_df):
         mime='text/csv',
     )
 
-# Rodar a aplicação Streamlit
+# Função principal para rodar a aplicação Streamlit
 if __name__ == '__main__':
     main()
+
