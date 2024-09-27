@@ -11,9 +11,7 @@ import numpy as np
 from gensim.models import Word2Vec
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import jaccard_score
 import scipy.stats as stats
-from sklearn.cluster import AgglomerativeClustering
 from scipy.cluster.hierarchy import dendrogram
 import jellyfish
 
@@ -70,12 +68,12 @@ def grafico_dendrograma(similarity_df):
 
     linked = linkage(similarity_df.T, 'single', metric='euclidean')
     labelList = similarity_df.columns
-    fig, ax = plt.subplots(figsize=(12, 8))  # Aumentei o tamanho da figura
+    fig, ax = plt.subplots(figsize=(12, 8))
     dendrogram(linked, labels=labelList, ax=ax, orientation='top')
     ax.set_title('Dendrograma das Similaridades', fontsize=16, pad=20)
     ax.set_xlabel('Variáveis', fontsize=14, labelpad=15)
     ax.set_ylabel('Distância Euclidiana', fontsize=14, labelpad=15)
-    plt.setp(ax.get_xticklabels(), rotation=45, ha='right')  # Rotaciona os rótulos do eixo X
+    plt.setp(ax.get_xticklabels(), rotation=45, ha='right')
     plt.tight_layout(pad=3.0)
     st.pyplot(fig)
 
@@ -111,20 +109,32 @@ def grafico_matriz_correlacao(pearson_corr, spearman_corr, kendall_corr):
     plt.tight_layout(pad=3.0)
     st.pyplot(fig)
 
-# Função para gerar gráficos interativos com Plotly
+# Função atualizada para gerar o mapa de calor interativo da matriz de correlação
 def grafico_interativo_plotly(similarity_df):
-    """Gera gráficos interativos com Plotly."""
-    fig = px.scatter_matrix(similarity_df, dimensions=similarity_df.columns, title="Correlação entre Similaridades")
-
-    # Ajuste dos rótulos dos eixos
+    """Gera um mapa de calor interativo da matriz de correlação com Plotly."""
+    # Calcula a matriz de correlação
+    corr = similarity_df.corr()
+    
+    # Cria um mapa de calor da matriz de correlação
+    fig = go.Figure(data=go.Heatmap(
+        z=corr.values,
+        x=corr.columns,
+        y=corr.columns,
+        colorscale='Viridis',
+        colorbar=dict(title='Coeficiente de Correlação')
+    ))
+    
+    # Ajusta o layout para melhor legibilidade
     fig.update_layout(
-        height=800,
+        title="Mapa de Correlação entre Similaridades",
+        xaxis_tickangle=-45,
+        xaxis={'side': 'bottom'},
         width=800,
-        xaxis=dict(tickangle=45),
-        yaxis=dict(tickangle=0),
-        margin=dict(l=50, r=50, b=150, t=100, pad=10),
-        font=dict(size=12),
+        height=800,
+        margin=dict(l=200, r=200, b=200, t=100),
+        font=dict(size=10),
     )
+    
     st.plotly_chart(fig)
 
 # Função para gerar gráficos de dispersão interativos com Plotly
@@ -137,11 +147,15 @@ def grafico_regressao_plotly(similarity_df, y_pred, r2, p_value):
     fig.add_trace(go.Scatter(x=similarity_df['Dzubukuá - Arcaico (Semântica)'], 
                              y=y_pred, mode='lines', name='Regressão Linear'))
     fig.update_layout(
-        title=f"Regressão Linear - R²: {r2:.2f}, p-value: {p_value:.4f}",
+        title=f"Regressão Linear - R²: {r2:.2f}, p-valor: {p_value:.4f}",
         xaxis_title="Similaridade Dzubukuá - Arcaico (Semântica)",
         yaxis_title="Similaridade Dzubukuá - Moderno (Semântica)",
-        xaxis=dict(title_font=dict(size=14), tickangle=-45),  # Rotaciona os rótulos do eixo X
+        xaxis=dict(title_font=dict(size=14), tickangle=-45),
         yaxis=dict(title_font=dict(size=14)),
+        width=800,
+        height=600,
+        margin=dict(l=100, r=100, b=100, t=100),
+        font=dict(size=12),
     )
     st.plotly_chart(fig)
 
@@ -331,8 +345,8 @@ def main():
         st.subheader("Similaridade Calculada entre as Três Línguas")
         st.dataframe(similarity_df)
 
-        # Gráfico interativo de correlações usando Plotly
-        st.subheader("Gráfico Interativo de Correlações entre Similaridades")
+        # Gráfico interativo de correlações usando Plotly (atualizado)
+        st.subheader("Mapa de Correlação entre Similaridades")
         grafico_interativo_plotly(similarity_df)
 
         # Regressão Linear entre Dzubukuá e Moderno
