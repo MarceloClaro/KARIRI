@@ -1,6 +1,3 @@
-# Instalar as bibliotecas necessárias
-!pip install sentence-transformers pandas matplotlib seaborn scikit-learn streamlit
-
 # Importar as bibliotecas necessárias
 import pandas as pd
 import streamlit as st
