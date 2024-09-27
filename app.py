@@ -95,18 +95,41 @@ def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico
 # Função para calcular similaridade de N-gramas
 def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentences_moderno, n=2):
     """Calcula a similaridade lexical usando N-gramas e Jaccard Similarity."""
+    from sklearn.metrics import jaccard_score
+    from sklearn.feature_extraction.text import CountVectorizer
+
+    # Função para gerar N-gramas e garantir a mesma dimensionalidade
     def ngramas(sentences, n):
         vectorizer = CountVectorizer(ngram_range=(n, n), analyzer='word').fit(sentences)
         ngram_matrix = vectorizer.transform(sentences).toarray()
         return ngram_matrix
 
+    # Gerando N-gramas para cada conjunto de frases
     ngramas_dzubukua = ngramas(sentences_dzubukua, n)
     ngramas_arcaico = ngramas(sentences_arcaico, n)
     ngramas_moderno = ngramas(sentences_moderno, n)
 
-    similarity_arcaico_dzubukua = [jaccard_score(ngramas_dzubukua[i], ngramas_arcaico[i], average='binary') for i in range(len(sentences_dzubukua))]
-    similarity_moderno_dzubukua = [jaccard_score(ngramas_dzubukua[i], ngramas_moderno[i], average='binary') for i in range(len(sentences_dzubukua))]
-    similarity_arcaico_moderno = [jaccard_score(ngramas_arcaico[i], ngramas_moderno[i], average='binary') for i in range(len(sentences_arcaico))]
+    # Garantir que o número de frases seja o mesmo entre todos os conjuntos
+    num_frases = min(len(ngramas_dzubukua), len(ngramas_arcaico), len(ngramas_moderno))
+
+    # Ajustar os vetores de N-gramas para ter o mesmo número de frases
+    ngramas_dzubukua = ngramas_dzubukua[:num_frases]
+    ngramas_arcaico = ngramas_arcaico[:num_frases]
+    ngramas_moderno = ngramas_moderno[:num_frases]
+
+    # Calculando a similaridade de Jaccard entre os N-gramas
+    similarity_arcaico_dzubukua = [
+        jaccard_score(ngramas_dzubukua[i], ngramas_arcaico[i], average='binary') 
+        for i in range(num_frases)
+    ]
+    similarity_moderno_dzubukua = [
+        jaccard_score(ngramas_dzubukua[i], ngramas_moderno[i], average='binary') 
+        for i in range(num_frases)
+    ]
+    similarity_arcaico_moderno = [
+        jaccard_score(ngramas_arcaico[i], ngramas_moderno[i], average='binary') 
+        for i in range(num_frases)
+    ]
 
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
 
