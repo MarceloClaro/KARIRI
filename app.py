@@ -1,4 +1,4 @@
-# Importar as bibliotecas necessárias 
+# Importar as bibliotecas necessárias
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
@@ -15,6 +15,11 @@ import scipy.stats as stats
 from scipy.cluster.hierarchy import dendrogram
 import jellyfish
 
+# Bibliotecas adicionais para as novas implementações
+import statsmodels.api as sm
+from sklearn.cluster import KMeans, DBSCAN
+from sklearn.preprocessing import StandardScaler
+
 # Função para calcular correlações de Pearson, Spearman e Kendall
 def calcular_correlacoes_avancadas(similarity_df):
     """Calcula as correlações de Pearson, Spearman e Kendall entre as variáveis de similaridade."""
@@ -25,7 +30,7 @@ def calcular_correlacoes_avancadas(similarity_df):
 
 # Função para realizar regressão linear com teste de significância
 def regressao_linear(similarity_df):
-    """Aplica regressão linear entre as variáveis de similaridade e realiza testes de significância estatística."""
+    """Aplica regressão linear entre duas variáveis de similaridade e realiza testes de significância estatística."""
     X = similarity_df['Dzubukuá - Arcaico (Semântica)'].values.reshape(-1, 1)
     y = similarity_df['Dzubukuá - Moderno (Semântica)'].values
     reg = LinearRegression().fit(X, y)
@@ -39,7 +44,29 @@ def regressao_linear(similarity_df):
     t_stat = reg.coef_ / (np.sqrt((1 - r2) / dof))
     p_value = 2 * (1 - stats.t.cdf(abs(t_stat), dof))
 
-    return y_pred, r2, p_value[0]
+    # Cálculo do intervalo de confiança
+    se = np.sqrt(np.sum((y - y_pred) ** 2) / dof) / np.sqrt(np.sum((X - np.mean(X)) ** 2))
+    intervalo_confianca = [reg.coef_[0] - 1.96 * se, reg.coef_[0] + 1.96 * se]
+
+    return y_pred, r2, p_value[0], intervalo_confianca
+
+# Função para realizar regressão múltipla
+def regressao_multipla(similarity_df):
+    """Aplica regressão múltipla entre as variáveis de similaridade e realiza testes de significância estatística."""
+    # Definir variáveis independentes (X) e variável dependente (y)
+    X = similarity_df.drop(columns=['Dzubukuá - Moderno (Semântica)'])
+    y = similarity_df['Dzubukuá - Moderno (Semântica)']
+
+    # Adicionar termo constante
+    X = sm.add_constant(X)
+
+    # Ajustar o modelo
+    model = sm.OLS(y, X).fit()
+
+    # Obter predições
+    y_pred = model.predict(X)
+
+    return model, y_pred
 
 # Função para aplicar PCA (Análise de Componentes Principais)
 def aplicar_pca(similarity_df):
@@ -53,7 +80,7 @@ def aplicar_pca(similarity_df):
 def grafico_pca(similarity_df, pca_result, explained_variance):
     """Plota os resultados da Análise de Componentes Principais (PCA)."""
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.scatter(pca_result[:, 0], pca_result[:, 1], c='blue', edgecolor='k', s=100)
+    scatter = ax.scatter(pca_result[:, 0], pca_result[:, 1], c='blue', edgecolor='k', s=100)
     ax.set_title('Análise de Componentes Principais (PCA)', fontsize=16, pad=20)
     ax.set_xlabel(f'Componente Principal 1 ({explained_variance[0]*100:.2f}% da variância)', fontsize=14, labelpad=15)
     ax.set_ylabel(f'Componente Principal 2 ({explained_variance[1]*100:.2f}% da variância)', fontsize=14, labelpad=15)
@@ -66,7 +93,7 @@ def grafico_dendrograma(similarity_df):
     """Gera um dendrograma para visualizar relações hierárquicas entre as variáveis."""
     from scipy.cluster.hierarchy import linkage
 
-    linked = linkage(similarity_df.T, 'single', metric='euclidean')
+    linked = linkage(similarity_df.T, 'ward', metric='euclidean')
     labelList = similarity_df.columns
     fig, ax = plt.subplots(figsize=(12, 8))
     dendrogram(linked, labels=labelList, ax=ax, orientation='top')
@@ -138,7 +165,7 @@ def grafico_interativo_plotly(similarity_df):
     st.plotly_chart(fig)
 
 # Função para gerar gráficos de dispersão interativos com Plotly
-def grafico_regressao_plotly(similarity_df, y_pred, r2, p_value):
+def grafico_regressao_plotly(similarity_df, y_pred, r2, p_value, intervalo_confianca):
     """Gera gráfico interativo com a linha de regressão e informações estatísticas."""
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=similarity_df['Dzubukuá - Arcaico (Semântica)'], 
@@ -147,7 +174,7 @@ def grafico_regressao_plotly(similarity_df, y_pred, r2, p_value):
     fig.add_trace(go.Scatter(x=similarity_df['Dzubukuá - Arcaico (Semântica)'], 
                              y=y_pred, mode='lines', name='Regressão Linear'))
     fig.update_layout(
-        title=f"Regressão Linear - R²: {r2:.2f}, p-valor: {p_value:.4f}",
+        title=f"Regressão Linear - R²: {r2:.2f}, p-valor: {p_value:.4f}<br>Intervalo de Confiança do Coeficiente: [{intervalo_confianca[0]:.4f}, {intervalo_confianca[1]:.4f}]",
         xaxis_title="Similaridade Dzubukuá - Arcaico (Semântica)",
         yaxis_title="Similaridade Dzubukuá - Moderno (Semântica)",
         xaxis=dict(title_font=dict(size=14), tickangle=-45),
@@ -158,6 +185,51 @@ def grafico_regressao_plotly(similarity_df, y_pred, r2, p_value):
         font=dict(size=12),
     )
     st.plotly_chart(fig)
+
+# Função para realizar análise de clustering
+def analise_clustering(similarity_df):
+    """Realiza análise de clustering utilizando K-Means e DBSCAN."""
+    # Padronizar os dados
+    scaler = StandardScaler()
+    data_scaled = scaler.fit_transform(similarity_df)
+
+    # K-Means clustering
+    kmeans = KMeans(n_clusters=3, random_state=42)
+    kmeans_labels = kmeans.fit_predict(data_scaled)
+    similarity_df['Cluster_KMeans'] = kmeans_labels
+
+    # DBSCAN clustering
+    dbscan = DBSCAN(eps=1.5, min_samples=5)
+    dbscan_labels = dbscan.fit_predict(data_scaled)
+    similarity_df['Cluster_DBSCAN'] = dbscan_labels
+
+    return similarity_df
+
+# Função para visualizar os clusters
+def visualizar_clusters(similarity_df):
+    """Visualiza os clusters obtidos pelo K-Means e DBSCAN."""
+    # PCA para reduzir a dimensionalidade
+    pca = PCA(n_components=2)
+    data_pca = pca.fit_transform(similarity_df.drop(columns=['Cluster_KMeans', 'Cluster_DBSCAN']))
+
+    fig, axs = plt.subplots(1, 2, figsize=(16, 6))
+
+    # Gráfico para K-Means
+    scatter = axs[0].scatter(data_pca[:, 0], data_pca[:, 1], c=similarity_df['Cluster_KMeans'], cmap='Set1', s=50)
+    axs[0].set_title('Clusters K-Means', fontsize=16)
+    axs[0].set_xlabel('Componente Principal 1', fontsize=14)
+    axs[0].set_ylabel('Componente Principal 2', fontsize=14)
+    axs[0].grid(True, linestyle='--', linewidth=0.5)
+
+    # Gráfico para DBSCAN
+    scatter = axs[1].scatter(data_pca[:, 0], data_pca[:, 1], c=similarity_df['Cluster_DBSCAN'], cmap='Set1', s=50)
+    axs[1].set_title('Clusters DBSCAN', fontsize=16)
+    axs[1].set_xlabel('Componente Principal 1', fontsize=14)
+    axs[1].set_ylabel('Componente Principal 2', fontsize=14)
+    axs[1].grid(True, linestyle='--', linewidth=0.5)
+
+    plt.tight_layout(pad=3.0)
+    st.pyplot(fig)
 
 # Função para calcular similaridade semântica usando Sentence-BERT
 def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico, sentences_moderno):
@@ -351,15 +423,26 @@ def main():
 
         # Regressão Linear entre Dzubukuá e Moderno
         st.subheader("Análise de Regressão Linear entre Dzubukuá e Português Moderno (Semântica)")
-        y_pred, r2, p_value = regressao_linear(similarity_df)
+        y_pred, r2, p_value, intervalo_confianca = regressao_linear(similarity_df)
         st.write(f"Coeficiente de Determinação (R²): {r2:.2f}")
         st.write(f"Valor-p da Regressão: {p_value:.4f}")
-        grafico_regressao_plotly(similarity_df, y_pred, r2, p_value)
+        st.write(f"Intervalo de Confiança do Coeficiente: [{intervalo_confianca[0]:.4f}, {intervalo_confianca[1]:.4f}]")
+        grafico_regressao_plotly(similarity_df, y_pred, r2, p_value, intervalo_confianca)
+
+        # Regressão Múltipla
+        st.subheader("Análise de Regressão Múltipla")
+        model, y_pred_mult = regressao_multipla(similarity_df)
+        st.write(model.summary())
 
         # Análise de Componentes Principais (PCA)
         st.subheader("Análise de Componentes Principais (PCA)")
-        pca_result, explained_variance = aplicar_pca(similarity_df)
+        pca_result, explained_variance = aplicar_pca(similarity_df.drop(columns=['Cluster_KMeans', 'Cluster_DBSCAN'], errors='ignore'))
         grafico_pca(similarity_df, pca_result, explained_variance)
+
+        # Análise de Agrupamentos (Clustering)
+        st.subheader("Análise de Agrupamentos (Clustering)")
+        similarity_df = analise_clustering(similarity_df)
+        visualizar_clusters(similarity_df)
 
         # Mapas de Correlações nas Áreas Lexical, Semântica e Fonológica
         st.subheader("Mapas de Correlações nas Áreas Lexical, Semântica e Fonológica")
@@ -388,7 +471,7 @@ def main():
 
         # Dendrograma (Análise de Agrupamento Hierárquico)
         st.subheader("Análise de Agrupamento Hierárquico")
-        grafico_dendrograma(similarity_df)
+        grafico_dendrograma(similarity_df.drop(columns=['Cluster_KMeans', 'Cluster_DBSCAN']))
 
         # Perguntar se o usuário deseja baixar os resultados como CSV
         if st.checkbox("Deseja baixar os resultados como CSV?"):
