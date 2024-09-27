@@ -9,3 +9,4 @@ gensim
 scipy
 numpy
 jellyfish
+gensim
