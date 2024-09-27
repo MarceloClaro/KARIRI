@@ -21,13 +21,23 @@ from sklearn.manifold import TSNE
 import statsmodels.api as sm
 from Levenshtein import distance as levenshtein_distance
 from collections import Counter
+import subprocess
+import sys
 
-# Tentar carregar o modelo de língua portuguesa para análise morfológica
-try:
-    nlp = spacy.load('pt_core_news_sm')
-except OSError:
-    st.error("O modelo 'pt_core_news_sm' não está instalado. Por favor, execute 'python -m spacy download pt_core_news_sm' no terminal para instalar o modelo e reinicie a aplicação.")
-    st.stop()
+def load_spacy_model():
+    """Função para carregar o modelo do spaCy, instalando-o se necessário."""
+    try:
+        nlp = spacy.load('pt_core_news_sm')
+    except OSError:
+        # Instala o modelo do spaCy
+        subprocess.run([sys.executable, "-m", "spacy", "download", "pt_core_news_sm"])
+        nlp = spacy.load('pt_core_news_sm')
+    return nlp
+
+# Carregar o modelo
+nlp = load_spacy_model()
+
+# Resto do código permanece o mesmo...
 
 # Função para limpeza e normalização de dados
 def limpar_normalizar_texto(text):
