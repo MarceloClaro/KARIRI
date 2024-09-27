@@ -40,6 +40,28 @@ def aplicar_pca(similarity_df):
     pca_result = pca.fit_transform(similarity_df)
     return pca_result
 
+# Função para gerar o gráfico de PCA com títulos e legendas claros
+def grafico_pca(similarity_df, pca_result):
+    """Plota os resultados da Análise de Componentes Principais (PCA) com legendas simplificadas."""
+    fig, ax = plt.subplots(figsize=(10, 6))  # Ajuste do tamanho do gráfico para melhorar a visualização
+    ax.scatter(pca_result[:, 0], pca_result[:, 1], c='blue', edgecolor='k', s=100)  # Tamanho dos pontos aumentado
+
+    # Título claro e informativo
+    ax.set_title('Distribuição das Similaridades', fontsize=16, pad=20)
+
+    # Legendas mais compreensíveis
+    ax.set_xlabel('Primeiro Padrão Principal', fontsize=14, labelpad=15)  # Eixo X
+    ax.set_ylabel('Segundo Padrão Principal', fontsize=14, labelpad=15)   # Eixo Y
+
+    # Adicionar grades leves para melhor visualização
+    ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+
+    # Ajustar espaçamento para as margens e elementos do gráfico
+    plt.tight_layout(pad=3.0)
+
+    # Exibir gráfico no Streamlit
+    st.pyplot(fig)
+
 # Função para gerar gráficos de correlações
 def grafico_matriz_correlacao(pearson_corr, spearman_corr, kendall_corr):
     """Gera gráficos para as correlações Pearson, Spearman e Kendall."""
@@ -93,7 +115,6 @@ def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
 
 # Função para calcular similaridade de N-gramas
-# Função para calcular similaridade de N-gramas
 def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentences_moderno, n=2):
     """Calcula a similaridade lexical usando N-gramas e Jaccard Similarity."""
     from sklearn.metrics import jaccard_score
@@ -132,13 +153,13 @@ def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentenc
         jaccard_score(ngramas_dzubukua[i], ngramas_moderno[i], average='binary') 
         for i in range(num_frases)
     ]
+
     similarity_arcaico_moderno = [
         jaccard_score(ngramas_arcaico[i], ngramas_moderno[i], average='binary') 
         for i in range(num_frases)
     ]
 
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
-
 
 # Função para calcular a similaridade usando Word2Vec
 def calcular_similaridade_word2vec(sentences_dzubukua, sentences_arcaico, sentences_moderno):
@@ -162,7 +183,6 @@ def calcular_similaridade_word2vec(sentences_dzubukua, sentences_arcaico, senten
     similarity_arcaico_dzubukua = cosine_similarity(vectors_dzubukua, vectors_arcaico).diagonal()
     similarity_moderno_dzubukua = cosine_similarity(vectors_dzubukua, vectors_moderno).diagonal()
     similarity_arcaico_moderno = cosine_similarity(vectors_arcaico, vectors_moderno).diagonal()
-
 
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
 
