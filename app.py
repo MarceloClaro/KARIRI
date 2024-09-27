@@ -1,4 +1,3 @@
-
 # Importar as bibliotecas necessárias
 import pandas as pd
 import streamlit as st
@@ -171,8 +170,8 @@ def exibir_dataset(df):
     # Controle deslizante para selecionar o número de linhas
     linhas_exibir = st.slider("Quantas linhas deseja exibir?", min_value=5, max_value=total_rows, value=10, step=5)
 
+   ----
     # Exibir as primeiras linhas
-
     st.write(f"Exibindo as primeiras {linhas_exibir} de {total_rows} linhas:")
     st.dataframe(df.head(linhas_exibir))
 
