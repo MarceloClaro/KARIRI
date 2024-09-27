@@ -1,12 +1,13 @@
 # Instalar as bibliotecas necessárias
+!pip install sentence-transformers pandas matplotlib seaborn scikit-learn streamlit
 
 # Importar as bibliotecas necessárias
 import pandas as pd
+import streamlit as st
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics.pairwise import cosine_similarity
 from sentence_transformers import SentenceTransformer
-import streamlit as st
 
 # Função para calcular as correlações de comprimento das frases
 def calcular_correlacao_comprimento(sentences_dzubukua, sentences_arcaico, sentences_moderno):
@@ -65,7 +66,7 @@ def grafico_barras_histogramas(similarity_df):
     ax.legend()
     st.pyplot(fig)
 
-# Função para salvar o dataframe como CSV
+# Função para salvar o dataframe como CSV para download
 def salvar_dataframe(similarity_df):
     csv = similarity_df.to_csv(index=False).encode('utf-8')
     st.download_button(
@@ -75,32 +76,56 @@ def salvar_dataframe(similarity_df):
         mime='text/csv',
     )
 
-# Função para gerar dicionário a partir do dataframe
-def gerar_dicionario_de_similaridade(similarity_df):
-    dicionario_similaridade = {
-        'Dzubukuá - Arcaico': similarity_df['Dzubukuá - Arcaico'].tolist(),
-        'Dzubukuá - Moderno': similarity_df['Dzubukuá - Moderno'].tolist(),
-        'Arcaico - Moderno': similarity_df['Arcaico - Moderno'].tolist(),
-        'Estatísticas': similarity_df.describe().to_dict()  # Estatísticas descritivas adicionadas como um sub-dicionário
-    }
-    return dicionario_similaridade
+# Função para exibir e paginar dataset
+def exibir_dataset(df):
+    total_rows = len(df)
+    
+    # Adicionar controle deslizante para permitir ao usuário escolher quantas linhas exibir
+    linhas_exibir = st.slider("Quantas linhas deseja exibir?", min_value=5, max_value=total_rows, value=10, step=5)
 
-# Função para perguntar ao usuário se ele deseja continuar para o próximo módulo
-def perguntar_continuacao(mensagem):
-    return st.radio(mensagem, ('Sim', 'Não')) == 'Sim'
+    # Mostrar as primeiras linhas de acordo com o controle deslizante
+    st.write(f"Exibindo as primeiras {linhas_exibir} de {total_rows} linhas:")
+    st.dataframe(df.head(linhas_exibir))
+
+    # Botão para exibir todas as linhas do dataset (CUIDADO: pode impactar a performance)
+    if st.checkbox("Exibir todas as linhas (pode impactar a performance)"):
+        st.write(df)
+
+    # Botão para baixar o CSV completo
+    csv = df.to_csv(index=False).encode('utf-8')
+    st.download_button(
+        label="Baixar CSV completo",
+        data=csv,
+        file_name='dataset_completo.csv',
+        mime='text/csv',
+    )
+
+# Função para gerar o heatmap de correlação
+def grafico_heatmap(similarity_df):
+    # Calcular a correlação entre as colunas do DataFrame
+    corr = similarity_df.corr()
+
+    # Criar o heatmap
+    fig, ax = plt.subplots()
+    sns.heatmap(corr, annot=True, cmap='coolwarm', ax=ax)
+    ax.set_title('Heatmap das Correlações')
+    st.pyplot(fig)
 
 # Função principal para rodar a aplicação no Streamlit
 def main():
     # Título da aplicação
     st.title('Análise de Correlação e Similaridade Semântica entre Dzubukuá, Português Arcaico e Português Moderno')
-    
+
     # Upload do arquivo CSV
     uploaded_file = st.file_uploader("Faça o upload do arquivo CSV", type="csv")
-    
+
+    # Se o arquivo foi carregado
     if uploaded_file is not None:
         # Carregar o arquivo CSV
         df = pd.read_csv(uploaded_file)
-        st.write("Primeiras linhas do dataset:", df.head())
+        
+        # Exibir dataset com opção de paginação
+        exibir_dataset(df)
 
         # Garantir que o número de frases seja o mesmo entre os três grupos
         sentences_dzubukua = df[df['Idioma'] == 'Dzubukuá']['Texto Original'].tolist()
@@ -126,6 +151,7 @@ def main():
 
         # Perguntar se o usuário deseja continuar para a próxima etapa
         if perguntar_continuacao("Deseja continuar para o cálculo de similaridade semântica?"):
+
             # Calcular a similaridade semântica
             st.subheader('Cálculo de Similaridade Semântica usando Sentence-BERT')
             model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
@@ -145,18 +171,14 @@ def main():
             st.subheader('Estatísticas Descritivas das Similaridades de Cosseno')
             st.write(similarity_df.describe())
 
-            # Perguntar se o usuário deseja continuar para a próxima etapa
-            if perguntar_continuacao("Deseja gerar um dicionário de similaridades?"):
-                # Gerar dicionário a partir do dataframe
-                dicionario_similaridade = gerar_dicionario_de_similaridade(similarity_df)
+            # Perguntar se o usuário deseja continuar para a matriz de correlação (heatmap)
+            if perguntar_continuacao("Deseja visualizar o heatmap das correlações?"):
+                st.subheader("Heatmap das Correlações")
+                grafico_heatmap(similarity_df)
 
-                # Exibir o dicionário
-                st.subheader('Dicionário de Similaridade Gerado')
-                st.json(dicionario_similaridade)
-
-                # Perguntar se o usuário deseja baixar o CSV
-                if perguntar_continuacao("Deseja baixar os resultados como CSV?"):
-                    salvar_dataframe(similarity_df)
+            # Perguntar se o usuário deseja baixar o CSV
+            if perguntar_continuacao("Deseja baixar os resultados como CSV?"):
+                salvar_dataframe(similarity_df)
 
         else:
             st.write("Operação finalizada. Selecione outro arquivo ou reinicie o processo.")
