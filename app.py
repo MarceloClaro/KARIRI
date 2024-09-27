@@ -1,57 +1,95 @@
+# Instalar as bibliotecas necessárias
+!pip install sentence-transformers pandas matplotlib seaborn scikit-learn streamlit scipy plotly
+
 # Importar as bibliotecas necessárias
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
 import seaborn as sns
+import plotly.express as px
+import plotly.graph_objects as go
 from sklearn.metrics.pairwise import cosine_similarity
 from sentence_transformers import SentenceTransformer
 from scipy import stats
+from sklearn.decomposition import PCA
 import numpy as np
 
-# Função para calcular as correlações de comprimento das frases
-def calcular_correlacao_comprimento(sentences_dzubukua, sentences_arcaico, sentences_moderno):
-    """Calcula a correlação de comprimento entre as três línguas."""
-    length_dzubukua = [len(x) for x in sentences_dzubukua]
-    length_arcaico = [len(x) for x in sentences_arcaico]
-    length_moderno = [len(x) for x in sentences_moderno]
-    
-    correlation_arcaico_dzubukua = pd.Series(length_dzubukua).corr(pd.Series(length_arcaico))
-    correlation_moderno_dzubukua = pd.Series(length_dzubukua).corr(pd.Series(length_moderno))
-    correlation_arcaico_moderno = pd.Series(length_arcaico).corr(pd.Series(length_moderno))
-    
-    return length_dzubukua, length_arcaico, length_moderno, correlation_arcaico_dzubukua, correlation_moderno_dzubukua, correlation_arcaico_moderno
+# Função para calcular correlações de Pearson, Spearman e Kendall
+def calcular_correlacoes_avancadas(similarity_df):
+    """Calcula as correlações de Pearson, Spearman e Kendall."""
+    pearson_corr = similarity_df.corr(method='pearson')
+    spearman_corr = similarity_df.corr(method='spearman')
+    kendall_corr = similarity_df.corr(method='kendall')
+    return pearson_corr, spearman_corr, kendall_corr
 
-# Função para calcular ANOVA
-def calcular_anova(similarity_df):
-    """Realiza ANOVA para verificar se há diferenças significativas entre as médias das similaridades."""
-    fvalue, pvalue = stats.f_oneway(similarity_df['Dzubukuá - Arcaico'], similarity_df['Dzubukuá - Moderno'], similarity_df['Arcaico - Moderno'])
-    return fvalue, pvalue
+# Função para realizar regressão linear
+def regressao_linear(similarity_df):
+    """Aplica regressão linear entre as variáveis de similaridade."""
+    from sklearn.linear_model import LinearRegression
+    X = similarity_df['Dzubukuá - Arcaico'].values.reshape(-1, 1)
+    y = similarity_df['Dzubukuá - Moderno'].values
+    reg = LinearRegression().fit(X, y)
+    y_pred = reg.predict(X)
+    r2 = reg.score(X, y)
+    return y_pred, r2
 
-# Função para calcular margem de erro
-def calcular_margem_erro(similarity_df, confidence=0.95):
-    """Calcula a margem de erro com base nas médias das similaridades."""
-    mean = similarity_df.mean()
-    std_err = similarity_df.sem()
-    margin_of_error = std_err * stats.t.ppf((1 + confidence) / 2., len(similarity_df) - 1)
-    return margin_of_error
+# Função para aplicar PCA (Análise de Componentes Principais)
+def aplicar_pca(similarity_df):
+    """Reduz a dimensionalidade usando PCA para entender os padrões nas similaridades."""
+    pca = PCA(n_components=2)
+    pca_result = pca.fit_transform(similarity_df)
+    return pca_result
 
-# Função para calcular Q-Exponencial (Tsallis)
-def calcular_q_exponencial(similarity_df):
-    """Aplica o conceito de Q-exponencial para análise não-linear."""
-    q = 1.5  # Valor de ajuste da função Q
-    return np.exp(-q * similarity_df)
+# Função para gerar gráficos de correlações
+def grafico_matriz_correlacao(pearson_corr, spearman_corr, kendall_corr):
+    """Gera gráficos para as correlações Pearson, Spearman e Kendall."""
+    fig, axs = plt.subplots(1, 3, figsize=(15, 5))
 
-# Função para gerar gráficos de dispersão de correlação de comprimento
-def grafico_dispersao_comprimento(length_dzubukua, length_arcaico, length_moderno):
-    """Gera gráfico de dispersão para visualização das correlações de comprimento."""
-    fig, ax = plt.subplots()
-    ax.scatter(length_dzubukua, length_arcaico, c='blue', label='Dzubukuá vs. Arcaico', alpha=0.6)
-    ax.scatter(length_dzubukua, length_moderno, c='green', label='Dzubukuá vs. Moderno', alpha=0.6)
-    ax.scatter(length_arcaico, length_moderno, c='red', label='Arcaico vs. Moderno', alpha=0.6)
-    ax.set_title('Correlação de Comprimento de Frases entre Idiomas')
-    ax.set_xlabel('Comprimento das Frases em Idioma Base')
-    ax.set_ylabel('Comprimento Comparado')
-    ax.legend(loc='upper left')
+    sns.heatmap(pearson_corr, annot=True, cmap='coolwarm', ax=axs[0])
+    axs[0].set_title('Correlação de Pearson')
+
+    sns.heatmap(spearman_corr, annot=True, cmap='coolwarm', ax=axs[1])
+    axs[1].set_title('Correlação de Spearman')
+
+    sns.heatmap(kendall_corr, annot=True, cmap='coolwarm', ax=axs[2])
+    axs[2].set_title('Correlação de Kendall')
+
+    st.pyplot(fig)
+
+# Função para gerar gráficos interativos com Plotly
+def grafico_interativo_plotly(similarity_df):
+    """Gera gráficos interativos com Plotly."""
+    fig = px.scatter_matrix(similarity_df, dimensions=similarity_df.columns, title="Correlação entre Similaridades")
+    st.plotly_chart(fig)
+
+# Função para gerar gráficos de dispersão interativos com Plotly
+def grafico_regressao_plotly(similarity_df, y_pred):
+    """Gera gráfico interativo com a linha de regressão."""
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=similarity_df['Dzubukuá - Arcaico'], 
+                             y=similarity_df['Dzubukuá - Moderno'], 
+                             mode='markers', name='Dados'))
+    fig.add_trace(go.Scatter(x=similarity_df['Dzubukuá - Arcaico'], 
+                             y=y_pred, mode='lines', name='Regressão Linear'))
+    fig.update_layout(title="Regressão Linear - Dzubukuá vs. Moderno",
+                      xaxis_title="Similaridade Dzubukuá - Arcaico",
+                      yaxis_title="Similaridade Dzubukuá - Moderno")
+    st.plotly_chart(fig)
+
+# Função para gerar Pairplot (visualiza múltiplas correlações)
+def grafico_pairplot(similarity_df):
+    """Gera um Pairplot para visualizar múltiplas correlações."""
+    fig = sns.pairplot(similarity_df)
+    st.pyplot(fig)
+
+# Função para realizar análise de componentes principais e plotar
+def grafico_pca(similarity_df, pca_result):
+    """Plota os resultados da Análise de Componentes Principais (PCA)."""
+    fig = plt.figure()
+    plt.scatter(pca_result[:, 0], pca_result[:, 1], c='blue', edgecolor='k', s=50)
+    plt.title('Análise de Componentes Principais (PCA)')
+    plt.xlabel('Componente 1')
+    plt.ylabel('Componente 2')
     st.pyplot(fig)
 
 # Função para calcular as similaridades de cosseno
@@ -69,25 +107,6 @@ def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico
     similarity_arcaico_moderno = cosine_similarity(embeddings_arcaico, embeddings_moderno).diagonal()
     
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
-
-# Função para gerar gráficos de barras e histogramas
-def grafico_barras_histogramas(similarity_df):
-    """Gera gráficos de barras e histogramas para visualizar as similaridades."""
-    # Gráfico de Barras
-    fig, ax = plt.subplots()
-    similarity_df.mean().plot(kind='bar', color=['blue', 'green', 'red'], ax=ax)
-    ax.set_title('Média da Similaridade Semântica entre Idiomas')
-    ax.set_ylabel('Similaridade de Cosseno')
-    st.pyplot(fig)
-
-    # Histogramas de distribuição
-    fig, ax = plt.subplots()
-    sns.histplot(similarity_df['Dzubukuá - Arcaico'], color='blue', label='Dzubukuá - Arcaico', kde=True, ax=ax)
-    sns.histplot(similarity_df['Dzubukuá - Moderno'], color='green', label='Dzubukuá - Moderno', kde=True, ax=ax)
-    sns.histplot(similarity_df['Arcaico - Moderno'], color='red', label='Arcaico - Moderno', kde=True, ax=ax)
-    ax.set_title('Distribuição da Similaridade Semântica entre Idiomas')
-    ax.legend()
-    st.pyplot(fig)
 
 # Função para salvar o dataframe como CSV para download
 def salvar_dataframe(similarity_df):
@@ -125,27 +144,11 @@ def exibir_dataset(df):
         mime='text/csv',
     )
 
-# Função para gerar o heatmap de correlação
-def grafico_heatmap(similarity_df):
-    """Gera um heatmap de correlação entre as variáveis."""
-    corr = similarity_df.corr()
-
-    # Criar o heatmap
-    fig, ax = plt.subplots()
-    sns.heatmap(corr, annot=True, cmap='coolwarm', ax=ax)
-    ax.set_title('Heatmap das Correlações')
-    st.pyplot(fig)
-
-# Função para perguntar ao usuário se deseja continuar
-def perguntar_continuacao(mensagem):
-    """Exibe uma pergunta ao usuário com uma opção de 'Sim' ou 'Não'."""
-    return st.radio(mensagem, ('Sim', 'Não')) == 'Sim'
-
 # Função principal para rodar a aplicação no Streamlit
 def main():
     """Função principal da aplicação no Streamlit."""
-
-    st.title('Análise de Correlação e Similaridade Semântica entre Dzubukuá, Português Arcaico e Português Moderno')
+    # Título da aplicação
+    st.title('Análises Estatísticas e Visualizações Avançadas para Dados Linguísticos')
 
     # Upload do arquivo CSV
     uploaded_file = st.file_uploader("Faça o upload do arquivo CSV", type="csv")
@@ -155,79 +158,57 @@ def main():
         # Carregar o arquivo CSV
         df = pd.read_csv(uploaded_file)
         
-        # Exibir dataset com opção de paginação
-        exibir_dataset(df)
+        # Exibir dataset
+        st.write("Primeiras linhas do dataset:")
+        st.dataframe(df.head())
 
-        # Garantir que o número de frases seja o mesmo entre os três grupos
+        # Similaridade semântica usando Sentence-BERT
         sentences_dzubukua = df[df['Idioma'] == 'Dzubukuá']['Texto Original'].tolist()
         sentences_arcaico = df[df['Idioma'] == 'Português Arcaico']['Texto Original'].tolist()
         sentences_moderno = df['Tradução para o Português Moderno'].tolist()
 
-        min_length = min(len(sentences_dzubukua), len(sentences_arcaico), len(sentences_moderno))
-        sentences_dzubukua = sentences_dzubukua[:min_length]
-        sentences_arcaico = sentences_arcaico[:min_length]
-        sentences_moderno = sentences_moderno[:min_length]
+        model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
+        similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno = calcular_similaridade_semantica(
+            model, sentences_dzubukua, sentences_arcaico, sentences_moderno)
 
-        # Correlação de Comprimento
-        st.subheader('Correlação de Comprimento de Frases')
-        length_dzubukua, length_arcaico, length_moderno, correlation_arcaico_dzubukua, correlation_moderno_dzubukua, correlation_arcaico_moderno = calcular_correlacao_comprimento(sentences_dzubukua, sentences_arcaico, sentences_moderno)
+        similarity_df = pd.DataFrame({
+            'Dzubukuá - Arcaico': similarity_arcaico_dzubukua,
+            'Dzubukuá - Moderno': similarity_moderno_dzubukua,
+            'Arcaico - Moderno': similarity_arcaico_moderno
+        })
 
-        # Exibir correlações
-        st.write(f'Correlação de comprimento Dzubukuá - Arcaico: {correlation_arcaico_dzubukua:.2f}')
-        st.write(f'Correlação de comprimento Dzubukuá - Moderno: {correlation_moderno_dzubukua:.2f}')
-        st.write(f'Correlação de comprimento Arcaico - Moderno: {correlation_arcaico_moderno:.2f}')
+        # Correlações Avançadas
+        pearson_corr, spearman_corr, kendall_corr = calcular_correlacoes_avancadas(similarity_df)
+        grafico_matriz_correlacao(pearson_corr, spearman_corr, kendall_corr)
 
-        # Mostrar gráfico de dispersão
-        grafico_dispersao_comprimento(length_dzubukua, length_arcaico, length_moderno)
+        # Regressão Linear
+        y_pred, r2 = regressao_linear(similarity_df)
+        st.write(f"Coeficiente de Determinação (R²) da Regressão Linear: {r2:.2f}")
 
-        # Perguntar se o usuário deseja continuar para o cálculo de similaridade semântica
-        if perguntar_continuacao("Deseja continuar para o cálculo de similaridade semântica?"):
-            # Calcular a similaridade semântica
-            st.subheader('Cálculo de Similaridade Semântica usando Sentence-BERT')
-            model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
-            similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno = calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico, sentences_moderno)
+        # Gráfico interativo da regressão linear
+        st.subheader("Gráfico Interativo da Regressão Linear")
+        grafico_regressao_plotly(similarity_df, y_pred)
 
-            # Criar dataframe para visualização e download
-            similarity_df = pd.DataFrame({
-                'Dzubukuá - Arcaico': similarity_arcaico_dzubukua,
-                'Dzubukuá - Moderno': similarity_moderno_dzubukua,
-                'Arcaico - Moderno': similarity_arcaico_moderno
-            })
+        # Gráfico interativo de correlações usando Plotly
+        st.subheader("Gráfico Interativo de Correlações entre Similaridades")
+        grafico_interativo_plotly(similarity_df)
 
-            # Mostrar gráficos de barras e histogramas
-            grafico_barras_histogramas(similarity_df)
+        # Análise de Componentes Principais (PCA)
+        st.subheader("Análise de Componentes Principais (PCA)")
+        pca_result = aplicar_pca(similarity_df)
+        grafico_pca(similarity_df, pca_result)
 
-            # Mostrar estatísticas descritivas
-            st.subheader('Estatísticas Descritivas das Similaridades de Cosseno')
-            st.write(similarity_df.describe())
+        # Pairplot para visualizar múltiplas correlações
+        st.subheader("Pairplot para Visualizar Múltiplas Correlações")
+        grafico_pairplot(similarity_df)
 
-            # Calcular a margem de erro
-            st.subheader('Margem de Erro para Similaridades')
-            margin_of_error = calcular_margem_erro(similarity_df)
-            st.write(margin_of_error)
+        # Perguntar se o usuário deseja baixar o CSV com os resultados
+        if st.checkbox("Deseja baixar os resultados como CSV?"):
+            salvar_dataframe(similarity_df)
 
-            # Realizar ANOVA
-            st.subheader('ANOVA: Análise de Variância')
-            fvalue, pvalue = calcular_anova(similarity_df)
-            st.write(f'F-value: {fvalue}, P-value: {pvalue}')
+        # Exibir o dataset completo
+        st.subheader("Dataset Completo")
+        exibir_dataset(df)
 
-            # Aplicar Q-Exponencial
-            st.subheader('Q-Exponencial para Análise Não-Linear')
-            q_exponencial_df = calcular_q_exponencial(similarity_df)
-            st.write(q_exponencial_df)
-
-            # Perguntar se o usuário deseja visualizar o heatmap das correlações
-            if perguntar_continuacao("Deseja visualizar o heatmap das correlações?"):
-                st.subheader("Heatmap das Correlações")
-                grafico_heatmap(similarity_df)
-
-            # Perguntar se o usuário deseja baixar o CSV
-            if perguntar_continuacao("Deseja baixar os resultados como CSV?"):
-                salvar_dataframe(similarity_df)
-
-        else:
-            st.write("Operação finalizada. Selecione outro arquivo ou reinicie o processo.")
-
-# Rodar a aplicação Streamlit
 if __name__ == '__main__':
     main()
