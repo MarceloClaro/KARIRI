@@ -98,13 +98,13 @@ def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentenc
     from sklearn.metrics import jaccard_score
     from sklearn.feature_extraction.text import CountVectorizer
 
-    # Função para gerar N-gramas e garantir a mesma dimensionalidade
+    # Função para gerar N-gramas
     def ngramas(sentences, n):
         vectorizer = CountVectorizer(ngram_range=(n, n), analyzer='word').fit(sentences)
         ngram_matrix = vectorizer.transform(sentences).toarray()
         return ngram_matrix
 
-    # Gerando N-gramas para cada conjunto de frases
+    # Gerar N-gramas para cada conjunto de frases
     ngramas_dzubukua = ngramas(sentences_dzubukua, n)
     ngramas_arcaico = ngramas(sentences_arcaico, n)
     ngramas_moderno = ngramas(sentences_moderno, n)
@@ -155,12 +155,11 @@ def calcular_similaridade_word2vec(sentences_dzubukua, sentences_arcaico, senten
     similarity_arcaico_dzubukua = cosine_similarity(vectors_dzubukua, vectors_arcaico).diagonal()
     similarity_moderno_dzubukua = cosine_similarity(vectors_dzubukua, vectors_moderno).diagonal()
     similarity_arcaico_moderno = cosine_similarity(vectors_arcaico, vectors_moderno).diagonal()
-    
+
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
 
 # Função principal para rodar a aplicação no Streamlit
 def main():
-    """Função principal da aplicação no Streamlit."""
     st.title('Análises Estatísticas e Visualizações Avançadas para Dados Linguísticos')
 
     # Upload do arquivo CSV
@@ -228,6 +227,17 @@ def main():
         # Perguntar se o usuário deseja baixar os resultados como CSV
         if st.checkbox("Deseja baixar os resultados como CSV?"):
             salvar_dataframe(similarity_df)
+
+# Função para salvar o dataframe como CSV para download
+def salvar_dataframe(similarity_df):
+    """Permite o download do DataFrame em formato CSV."""
+    csv = similarity_df.to_csv(index=False).encode('utf-8')
+    st.download_button(
+        label="Baixar Similaridades em CSV",
+        data=csv,
+        file_name='similaridades_semanticas_lexicais.csv',
+        mime='text/csv',
+    )
 
 # Rodar a aplicação Streamlit
 if __name__ == '__main__':
