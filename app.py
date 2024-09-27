@@ -64,38 +64,51 @@ def grafico_pca(similarity_df, pca_result):
 
 # Função para gerar gráficos de correlações
 def grafico_matriz_correlacao(pearson_corr, spearman_corr, kendall_corr):
-    """Gera gráficos para as correlações Pearson, Spearman e Kendall."""
-    fig, axs = plt.subplots(1, 3, figsize=(15, 5))
+    """Gera gráficos para as correlações Pearson, Spearman e Kendall, ajustando os rótulos e espaçamento."""
+    fig, axs = plt.subplots(1, 3, figsize=(18, 6))  # Aumentar o tamanho do gráfico
 
+    # Correlação de Pearson
     sns.heatmap(pearson_corr, annot=True, cmap='coolwarm', ax=axs[0])
-    axs[0].set_title('Correlação de Pearson')
+    axs[0].set_title('Correlação de Pearson', pad=20)  # Aumentar espaçamento do título
+    axs[0].tick_params(axis='x', rotation=45)  # Rotacionar rótulos do eixo X
+    axs[0].tick_params(axis='y', rotation=0)   # Manter rótulos do eixo Y
+    axs[0].set_xlabel('Eixo X Pearson', labelpad=15)  # Aumentar espaçamento da legenda do eixo X
+    axs[0].set_ylabel('Eixo Y Pearson', labelpad=15)  # Aumentar espaçamento da legenda do eixo Y
 
+    # Correlação de Spearman
     sns.heatmap(spearman_corr, annot=True, cmap='coolwarm', ax=axs[1])
-    axs[1].set_title('Correlação de Spearman')
+    axs[1].set_title('Correlação de Spearman', pad=20)  # Aumentar espaçamento do título
+    axs[1].tick_params(axis='x', rotation=45)  # Rotacionar rótulos do eixo X
+    axs[1].tick_params(axis='y', rotation=0)   # Manter rótulos do eixo Y
+    axs[1].set_xlabel('Eixo X Spearman', labelpad=15)  # Aumentar espaçamento da legenda do eixo X
+    axs[1].set_ylabel('Eixo Y Spearman', labelpad=15)  # Aumentar espaçamento da legenda do eixo Y
 
+    # Correlação de Kendall
     sns.heatmap(kendall_corr, annot=True, cmap='coolwarm', ax=axs[2])
-    axs[2].set_title('Correlação de Kendall')
+    axs[2].set_title('Correlação de Kendall', pad=20)  # Aumentar espaçamento do título
+    axs[2].tick_params(axis='x', rotation=45)  # Rotacionar rótulos do eixo X
+    axs[2].tick_params(axis='y', rotation=0)   # Manter rótulos do eixo Y
+    axs[2].set_xlabel('Eixo X Kendall', labelpad=15)  # Aumentar espaçamento da legenda do eixo X
+    axs[2].set_ylabel('Eixo Y Kendall', labelpad=15)  # Aumentar espaçamento da legenda do eixo Y
 
+    plt.tight_layout(pad=3.0)  # Aumentar espaçamento entre os subplots
     st.pyplot(fig)
 
 # Função para gerar gráficos interativos com Plotly
 def grafico_interativo_plotly(similarity_df):
-    """Gera gráficos interativos com Plotly."""
+    """Gera gráficos interativos com Plotly, ajustando a rotação dos rótulos e espaçamento."""
     fig = px.scatter_matrix(similarity_df, dimensions=similarity_df.columns, title="Correlação entre Similaridades")
-    st.plotly_chart(fig)
-
-# Função para gerar gráficos de dispersão interativos com Plotly
-def grafico_regressao_plotly(similarity_df, y_pred):
-    """Gera gráfico interativo com a linha de regressão."""
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=similarity_df['Dzubukuá - Arcaico (Semântica)'], 
-                             y=similarity_df['Dzubukuá - Moderno (Semântica)'], 
-                             mode='markers', name='Dados'))
-    fig.add_trace(go.Scatter(x=similarity_df['Dzubukuá - Arcaico (Semântica)'], 
-                             y=y_pred, mode='lines', name='Regressão Linear'))
-    fig.update_layout(title="Regressão Linear - Dzubukuá vs. Moderno (Semântica)",
-                      xaxis_title="Similaridade Dzubukuá - Arcaico (Semântica)",
-                      yaxis_title="Similaridade Dzubukuá - Moderno (Semântica)")
+    
+    # Ajustando o layout para melhorar a visualização e espaçamento
+    fig.update_layout(
+        height=800,  # Altura maior para evitar compressão
+        width=800,   # Largura maior
+        xaxis_tickangle=-45,  # Rotacionar rótulos no eixo X
+        yaxis_tickangle=0,    # Manter rótulos no eixo Y sem rotação
+        margin=dict(l=100, r=100, b=150, t=150, pad=10),  # Aumentar margens para melhorar espaçamento
+        font=dict(size=12),  # Ajustar o tamanho da fonte
+    )
+    
     st.plotly_chart(fig)
 
 # Função para calcular similaridade semântica usando Sentence-BERT
@@ -138,8 +151,6 @@ def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentenc
     ngramas_dzubukua = ngramas_dzubukua[:num_frases]
     ngramas_arcaico = ngramas_arcaico[:num_frases]
     ngramas_moderno = ngramas_moderno[:num_frases]
-
-   
 
     # Certifique-se de que os vetores de N-gramas tenham o mesmo número de colunas (dimensão)
     ngramas_dzubukua = ngramas_dzubukua[:, :min(ngramas_dzubukua.shape[1], ngramas_arcaico.shape[1], ngramas_moderno.shape[1])]
