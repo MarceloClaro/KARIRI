@@ -139,6 +139,8 @@ def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentenc
     ngramas_arcaico = ngramas_arcaico[:num_frases]
     ngramas_moderno = ngramas_moderno[:num_frases]
 
+   
+
     # Certifique-se de que os vetores de N-gramas tenham o mesmo número de colunas (dimensão)
     ngramas_dzubukua = ngramas_dzubukua[:, :min(ngramas_dzubukua.shape[1], ngramas_arcaico.shape[1], ngramas_moderno.shape[1])]
     ngramas_arcaico = ngramas_arcaico[:, :ngramas_dzubukua.shape[1]]
@@ -153,7 +155,6 @@ def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentenc
         jaccard_score(ngramas_dzubukua[i], ngramas_moderno[i], average='binary') 
         for i in range(num_frases)
     ]
-
     similarity_arcaico_moderno = [
         jaccard_score(ngramas_arcaico[i], ngramas_moderno[i], average='binary') 
         for i in range(num_frases)
