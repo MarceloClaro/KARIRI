@@ -8,7 +8,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.decomposition import PCA
 import numpy as np
 from gensim.models import Word2Vec, FastText
-from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LinearRegression
 import scipy.stats as stats
 from scipy.cluster.hierarchy import dendrogram
@@ -20,12 +19,15 @@ from scipy.spatial.distance import pdist, squareform
 from scipy.cluster.hierarchy import linkage, to_tree
 from sklearn.manifold import TSNE
 import statsmodels.api as sm
-import statsmodels
 from Levenshtein import distance as levenshtein_distance
 from collections import Counter
 
-# Carregar modelo de língua portuguesa para análise morfológica
-nlp = spacy.load('pt_core_news_sm')
+# Tentar carregar o modelo de língua portuguesa para análise morfológica
+try:
+    nlp = spacy.load('pt_core_news_sm')
+except OSError:
+    st.error("O modelo 'pt_core_news_sm' não está instalado. Por favor, execute 'python -m spacy download pt_core_news_sm' no terminal para instalar o modelo e reinicie a aplicação.")
+    st.stop()
 
 # Função para limpeza e normalização de dados
 def limpar_normalizar_texto(text):
@@ -147,52 +149,24 @@ def analisar_correspondencias_sonoras(sentences_dzubukua, sentences_arcaico, sen
     # Em uma aplicação real, utilizar análises fonológicas detalhadas
     correspondencias = []
     for dz, ar, mo in zip(sentences_dzubukua, sentences_arcaico, sentences_moderno):
-        dz = codificacao_fonetica_customizada(limpar_normalizar_texto(dz))
-        ar = codificacao_fonetica_customizada(limpar_normalizar_texto(ar))
-        mo = codificacao_fonetica_customizada(limpar_normalizar_texto(mo))
-        correspondencias.append({'Dzubukuá': dz, 'Arcaico': ar, 'Moderno': mo})
+        dz_phon = codificacao_fonetica_customizada(limpar_normalizar_texto(dz))
+        ar_phon = codificacao_fonetica_customizada(limpar_normalizar_texto(ar))
+        mo_phon = codificacao_fonetica_customizada(limpar_normalizar_texto(mo))
+        correspondencias.append({'Dzubukuá': dz_phon, 'Arcaico': ar_phon, 'Moderno': mo_phon})
     return correspondencias
 
 # Função para gerar árvore filogenética
 def gerar_arvore_filogenetica(similarity_df):
     """Gera uma árvore filogenética baseada nas similaridades."""
-    from scipy.spatial.distance import pdist, squareform
-    from scipy.cluster.hierarchy import linkage, to_tree
-    from ete3 import Tree, TreeStyle
+    import plotly.figure_factory as ff
 
     # Calcular distância
     dist_matrix = 1 - similarity_df.corr()
-    condensed_dist = pdist(dist_matrix)
-    linkage_matrix = linkage(condensed_dist, method='average')
-
-    # Construir a árvore
-    tree = to_tree(linkage_matrix, rd=False)
-
-    # Converter para formato ETE
-    def build_ete_tree(scipy_tree, labels):
-        if scipy_tree.is_leaf():
-            return Tree(f"{labels[scipy_tree.id]};")
-        else:
-            left = build_ete_tree(scipy_tree.get_left(), labels)
-            right = build_ete_tree(scipy_tree.get_right(), labels)
-            new_tree = Tree()
-            new_tree.add_child(left)
-            new_tree.add_child(right)
-            return new_tree
-
     labels = similarity_df.columns.tolist()
-    ete_tree = build_ete_tree(tree, labels)
-
-    # Visualizar a árvore
-    ts = TreeStyle()
-    ts.show_leaf_name = True
-    ts.rotation = 90
-    ts.scale = 20
-
-    # Renderizar a árvore no Streamlit
+    fig = ff.create_dendrogram(dist_matrix.values, orientation='left', labels=labels)
+    fig.update_layout(width=800, height=600)
     st.subheader("Árvore Filogenética das Similaridades")
-    st.write("A árvore filogenética abaixo representa as relações evolutivas entre as línguas com base nas similaridades calculadas.")
-    st.write(ete_tree.render("%%inline", w=800, tree_style=ts))
+    st.plotly_chart(fig)
 
 # Função para regressão linear avançada com verificação de suposições
 def regressao_linear_avancada(X, y):
@@ -208,7 +182,7 @@ def regressao_linear_avancada(X, y):
     stat, p_normal = stats.shapiro(residuals)
 
     # Teste de homocedasticidade (Breusch-Pagan)
-    _, p_homoscedasticity, _, _ = statsmodels.stats.diagnostic.het_breuschpagan(residuals, sm.add_constant(X))
+    _, p_homoscedasticity, _, _ = sm.stats.diagnostic.het_breuschpagan(residuals, sm.add_constant(X))
 
     # Teste de significância estatística
     n = len(X)
@@ -428,7 +402,7 @@ def main():
 
         # Visualização dos embeddings
         st.subheader("Visualização dos Embeddings")
-        palavras_para_visualizar = ['exemplo1', 'exemplo2', 'exemplo3']  # Substitua por palavras relevantes
+        palavras_para_visualizar = ['palavra1', 'palavra2', 'palavra3']  # Substitua por palavras relevantes
         visualizar_embeddings(embeddings_model, palavras_para_visualizar)
 
         # Similaridade Lexical (Embeddings Customizados)
@@ -478,7 +452,7 @@ def main():
         st.subheader("Similaridade Calculada entre as Três Línguas")
         st.dataframe(similarity_df)
 
-        # Gráfico interativo de correlações usando Plotly (atualizado)
+        # Gráfico interativo de correlações usando Plotly
         st.subheader("Mapa de Correlação entre Similaridades")
         grafico_interativo_plotly(similarity_df)
 
@@ -505,6 +479,8 @@ def main():
         # Perguntar se o usuário deseja baixar os resultados como CSV
         if st.checkbox("Deseja baixar os resultados como CSV?"):
             salvar_dataframe(similarity_df)
+    else:
+        st.info("Por favor, faça o upload do arquivo CSV para iniciar a análise.")
 
 if __name__ == '__main__':
     main()
