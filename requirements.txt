@@ -16,4 +16,3 @@ ete3
 statsmodels 
 Levenshtein
 qinfer
-base64
