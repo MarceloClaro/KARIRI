@@ -44,6 +44,246 @@ else:
 # Layout da página
 st.image('capa.png', width=100, caption='Laboratório de Educação e Inteligência Artificial - Geomaker. "A melhor forma de prever o futuro é inventá-lo." - Alan Kay', use_column_width='always')
 
+st.sidebar.image("logo.png", width=200)
+# Exibe uma imagem na sidebar. O arquivo "logo.png" é a imagem que representa a marca ou o tema da aplicação, neste caso, provavelmente o logotipo do Geomaker.
+# - `width=200`: Define a largura da imagem, ajustando-a para caber na barra lateral sem ocupar muito espaço.
+# Vantagem: A imagem dá uma identidade visual para a aplicação, tornando-a mais profissional e personalizada.
+# Desvantagem: Se a imagem não estiver disponível ou o caminho estiver incorreto, pode gerar um erro ou deixar um espaço vazio na interface.
+# Possível solução: Implementar uma verificação para garantir que a imagem existe antes de carregá-la. Caso não exista, exibir uma imagem padrão ou mensagem alternativa. 
+# Exemplo de código para verificar a existência da imagem:
+# ```python
+# import os
+# if os.path.exists("logo.png"):
+#     st.sidebar.image("logo.png", width=200)
+# else:
+#     st.sidebar.text("Imagem não encontrada.")
+# ```
+
+st.sidebar.title("Geomaker +IA")
+# Exibe um título na barra lateral com o nome "Geomaker +IA".
+# Vantagem: O título fornece uma identificação clara do propósito ou do nome da aplicação. No contexto, o título "Geomaker +IA" indica uma ferramenta de inteligência artificial (IA) associada ao Geomaker.
+# Desvantagem: O título é estático e não se adapta dinamicamente ao conteúdo. Se o nome do projeto ou da aplicação mudar, o código precisará ser ajustado manualmente.
+# Possível solução: Tornar o título dinâmico, utilizando uma variável que permita alterar o nome facilmente, como em um painel de administração ou via um arquivo de configuração.
+# Exemplo:
+# ```python
+# app_title = "Geomaker +IA"
+# st.sidebar.title(app_title)
+# ```
+
+# Vantagens gerais:
+# 1. **Identidade visual**: O uso da imagem e do título ajuda a criar uma identidade visual clara para a aplicação, tornando-a facilmente reconhecível pelos usuários.
+# 2. **Organização de informações**: A sidebar permite que informações importantes, como logotipos e títulos, fiquem visíveis independentemente de onde o usuário esteja navegando na interface principal.
+# 3. **Otimização de espaço**: Colocar o logotipo e o título na barra lateral ajuda a liberar espaço na área principal da aplicação, mantendo o foco nas funcionalidades.
+
+# Desvantagens gerais:
+# 1. **Dependência de arquivos externos**: O uso de uma imagem externa como o logotipo cria uma dependência que pode causar problemas se o arquivo não estiver disponível.
+# 2. **Conteúdo estático**: Tanto o logotipo quanto o título são fixos e não se adaptam a mudanças contextuais na aplicação. Se houver uma alteração no nome da marca ou do logotipo, o código precisará ser alterado manualmente.
+# 3. **Layout não responsivo**: A largura fixa da imagem pode ser inadequada para telas menores, o que pode prejudicar a experiência de usuários em dispositivos móveis ou telas pequenas.
+
+# Possíveis soluções:
+# 1. **Verificação de disponibilidade da imagem**: Implementar um código que verifica se o arquivo da imagem está disponível e, caso não esteja, exibir uma mensagem alternativa ou uma imagem padrão.
+# 2. **Título dinâmico**: Tornar o título da aplicação dinâmico, utilizando variáveis configuráveis que podem ser alteradas facilmente, sem necessidade de mudar o código diretamente.
+# 3. **Responsividade**: Melhorar a responsividade da imagem e do layout da sidebar, ajustando automaticamente a largura da imagem com base no tamanho da tela.
+
+# Inovações:
+# 1. **Barra lateral interativa**: Tornar a barra lateral mais interativa, permitindo que o usuário escolha temas ou personalize a interface, como a escolha de um logotipo diferente ou o título da aplicação.
+# 2. **Suporte a modo escuro**: Adicionar uma opção para alternar entre modos claro e escuro diretamente da barra lateral, tornando a interface mais agradável para diferentes preferências de usuários.
+# 3. **Notificações na sidebar**: Incorporar uma área para exibição de notificações ou atualizações na barra lateral, informando o usuário sobre novas funcionalidades ou mensagens importantes.
+
+# _____________________________________________
+
+with st.sidebar.expander("Insights do Código"):
+    # A função `st.sidebar.expander` cria um elemento de "expansão" na barra lateral, que pode ser aberto ou fechado pelo usuário.
+    # - "Insights do Código": É o título do expander, que indica que ele contém informações detalhadas sobre o código.
+    # Vantagem: O uso de um expander permite organizar informações que não precisam ser exibidas o tempo todo, economizando espaço visual.
+    # Desvantagem: Informações importantes podem ficar escondidas se o usuário não expandir o conteúdo, dificultando o acesso rápido a dados essenciais.
+    # Possível solução: Para informações críticas, fornecer uma indicação visual clara para o usuário sobre a importância de expandir o conteúdo.
+    # Exemplo: Adicionar uma seta ou destaque que incentive o usuário a expandir.
+    
+    st.markdown("""
+    O código do Agentes Alan Kay é um exemplo de uma aplicação de chat baseada em modelos de linguagem (LLMs) utilizando a biblioteca Streamlit e a API Groq. Aqui, vamos analisar detalhadamente o código e discutir suas inovações, pontos positivos e limitações.
+    """)
+    # A função `st.markdown` permite exibir um texto com formatação Markdown dentro do expander. Neste caso, ela está sendo usada para fornecer uma introdução ao código e sua funcionalidade.
+    # Vantagem: O Markdown permite uma apresentação estruturada e organizada do conteúdo, incluindo listas, negrito, e outros elementos de formatação.
+    # Desvantagem: O Markdown não é tão flexível quanto HTML para personalizações mais avançadas de estilo e pode limitar a formatação visual.
+    # Possível solução: Se mais personalização for necessária, usar `st.markdown` com o parâmetro `unsafe_allow_html=True` para incorporar elementos HTML mais avançados.
+    # Exemplo: `st.markdown("<h1>Agentes Alan Kay</h1>", unsafe_allow_html=True)`
+
+    st.markdown("""
+    **Inovações:**
+    - Suporte a múltiplos modelos de linguagem: O código permite que o usuário escolha entre diferentes modelos de linguagem, como o LLaMA, para gerar respostas mais precisas e personalizadas.
+    - Integração com a API Groq: A integração com a API Groq permite que o aplicativo utilize a capacidade de processamento de linguagem natural de alta performance para gerar respostas precisas.
+    - Refinamento de respostas: O código permite que o usuário refine as respostas do modelo de linguagem, tornando-as mais precisas e relevantes para a consulta.
+    - Avaliação com o RAG: A avaliação com o RAG (Rational Agent Generator) permite que o aplicativo avalie a qualidade e a precisão das respostas do modelo de linguagem.
+    """)
+    # O texto apresenta as inovações implementadas no código, detalhando os benefícios e funcionalidades.
+    # Vantagem: Proporciona uma explicação clara e direta dos principais recursos inovadores do código, destacando aspectos técnicos como o suporte a múltiplos modelos e a integração com Groq.
+    # Desvantagem: A lista não fornece exemplos concretos ou uma explicação de como cada inovação pode ser utilizada pelo usuário.
+    # Possível solução: Incluir exemplos práticos ou cenários de uso para que os leitores entendam melhor como essas inovações podem ser aplicadas no contexto da aplicação.
+    # Exemplo: Após cada item, adicionar uma breve explicação com exemplos: "Por exemplo, ao usar o modelo LLaMA, você pode gerar respostas específicas para consultas técnicas."
+
+    st.markdown("""
+    **Pontos positivos:**
+    - Personalização: O aplicativo permite que o usuário escolha entre diferentes modelos de linguagem e personalize as respostas de acordo com suas necessidades.
+    - Precisão: A integração com a API Groq e o refinamento de respostas garantem que as respostas sejam precisas e relevantes para a consulta.
+    - Flexibilidade: O código é flexível o suficiente para permitir que o usuário escolha entre diferentes modelos de linguagem e personalize as respostas.
+    """)
+    # A seção destaca os pontos fortes do código, como a personalização e flexibilidade oferecidas ao usuário.
+    # Vantagem: Fornece uma visão geral dos aspectos positivos, o que pode ajudar a convencer desenvolvedores ou usuários sobre a eficiência da aplicação.
+    # Desvantagem: A lista de pontos positivos não aborda possíveis desafios para os novos usuários ou limitações operacionais.
+    # Possível solução: Equilibrar os pontos positivos com exemplos de como eles superam desafios comuns ou facilitam a experiência do usuário.
+    # Exemplo: "A flexibilidade permite que até usuários iniciantes adaptem o sistema às suas necessidades sem conhecimento técnico profundo."
+
+    st.markdown("""
+    **Limitações:**
+    - Dificuldade de uso: O aplicativo pode ser difícil de usar para os usuários que não têm experiência com modelos de linguagem ou API.
+    - Limitações de token: O código tem limitações em relação ao número de tokens que podem ser processados pelo modelo de linguagem.
+    - Necessidade de treinamento adicional: O modelo de linguagem pode precisar de treinamento adicional para lidar com consultas mais complexas ou específicas.
+    """)
+    # Aqui são listadas as limitações do código, como dificuldades de uso para iniciantes e restrições técnicas relacionadas aos tokens.
+    # Vantagem: Fornecer uma visão clara das limitações do código ajuda a preparar o usuário para possíveis desafios e a entender melhor os pontos a serem melhorados.
+    # Desvantagem: As limitações são abordadas de forma geral, sem sugerir soluções concretas para os problemas.
+    # Possível solução: Oferecer possíveis melhorias ou soluções para as limitações mencionadas.
+    # Exemplo: "A necessidade de treinamento adicional pode ser mitigada com um módulo de treinamento dinâmico para adaptação contínua a novas consultas."
+
+    st.markdown("""
+    **Importância de ter colocado instruções em chinês:**
+    A linguagem chinesa tem uma densidade de informação mais alta do que muitas outras línguas, o que significa que os modelos de linguagem precisam processar menos tokens para entender o contexto e gerar respostas precisas. Isso torna a linguagem chinesa mais apropriada para a utilização de modelos de linguagem com baixa quantidade de tokens. Portanto, ter colocado instruções em chinês no código é um recurso importante para garantir que o aplicativo possa lidar com consultas em chinês de forma eficaz.
+    """)
+    # O texto explica a vantagem de usar instruções em chinês, destacando a eficiência em termos de tokens processados.
+    # Vantagem: Explicar a relevância de otimizar o código para a língua chinesa ajuda a justificar decisões técnicas que podem parecer menos intuitivas para quem não está familiarizado com a densidade de informação do idioma.
+    # Desvantagem: A explicação pode ser densa para usuários que não possuem conhecimento técnico sobre modelos de linguagem e processamento de tokens.
+    # Possível solução: Simplificar a linguagem para torná-la mais acessível, ou dividir a explicação em partes menores e mais digeríveis.
+    # Exemplo: "Como o chinês utiliza menos caracteres para transmitir a mesma quantidade de informação, ele é mais eficiente para a IA processar."
+
+    st.markdown("""
+    Em resumo, o código é uma aplicação inovadora que combina modelos de linguagem com a API Groq para proporcionar respostas precisas e personalizadas. No entanto, é importante considerar as limitações do aplicativo e trabalhar para melhorá-lo ainda mais.
+    """)
+    # Um resumo é fornecido para consolidar os pontos discutidos, destacando as inovações e limitações.
+    # Vantagem: Ajuda a sintetizar as informações em um formato fácil de entender e cria um ponto de fechamento claro para a análise.
+    # Desvantagem: O resumo não sugere ações práticas ou passos a seguir para a melhoria do código, sendo mais informativo do que propositivo.
+    # Possível solução: Incluir recomendações práticas ou sugestões de melhorias no final do resumo.
+    # Exemplo: "Recomenda-se implementar um módulo de suporte interativo para usuários novos, e ajustar as limitações de tokens para maior flexibilidade."
+
+# _____________________________________________
+with st.sidebar.expander("Insights do Código"):
+    # O comando `st.sidebar.expander` cria uma seção expansível na barra lateral com o título "Insights do Código".
+    # Vantagem: Permite ao usuário ocultar ou expandir informações conforme necessário, economizando espaço e evitando sobrecarregar a interface.
+    # Desvantagem: Se o conteúdo dentro do `expander` for essencial, o usuário pode deixar de visualizá-lo se não souber que há informações ali.
+    # Possível solução: Tornar o título mais chamativo, sugerindo que contém informações valiosas, como "Clique para ver os insights importantes do código".
+
+    st.markdown("""
+    O código do Agentes Alan Kay é um exemplo de uma aplicação de chat baseada em modelos de linguagem (LLMs) utilizando a biblioteca Streamlit e a API Groq. Aqui, vamos analisar detalhadamente o código e discutir suas inovações, pontos positivos e limitações.
+    """)
+    # A função `st.markdown` permite que o texto seja exibido em formato Markdown. Esse bloco de texto fornece uma introdução à análise do código.
+    # Vantagem: Markdown é uma maneira simples e eficiente de formatar texto com títulos, listas e links, facilitando a leitura.
+    # Desvantagem: Markdown é limitado em termos de interatividade e formatação avançada comparado ao HTML puro.
+    # Possível solução: Oferecer uma interface mais interativa usando botões ou links que levem a seções específicas de análise detalhada.
+
+    # Seções detalhadas do código (Inovações, Pontos Positivos, Limitações)
+    st.markdown("""
+    **Inovações:**
+    - Suporte a múltiplos modelos de linguagem: O código permite que o usuário escolha entre diferentes modelos de linguagem, como o LLaMA, para gerar respostas mais precisas e personalizadas.
+    - Integração com a API Groq: A integração com a API Groq permite que o aplicativo utilize a capacidade de processamento de linguagem natural de alta performance para gerar respostas precisas.
+    - Refinamento de respostas: O código permite que o usuário refine as respostas do modelo de linguagem, tornando-as mais precisas e relevantes para a consulta.
+    - Avaliação com o RAG: A avaliação com o RAG (Rational Agent Generator) permite que o aplicativo avalie a qualidade e a precisão das respostas do modelo de linguagem.
+    """)
+    # Vantagem: Organiza as inovações do código de forma clara, ajudando o usuário a entender as funcionalidades mais avançadas da aplicação.
+    # Desvantagem: A lista é puramente informativa e não interativa.
+    # Possível solução: Adicionar exemplos práticos que mostrem como cada inovação funciona na prática, permitindo ao usuário experimentar as funcionalidades ao mesmo tempo que lê sobre elas.
+
+    st.markdown("""
+    **Pontos positivos:**
+    - Personalização: O aplicativo permite que o usuário escolha entre diferentes modelos de linguagem e personalize as respostas de acordo com suas necessidades.
+    - Precisão: A integração com a API Groq e o refinamento de respostas garantem que as respostas sejam precisas e relevantes para a consulta.
+    - Flexibilidade: O código é flexível o suficiente para permitir que o usuário escolha entre diferentes modelos de linguagem e personalize as respostas.
+    """)
+    # O bloco de pontos positivos destaca as principais qualidades do código.
+    # Vantagem: Facilita a visualização dos aspectos fortes da aplicação, ajudando a destacar suas capacidades para os usuários.
+    # Desvantagem: Não há links para exemplos ou tutoriais que expliquem como tirar proveito dessas qualidades na prática.
+    # Possível solução: Criar links para tutoriais ou guias interativos que mostrem como configurar e utilizar as opções de personalização e flexibilidade.
+
+    st.markdown("""
+    **Limitações:**
+    - Dificuldade de uso: O aplicativo pode ser difícil de usar para os usuários que não têm experiência com modelos de linguagem ou API.
+    - Limitações de token: O código tem limitações em relação ao número de tokens que podem ser processados pelo modelo de linguagem.
+    - Necessidade de treinamento adicional: O modelo de linguagem pode precisar de treinamento adicional para lidar com consultas mais complexas ou específicas.
+    """)
+    # Apresenta as limitações da aplicação de maneira clara e objetiva.
+    # Vantagem: Transparência sobre as limitações do sistema, permitindo que os usuários entendam onde podem surgir problemas ou desafios.
+    # Desvantagem: Não há soluções sugeridas para lidar com essas limitações diretamente na aplicação.
+    # Possível solução: Incluir sugestões ou links para documentação que explique como superar essas limitações, como usar técnicas de compressão de tokens ou melhorar o desempenho de modelos com grandes conjuntos de dados.
+
+    st.markdown("""
+    **Importância de ter colocado instruções em chinês:**
+    A linguagem chinesa tem uma densidade de informação mais alta do que muitas outras línguas, o que significa que os modelos de linguagem precisam processar menos tokens para entender o contexto e gerar respostas precisas. Isso torna a linguagem chinesa mais apropriada para a utilização de modelos de linguagem com baixa quantidade de tokens. Portanto, ter colocado instruções em chinês no código é um recurso importante para garantir que o aplicativo possa lidar com consultas em chinês de forma eficaz.
+    """)
+    # Explica a importância de otimizar o processamento em línguas como o chinês, que tem alta densidade de informação por token.
+    # Vantagem: Aponta uma solução inteligente para maximizar o uso eficiente de tokens em modelos de linguagem.
+    # Desvantagem: Focado em um caso específico (língua chinesa), sem explorar outros cenários em diferentes línguas ou dialetos.
+    # Possível solução: Ampliar a análise para incluir outras línguas que também podem ter características vantajosas no processamento por tokens, ou oferecer suporte a múltiplas línguas com estratégias específicas.
+
+    st.markdown("""
+    Em resumo, o código é uma aplicação inovadora que combina modelos de linguagem com a API Groq para proporcionar respostas precisas e personalizadas. No entanto, é importante considerar as limitações do aplicativo e trabalhar para melhorá-lo ainda mais.
+    """)
+    # O texto de resumo oferece uma visão final sobre a aplicação, destacando sua inovação e sugerindo melhorias.
+    # Vantagem: Conclui a análise de forma clara e com recomendações.
+    # Desvantagem: O texto é genérico e não explora possíveis planos de ação detalhados para melhorar a aplicação.
+    # Possível solução: Oferecer um plano de ação prático com etapas recomendadas para superar as limitações, como a expansão de capacidade de processamento de tokens ou a simplificação da interface para usuários iniciantes.
+
+    # Informações de contato
+    st.sidebar.image("eu.ico", width=80)
+    # Exibe uma imagem (provavelmente uma foto ou ícone do criador) na barra lateral.
+    # Vantagem: A presença de uma imagem de contato dá uma personalização e identidade à aplicação, além de humanizar o projeto.
+    # Desvantagem: Se a imagem não estiver disponível, pode gerar um erro ou deixar um espaço vazio na interface.
+    # Possível solução: Incluir uma verificação para garantir que a imagem existe antes de carregá-la, e fornecer uma imagem alternativa se não estiver disponível.
+
+    st.sidebar.write("""
+    Projeto Geomaker + IA 
+    - Professor: Marcelo Claro.
+    """)
+    # Mostra uma breve descrição e o nome do responsável pelo projeto.
+    # Vantagem: Facilita a identificação do criador ou responsável pela aplicação.
+    # Desvantagem: O texto é fixo e não permite personalização dinâmica.
+    # Possível solução: Tornar esse bloco dinâmico, permitindo que o responsável possa ser alterado conforme o projeto se expande ou outros colaboradores entram no projeto.
+
+    st.sidebar.write("""
+    Contatos: marceloclaro@gmail.com
+    Whatsapp: (88)981587145
+    Instagram: [https://www.instagram.com/marceloclaro.geomaker/](https://www.instagram.com/marceloclaro.geomaker/)
+    """)
+    # Exibe as informações de contato do responsável (e-mail, WhatsApp e Instagram).
+    # Vantagem: Facilita a comunicação entre os usuários e o criador, permitindo feedback direto ou consultas.
+    # Desvantagem: Informações de contato fixas podem se desatualizar com o tempo (por exemplo, mudanças de número ou e-mail).
+    # Possível solução: Usar variáveis externas para armazenar essas informações, facilitando a atualização em caso de mudanças. Exemplo:
+    # ```python
+    # contato_email = "marceloclaro@gmail.com"
+    # contato_whatsapp = "(88)981587145"
+    # contato_instagram = "https://www.instagram.com/marceloclaro.geomaker/"
+    # st.sidebar.write(f"Contatos: {contato_email}\nWhatsapp: {contato_whatsapp}\nInstagram: {contato_instagram}")
+    # ```
+
+# Vantagens gerais:
+# 1. **Informação organizada**: A estrutura da sidebar, com seções separadas para insights e informações de contato, mantém tudo organizado e fácil de acessar.
+# 2. **Conteúdo expansível**: O uso de `expander` para ocultar/mostrar informações melhora a usabilidade, especialmente em interfaces mais densas.
+# 3. **Contato fácil**: O usuário pode entrar em contato rapidamente com o criador via diferentes canais, o que ajuda a criar uma comunidade em torno do projeto.
+
+# Desvantagens gerais:
+# 1. **Conteúdo estático**: Algumas partes do código são estáticas e exigem alterações manuais caso as informações mudem (como contato ou títulos).
+# 2. **Falta de interatividade**: Embora a barra lateral tenha muitas informações, faltam elementos interativos que incentivem a navegação ou a experimentação.
+# 3. **Dependência de arquivos externos**: A ausência ou falha ao carregar as imagens externas pode prejudicar a aparência da interface.
+
+# Possíveis soluções:
+# 1. **Conteúdo dinâmico**: Usar variáveis configuráveis para facilitar a atualização de informações, como os dados de contato e descrições.
+# 2. **Links interativos**: Adicionar mais links interativos que direcionem para seções ou funcionalidades relevantes da aplicação.
+# 3. **Verificação de imagem**: Implementar verificações automáticas para garantir que as imagens estejam disponíveis antes de carregá-las.
+
+# Inovações:
+# 1. **Barra lateral interativa**: Transformar a barra lateral em uma área interativa com menus, temas personalizados e opções dinâmicas.
+# 2. **Feedback do usuário**: Adicionar uma seção de feedback onde os usuários possam enviar diretamente sugestões ou comentários através da sidebar.
+# 3. **Análises em tempo real**: Incluir widgets que mostrem estatísticas ou insights em tempo real, como o número de usuários que utilizaram o sistema ou desempenho dos modelos de IA.
+
+# _____________________________________________
 # Certifique-se de que todas as funções estão definidas antes do main()
 # Função para calcular similaridade semântica usando Sentence-BERT
 def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico, sentences_moderno):
