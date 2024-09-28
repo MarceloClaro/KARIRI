@@ -172,64 +172,656 @@ with st.sidebar.expander("Insights do Código"):
     # Possível solução: Tornar o título mais chamativo, sugerindo que contém informações valiosas, como "Clique para ver os insights importantes do código".
 
     st.markdown("""
-    O código do Agentes Alan Kay é um exemplo de uma aplicação de chat baseada em modelos de linguagem (LLMs) utilizando a biblioteca Streamlit e a API Groq. Aqui, vamos analisar detalhadamente o código e discutir suas inovações, pontos positivos e limitações.
-    """)
-    # A função `st.markdown` permite que o texto seja exibido em formato Markdown. Esse bloco de texto fornece uma introdução à análise do código.
-    # Vantagem: Markdown é uma maneira simples e eficiente de formatar texto com títulos, listas e links, facilitando a leitura.
-    # Desvantagem: Markdown é limitado em termos de interatividade e formatação avançada comparado ao HTML puro.
-    # Possível solução: Oferecer uma interface mais interativa usando botões ou links que levem a seções específicas de análise detalhada.
+    **Introdução**
 
-    # Seções detalhadas do código (Inovações, Pontos Positivos, Limitações)
-    st.markdown("""
-    **Inovações:**
-    - Suporte a múltiplos modelos de linguagem: O código permite que o usuário escolha entre diferentes modelos de linguagem, como o LLaMA, para gerar respostas mais precisas e personalizadas.
-    - Integração com a API Groq: A integração com a API Groq permite que o aplicativo utilize a capacidade de processamento de linguagem natural de alta performance para gerar respostas precisas.
-    - Refinamento de respostas: O código permite que o usuário refine as respostas do modelo de linguagem, tornando-as mais precisas e relevantes para a consulta.
-    - Avaliação com o RAG: A avaliação com o RAG (Rational Agent Generator) permite que o aplicativo avalie a qualidade e a precisão das respostas do modelo de linguagem.
-    """)
-    # Vantagem: Organiza as inovações do código de forma clara, ajudando o usuário a entender as funcionalidades mais avançadas da aplicação.
-    # Desvantagem: A lista é puramente informativa e não interativa.
-    # Possível solução: Adicionar exemplos práticos que mostrem como cada inovação funciona na prática, permitindo ao usuário experimentar as funcionalidades ao mesmo tempo que lê sobre elas.
+Este documento fornece uma explicação detalhada das análises linguísticas realizadas por meio de um código Python que compara três idiomas: **Dzubukuá** (uma língua morta ou em risco de extinção), **Português Arcaico** e **Português Moderno**. O objetivo é entender as similaridades e diferenças entre esses idiomas em termos semânticos, lexicais e fonológicos, utilizando técnicas avançadas de processamento de linguagem natural (PLN) e estatística.
 
-    st.markdown("""
-    **Pontos positivos:**
-    - Personalização: O aplicativo permite que o usuário escolha entre diferentes modelos de linguagem e personalize as respostas de acordo com suas necessidades.
-    - Precisão: A integração com a API Groq e o refinamento de respostas garantem que as respostas sejam precisas e relevantes para a consulta.
-    - Flexibilidade: O código é flexível o suficiente para permitir que o usuário escolha entre diferentes modelos de linguagem e personalize as respostas.
-    """)
-    # O bloco de pontos positivos destaca as principais qualidades do código.
-    # Vantagem: Facilita a visualização dos aspectos fortes da aplicação, ajudando a destacar suas capacidades para os usuários.
-    # Desvantagem: Não há links para exemplos ou tutoriais que expliquem como tirar proveito dessas qualidades na prática.
-    # Possível solução: Criar links para tutoriais ou guias interativos que mostrem como configurar e utilizar as opções de personalização e flexibilidade.
+Serão apresentados os métodos utilizados, incluindo fórmulas matemáticas, justificativas para cada análise, objetivos específicos, exemplos e possíveis insights. Ao final, serão discutidas as limitações e considerações técnicas de cada abordagem.
 
-    st.markdown("""
-    **Limitações:**
-    - Dificuldade de uso: O aplicativo pode ser difícil de usar para os usuários que não têm experiência com modelos de linguagem ou API.
-    - Limitações de token: O código tem limitações em relação ao número de tokens que podem ser processados pelo modelo de linguagem.
-    - Necessidade de treinamento adicional: O modelo de linguagem pode precisar de treinamento adicional para lidar com consultas mais complexas ou específicas.
-    """)
-    # Apresenta as limitações da aplicação de maneira clara e objetiva.
-    # Vantagem: Transparência sobre as limitações do sistema, permitindo que os usuários entendam onde podem surgir problemas ou desafios.
-    # Desvantagem: Não há soluções sugeridas para lidar com essas limitações diretamente na aplicação.
-    # Possível solução: Incluir sugestões ou links para documentação que explique como superar essas limitações, como usar técnicas de compressão de tokens ou melhorar o desempenho de modelos com grandes conjuntos de dados.
+---
 
-    st.markdown("""
-    **Importância de ter colocado instruções em chinês:**
-    A linguagem chinesa tem uma densidade de informação mais alta do que muitas outras línguas, o que significa que os modelos de linguagem precisam processar menos tokens para entender o contexto e gerar respostas precisas. Isso torna a linguagem chinesa mais apropriada para a utilização de modelos de linguagem com baixa quantidade de tokens. Portanto, ter colocado instruções em chinês no código é um recurso importante para garantir que o aplicativo possa lidar com consultas em chinês de forma eficaz.
-    """)
-    # Explica a importância de otimizar o processamento em línguas como o chinês, que tem alta densidade de informação por token.
-    # Vantagem: Aponta uma solução inteligente para maximizar o uso eficiente de tokens em modelos de linguagem.
-    # Desvantagem: Focado em um caso específico (língua chinesa), sem explorar outros cenários em diferentes línguas ou dialetos.
-    # Possível solução: Ampliar a análise para incluir outras línguas que também podem ter características vantajosas no processamento por tokens, ou oferecer suporte a múltiplas línguas com estratégias específicas.
+**1. Importação das Bibliotecas Necessárias**
 
-    st.markdown("""
-    Em resumo, o código é uma aplicação inovadora que combina modelos de linguagem com a API Groq para proporcionar respostas precisas e personalizadas. No entanto, é importante considerar as limitações do aplicativo e trabalhar para melhorá-lo ainda mais.
-    """)
-    # O texto de resumo oferece uma visão final sobre a aplicação, destacando sua inovação e sugerindo melhorias.
-    # Vantagem: Conclui a análise de forma clara e com recomendações.
-    # Desvantagem: O texto é genérico e não explora possíveis planos de ação detalhados para melhorar a aplicação.
-    # Possível solução: Oferecer um plano de ação prático com etapas recomendadas para superar as limitações, como a expansão de capacidade de processamento de tokens ou a simplificação da interface para usuários iniciantes.
+O código começa importando várias bibliotecas que fornecem as ferramentas necessárias para realizar as análises:
 
+- **Pandas**: Manipulação de dados em estruturas de dados como DataFrames.
+- **Streamlit**: Criação de interfaces web interativas.
+- **Matplotlib e Seaborn**: Visualização gráfica dos dados.
+- **Plotly**: Gráficos interativos.
+- **Scikit-learn**: Algoritmos de aprendizado de máquina e estatística.
+- **Gensim**: Implementação de modelos Word2Vec.
+- **Jellyfish**: Funções para cálculos fonéticos e distâncias de edição.
+- **Statsmodels e Scipy**: Ferramentas estatísticas avançadas.
+
+**Objetivo:** Fornecer as ferramentas necessárias para realizar análises de similaridade linguística, cálculos estatísticos, visualizações e modelos de aprendizado de máquina.
+
+---
+
+**2. Carregamento e Preparação dos Dados**
+
+O código permite que o usuário carregue um arquivo CSV contendo as frases nos três idiomas de interesse. As colunas esperadas são:
+
+- **Idioma**
+- **Texto Original**
+- **Tradução para o Português Moderno**
+
+**Objetivo:** Extrair as frases correspondentes de cada idioma para serem usadas nas análises subsequentes.
+
+---
+
+**3. Cálculo das Similaridades**
+
+As similaridades entre as frases dos três idiomas são calculadas em termos semânticos, lexicais e fonológicos.
+
+### 3.1 Similaridade Semântica com Sentence-BERT
+
+**Função:** `calcular_similaridade_semantica`
+
+**Metodologia:**
+
+- **Modelo Sentence-BERT:** Um modelo de linguagem que gera embeddings (vetores) que capturam o significado semântico de sentenças.
+
+**Passos:**
+
+1. **Geração dos Embeddings:**
+
+   - Para cada frase, o modelo gera um vetor de dimensão fixa que representa o significado semântico da frase.
+
+   - Matemática: Seja \( S = \{s_1, s_2, \dots, s_n\} \) o conjunto de sentenças. O modelo transforma cada sentença \( s_i \) em um vetor \( \vec{v}_i \in \mathbb{R}^d \), onde \( d \) é a dimensionalidade do embedding.
+
+2. **Cálculo da Similaridade de Cosseno:**
+
+   - A similaridade entre duas sentenças é calculada usando a **similaridade de cosseno** entre seus embeddings.
+
+   - Fórmula da Similaridade de Cosseno entre vetores \( \vec{v}_i \) e \( \vec{v}_j \):
+
+     \[
+     \text{similaridade}(\vec{v}_i, \vec{v}_j) = \cos(\theta) = \frac{\vec{v}_i \cdot \vec{v}_j}{\|\vec{v}_i\| \, \|\vec{v}_j\|}
+     \]
+
+   - Onde:
+
+     - \( \vec{v}_i \cdot \vec{v}_j \) é o produto escalar dos vetores.
+     - \( \|\vec{v}_i\| \) é a norma (magnitude) do vetor \( \vec{v}_i \).
+
+**Objetivo:** Medir o quanto as frases correspondentes nos diferentes idiomas são semelhantes em termos de significado.
+
+**Justificativa:** A similaridade semântica é crucial para entender se as frases, apesar de diferenças lexicais ou fonéticas, carregam o mesmo significado. Isso é especialmente importante ao comparar uma língua morta com línguas modernas para entender a transmissão de conceitos e ideias.
+
+**Exemplo e Possíveis Insights:**
+
+- Uma alta similaridade semântica entre Dzubukuá e Português Arcaico pode indicar que certos conceitos foram preservados ao longo do tempo.
+- Diferenças semânticas podem revelar mudanças culturais ou a perda de certos conceitos.
+
+---
+
+### 3.2 Similaridade Lexical com N-gramas
+
+**Função:** `calcular_similaridade_ngramas`
+
+**Metodologia:**
+
+- **N-gramas de caracteres:** Sequências de N caracteres extraídas das frases.
+
+**Passos:**
+
+1. **Extração de N-gramas:**
+
+   - Para cada frase, extrai-se um conjunto de N-gramas de caracteres.
+
+   - Exemplo para N=2 (bigramas) da palavra "casa": \{"ca", "as", "sa"\}.
+
+2. **Representação Vetorial:**
+
+   - Cada frase é representada como um vetor binário indicando a presença ou ausência de cada N-grama possível.
+
+3. **Cálculo do Coeficiente de Sorensen-Dice:**
+
+   - Métrica de similaridade entre dois conjuntos baseada na sobreposição.
+
+   - Fórmula:
+
+     \[
+     \text{SDC}(A, B) = \frac{2 |A \cap B|}{|A| + |B|}
+     \]
+
+   - Onde:
+
+     - \( A \) e \( B \) são os conjuntos de N-gramas das duas frases.
+     - \( |A| \) é o número de N-gramas em \( A \).
+     - \( |A \cap B| \) é o número de N-gramas comuns a \( A \) e \( B \).
+
+**Objetivo:** Avaliar a similaridade das frases em termos de estrutura lexical, ou seja, a construção das palavras.
+
+**Justificativa:** As línguas podem compartilhar palavras semelhantes ou ter evoluído de formas que preservam padrões lexicais. A análise de N-gramas captura essas semelhanças ou diferenças.
+
+**Exemplo e Possíveis Insights:**
+
+- Uma alta similaridade lexical entre Português Arcaico e Moderno é esperada devido à evolução da língua.
+- Baixa similaridade entre Dzubukuá e Português pode indicar origens linguísticas diferentes.
+
+---
+
+### 3.3 Similaridade Lexical com Word2Vec
+
+**Função:** `calcular_similaridade_word2vec`
+
+**Metodologia:**
+
+- **Modelo Word2Vec:** Gera embeddings para palavras com base no contexto em que aparecem.
+
+**Passos:**
+
+1. **Tokenização das Frases:**
+
+   - As frases são divididas em palavras.
+
+2. **Treinamento do Modelo Word2Vec:**
+
+   - O modelo aprende vetores de palavras \( \vec{w} \) de forma que palavras com contextos semelhantes tenham vetores próximos.
+
+3. **Representação das Frases:**
+
+   - Cada frase é representada pela média dos vetores das palavras que a compõem.
+
+   - Fórmula:
+
+     \[
+     \vec{v}_{\text{frase}} = \frac{1}{n} \sum_{i=1}^{n} \vec{w}_i
+     \]
+
+     Onde \( n \) é o número de palavras na frase.
+
+4. **Cálculo da Similaridade de Cosseno:**
+
+   - Similar ao método semântico, calcula-se a similaridade entre os vetores das frases.
+
+**Objetivo:** Capturar similaridades lexicais considerando o contexto das palavras.
+
+**Justificativa:** Palavras que aparecem em contextos semelhantes podem indicar semelhanças linguísticas que não são evidentes apenas pela ortografia.
+
+**Exemplo e Possíveis Insights:**
+
+- Pode revelar empréstimos linguísticos ou raízes comuns.
+- Diferenças podem indicar evolução semântica das palavras.
+
+---
+
+### 3.4 Similaridade Fonológica
+
+**Função:** `calcular_similaridade_fonologica`
+
+**Metodologia:**
+
+- **Codificação Fonética (Soundex):** Converte palavras em códigos que representam sons.
+- **Distância de Levenshtein:** Mede o número mínimo de operações necessárias para transformar uma string em outra.
+
+**Passos:**
+
+1. **Codificação Fonética das Frases:**
+
+   - Cada frase é convertida em uma sequência de códigos fonéticos.
+
+2. **Cálculo da Distância de Levenshtein:**
+
+   - Calcula-se a distância entre as sequências codificadas de duas frases.
+
+   - A distância \( D \) entre duas strings \( S_1 \) e \( S_2 \) é dada por:
+
+     \[
+     D(S_1, S_2) = \text{Número mínimo de inserções, deleções ou substituições para transformar } S_1 \text{ em } S_2
+     \]
+
+3. **Normalização da Similaridade:**
+
+   - A similaridade é normalizada entre 0 e 1:
+
+     \[
+     \text{Similaridade} = 1 - \frac{D(S_1, S_2)}{\max(\text{len}(S_1), \text{len}(S_2))}
+     \]
+
+**Objetivo:** Avaliar o quanto as frases soam semelhantes, independentemente da escrita.
+
+**Justificativa:** Mesmo que a ortografia seja diferente, as línguas podem compartilhar sons semelhantes, indicando possíveis influências ou origens comuns.
+
+**Exemplo e Possíveis Insights:**
+
+- Similaridades fonológicas podem sugerir contatos históricos entre povos.
+- Diferenças podem indicar caminhos evolutivos distintos.
+
+---
+
+**4. Análises Estatísticas e Visualizações**
+
+Após calcular as similaridades, diversas análises estatísticas são realizadas para entender as relações entre elas.
+
+### 4.1 Cálculo de Correlações
+
+**Função:** `calcular_correlacoes_avancadas`
+
+**Metodologia:**
+
+- Calcula as correlações de **Pearson**, **Spearman** e **Kendall** entre as medidas de similaridade.
+
+**Fórmulas:**
+
+1. **Correlação de Pearson:**
+
+   - Mede a relação linear entre duas variáveis.
+
+   - Fórmula:
+
+     \[
+     r = \frac{\sum_{i=1}^{n}(X_i - \bar{X})(Y_i - \bar{Y})}{\sqrt{\sum_{i=1}^{n}(X_i - \bar{X})^2} \sqrt{\sum_{i=1}^{n}(Y_i - \bar{Y})^2}}
+     \]
+
+   - Onde \( \bar{X} \) e \( \bar{Y} \) são as médias de \( X \) e \( Y \).
+
+2. **Correlação de Spearman:**
+
+   - Mede a relação monotônica (não necessariamente linear) entre duas variáveis usando os postos (ranks) dos dados.
+
+   - Fórmula:
+
+     \[
+     \rho = 1 - \frac{6 \sum_{i=1}^{n} d_i^2}{n(n^2 - 1)}
+     \]
+
+     Onde \( d_i \) é a diferença entre os postos de \( X_i \) e \( Y_i \).
+
+3. **Correlação de Kendall:**
+
+   - Mede a concordância entre os rankings de duas variáveis.
+
+   - Fórmula:
+
+     \[
+     \tau = \frac{C - D}{\frac{1}{2} n(n - 1)}
+     \]
+
+     Onde:
+
+     - \( C \) é o número de pares concordantes.
+     - \( D \) é o número de pares discordantes.
+
+**Objetivo:** Identificar se há relações significativas entre diferentes medidas de similaridade.
+
+**Justificativa:** Correlações podem indicar que certas dimensões de similaridade estão relacionadas, sugerindo que uma pode ser preditiva da outra.
+
+**Exemplo e Possíveis Insights:**
+
+- Uma alta correlação entre similaridades semânticas e lexicais pode indicar que palavras semelhantes carregam significados semelhantes.
+- Baixas correlações podem sugerir que as dimensões analisadas capturam aspectos independentes das línguas.
+
+---
+
+### 4.2 Regressão Linear
+
+**Função:** `regressao_linear`
+
+**Metodologia:**
+
+- Ajusta um modelo de regressão linear simples entre duas variáveis de similaridade.
+
+**Modelo:**
+
+- Fórmula do modelo de regressão linear:
+
+  \[
+  y = \beta_0 + \beta_1 x + \epsilon
+  \]
+
+  Onde:
+
+  - \( y \) é a variável dependente.
+  - \( x \) é a variável independente.
+  - \( \beta_0 \) é o intercepto.
+  - \( \beta_1 \) é o coeficiente angular.
+  - \( \epsilon \) é o termo de erro.
+
+**Passos:**
+
+1. **Estimação dos Parâmetros:**
+
+   - Utiliza o método dos **Mínimos Quadrados Ordinários (OLS)** para estimar \( \beta_0 \) e \( \beta_1 \).
+
+   - As estimativas são dadas por:
+
+     \[
+     \hat{\beta}_1 = \frac{\sum_{i=1}^{n} (x_i - \bar{x})(y_i - \bar{y})}{\sum_{i=1}^{n} (x_i - \bar{x})^2}
+     \]
+
+     \[
+     \hat{\beta}_0 = \bar{y} - \hat{\beta}_1 \bar{x}
+     \]
+
+2. **Teste de Significância:**
+
+   - Verifica se o coeficiente \( \beta_1 \) é significativamente diferente de zero usando um teste t.
+
+   - Estatística t:
+
+     \[
+     t = \frac{\hat{\beta}_1 - 0}{SE(\hat{\beta}_1)}
+     \]
+
+     Onde \( SE(\hat{\beta}_1) \) é o erro padrão de \( \hat{\beta}_1 \).
+
+3. **Análise dos Resíduos:**
+
+   - Verifica se os resíduos \( \hat{\epsilon}_i = y_i - \hat{y}_i \) seguem uma distribuição normal e se há homocedasticidade (variância constante dos resíduos).
+
+**Objetivo:** Avaliar se há uma relação linear significativa entre duas medidas de similaridade.
+
+**Justificativa:** Se uma medida pode ser predita por outra, isso simplifica a análise e pode indicar causalidade ou dependência.
+
+**Exemplo e Possíveis Insights:**
+
+- Se a similaridade semântica entre Dzubukuá e Arcaico prediz a similaridade com o Moderno, isso sugere uma continuidade semântica ao longo do tempo.
+
+---
+
+### 4.3 Regressão Múltipla
+
+**Função:** `regressao_multipla`
+
+**Metodologia:**
+
+- Extensão da regressão linear para múltiplas variáveis independentes.
+
+**Modelo:**
+
+- Fórmula do modelo de regressão múltipla:
+
+  \[
+  y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \dots + \beta_p x_p + \epsilon
+  \]
+
+**Passos:**
+
+1. **Estimação dos Parâmetros:**
+
+   - Utiliza OLS para estimar os coeficientes \( \beta_i \).
+
+2. **Verificação de Multicolinearidade:**
+
+   - Calcula o **Fator de Inflação da Variância (VIF)** para cada variável independente.
+
+   - Fórmula do VIF para a variável \( x_j \):
+
+     \[
+     \text{VIF}_j = \frac{1}{1 - R_j^2}
+     \]
+
+     Onde \( R_j^2 \) é o coeficiente de determinação da regressão de \( x_j \) sobre todas as outras variáveis independentes.
+
+   - Valores de VIF acima de 5 ou 10 indicam multicolinearidade preocupante.
+
+3. **Teste de Significância dos Coeficientes:**
+
+   - Cada coeficiente \( \beta_i \) é testado para verificar se é significativamente diferente de zero.
+
+**Objetivo:** Entender como múltiplas medidas de similaridade influenciam conjuntamente a variável dependente.
+
+**Justificativa:** As línguas são sistemas complexos onde várias dimensões podem interagir. A regressão múltipla captura essas interações.
+
+**Exemplo e Possíveis Insights:**
+
+- Pode identificar quais medidas de similaridade têm maior impacto na similaridade semântica com o Português Moderno.
+- Multicolinearidade pode indicar que algumas medidas são redundantes.
+
+---
+
+### 4.4 Análise de Variância (ANOVA)
+
+**Função:** `analise_anova`
+
+**Metodologia:**
+
+- Compara as médias de três ou mais grupos para verificar se há diferenças estatisticamente significativas.
+
+**Fórmula:**
+
+- Estatística F:
+
+  \[
+  F = \frac{\text{Variância entre grupos}}{\text{Variância dentro dos grupos}}
+  \]
+
+- Onde:
+
+  - Variância entre grupos (MSG):
+
+    \[
+    \text{MSG} = \frac{\sum_{k=1}^{K} n_k (\bar{X}_k - \bar{X})^2}{K - 1}
+    \]
+
+  - Variância dentro dos grupos (MSE):
+
+    \[
+    \text{MSE} = \frac{\sum_{k=1}^{K} \sum_{i=1}^{n_k} (X_{ik} - \bar{X}_k)^2}{N - K}
+    \]
+
+  - \( K \) é o número de grupos.
+  - \( n_k \) é o tamanho do grupo \( k \).
+  - \( N \) é o total de observações.
+
+**Objetivo:** Determinar se as médias das similaridades diferem significativamente entre os pares de línguas.
+
+**Justificativa:** Identificar se as diferenças observadas são devidas ao acaso ou refletem diferenças reais entre as línguas.
+
+**Exemplo e Possíveis Insights:**
+
+- Uma ANOVA significativa sugere que pelo menos um par de línguas difere em sua similaridade média.
+- Pode motivar análises post-hoc para identificar quais pares diferem.
+
+---
+
+### 4.5 Testes de Hipóteses
+
+**Função:** `testes_hipotese`
+
+**Metodologia:**
+
+- Realiza o **teste t para duas amostras independentes**.
+
+**Fórmula:**
+
+- Estatística t:
+
+  \[
+  t = \frac{\bar{X}_1 - \bar{X}_2}{\sqrt{\frac{S_1^2}{n_1} + \frac{S_2^2}{n_2}}}
+  \]
+
+  Onde:
+
+  - \( \bar{X}_1 \) e \( \bar{X}_2 \) são as médias das amostras.
+  - \( S_1^2 \) e \( S_2^2 \) são as variâncias das amostras.
+  - \( n_1 \) e \( n_2 \) são os tamanhos das amostras.
+
+**Objetivo:** Testar se as médias de duas medidas de similaridade são significativamente diferentes.
+
+**Justificativa:** Validar hipóteses específicas sobre as relações entre as línguas.
+
+**Exemplo e Possíveis Insights:**
+
+- Verificar se a similaridade semântica entre Dzubukuá e Arcaico é diferente da similaridade entre Dzubukuá e Moderno.
+
+---
+
+### 4.6 Análise de Componentes Principais (PCA)
+
+**Função:** `aplicar_pca`
+
+**Metodologia:**
+
+- Reduz a dimensionalidade dos dados transformando as variáveis originais em componentes principais ortogonais que explicam a maior parte da variância.
+
+**Passos:**
+
+1. **Centralização dos Dados:**
+
+   - Subtrai-se a média de cada variável:
+
+     \[
+     X_{\text{centralizado}} = X - \bar{X}
+     \]
+
+2. **Cálculo da Matriz de Covariância:**
+
+   - Matriz \( \mathbf{C} \) de covariâncias entre as variáveis:
+
+     \[
+     \mathbf{C} = \frac{1}{n - 1} X_{\text{centralizado}}^T X_{\text{centralizado}}
+     \]
+
+3. **Autovalores e Autovetores:**
+
+   - Calcula-se os autovalores \( \lambda \) e autovetores \( \vec{e} \) de \( \mathbf{C} \):
+
+     \[
+     \mathbf{C} \vec{e} = \lambda \vec{e}
+     \]
+
+4. **Componentes Principais:**
+
+   - Os autovetores correspondem aos componentes principais.
+   - Os autovalores indicam a variância explicada por cada componente.
+
+**Objetivo:** Identificar padrões nos dados e reduzir a complexidade dimensional.
+
+**Justificativa:** Facilita a visualização dos dados e pode revelar agrupamentos ou relações não evidentes nas dimensões originais.
+
+**Exemplo e Possíveis Insights:**
+
+- Componentes que explicam grande parte da variância podem representar combinações de medidas de similaridade significativas.
+- Visualização em 2D pode revelar clusters de frases semelhantes.
+
+---
+
+### 4.7 Análise de Agrupamentos (Clustering)
+
+**Funções:** `analise_clustering` e `visualizar_clusters`
+
+**Metodologia:**
+
+- **K-Means Clustering:** Agrupa os dados em \( k \) clusters baseados na minimização da soma das distâncias quadradas dentro dos clusters.
+
+**Passos K-Means:**
+
+1. **Inicialização:**
+
+   - Seleciona \( k \) centroides iniciais aleatoriamente.
+
+2. **Atribuição:**
+
+   - Cada ponto é atribuído ao cluster com o centróide mais próximo.
+
+3. **Atualização:**
+
+   - Recalcula-se o centróide de cada cluster como a média dos pontos atribuídos a ele.
+
+4. **Iteração:**
+
+   - Repete os passos 2 e 3 até a convergência (quando os centroides não mudam significativamente).
+
+**Método Elbow:**
+
+- Avalia a **inércia** (soma das distâncias quadradas dentro dos clusters) para diferentes valores de \( k \).
+- O ponto onde a redução na inércia começa a diminuir (formando um "cotovelo") é escolhido como \( k \) ótimo.
+
+**Objetivo:** Identificar agrupamentos naturais nos dados.
+
+**Justificativa:** Pode revelar grupos de frases com características semelhantes, indicando padrões linguísticos.
+
+**Exemplo e Possíveis Insights:**
+
+- Clusters podem representar grupos de frases que evoluíram de maneira semelhante.
+- Comparar clusters entre métodos (K-Means e DBSCAN) aumenta a robustez da análise.
+
+---
+
+### 4.8 Ajuste de Distribuição q-Exponencial
+
+**Função:** `ajuste_q_exponencial`
+
+**Metodologia:**
+
+- Ajusta uma distribuição q-exponencial aos dados, relevante em sistemas complexos.
+
+**Fórmula:**
+
+- Função q-exponencial:
+
+  \[
+  f(x) = a \left[1 - (1 - q) b x \right]^{\frac{1}{1 - q}}
+  \]
+
+  Onde:
+
+  - \( a \), \( b \) e \( q \) são parâmetros de ajuste.
+  - \( q \) é o parâmetro de entropia não-extensiva de Tsallis.
+
+**Objetivo:** Modelar a distribuição dos dados de similaridade e capturar comportamentos não-exponenciais.
+
+**Justificativa:** Dados de sistemas complexos muitas vezes não seguem distribuições exponenciais clássicas. O ajuste q-exponencial pode fornecer um modelo mais preciso.
+
+**Exemplo e Possíveis Insights:**
+
+- Valores de \( q \neq 1 \) indicam desvios da distribuição exponencial, sugerindo a presença de efeitos de memória ou interações de longo alcance.
+
+---
+
+### 4.9 Visualizações
+
+**Funções:** `grafico_interativo_plotly`, `grafico_regressao_plotly`, `grafico_dendrograma`, `grafico_matriz_correlacao`
+
+**Objetivo:** Fornecer representações visuais dos resultados para facilitar a interpretação.
+
+**Justificativa:** Visualizações permitem identificar padrões, tendências e anomalias que podem não ser evidentes apenas com números.
+
+---
+
+**5. Considerações e Resalvas Técnicas**
+
+- **Qualidade dos Dados:**
+
+  - A confiabilidade das análises depende da qualidade e representatividade dos dados.
+
+- **Assunções Estatísticas:**
+
+  - Algumas análises assumem normalidade dos dados, homocedasticidade, independência, entre outras.
+
+- **Multicolinearidade:**
+
+  - Pode afetar a interpretação dos coeficientes em regressões múltiplas.
+
+- **Número de Observações:**
+
+  - Amostras pequenas podem não fornecer poder estatístico suficiente.
+
+- **Interpretação Cautelosa:**
+
+  - Correlações não implicam causalidade.
+  - Resultados devem ser interpretados no contexto linguístico e histórico.
+
+---
+
+**Conclusão**
+
+As análises realizadas fornecem uma visão abrangente das similaridades entre Dzubukuá, Português Arcaico e Português Moderno. Ao combinar técnicas de processamento de linguagem natural e estatística, é possível extrair insights sobre a evolução linguística, influências entre línguas e preservação de conceitos ao longo do tempo.
+
+É importante interpretar os resultados considerando as limitações e contexto, buscando sempre complementar as análises quantitativas com conhecimentos qualitativos em linguística e história.
+
+---
+
+**Referências**
+
+- Tsallis, C. (1988). Possible generalization of Boltzmann-Gibbs statistics. *Journal of Statistical Physics*, 52(1-2), 479-487.
+- Bishop, C. M. (2006). *Pattern Recognition and Machine Learning*. Springer.
+- Jurafsky, D., & Martin, J. H. (2009). *Speech and Language Processing*. Prentice Hall.
+    """)
+   
     # Informações de contato
     st.sidebar.image("eu.ico", width=80)
     # Exibe uma imagem (provavelmente uma foto ou ícone do criador) na barra lateral.
