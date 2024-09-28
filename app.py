@@ -42,7 +42,7 @@ else:
     logging.warning(f"Ícone {icon_path} não encontrado, carregando sem favicon.")
 
 # Layout da página
-st.image('capa.png', width=300, caption='Laboratório de Educação e Inteligência Artificial - Geomaker. "A melhor forma de prever o futuro é inventá-lo." - Alan Kay', use_column_width='always')
+st.image('capa.png', width=100, caption='Laboratório de Educação e Inteligência Artificial - Geomaker. "A melhor forma de prever o futuro é inventá-lo." - Alan Kay', use_column_width='always')
 
 # Certifique-se de que todas as funções estão definidas antes do main()
 # Função para calcular similaridade semântica usando Sentence-BERT
