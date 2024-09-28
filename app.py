@@ -715,7 +715,7 @@ def salvar_dataframe(similarity_df):
 
 # Função principal para rodar a aplicação no Streamlit
 def main():
-    st.title('Análises Avançadas de Similaridade Linguística para Línguas Mortas')
+    st.title('Análises Avançadas de Similaridade Linguística para Línguas Kariri-Dzubukuá, Português Arcaico e Português Moderno')
 
     # Upload do arquivo CSV
     uploaded_file = st.file_uploader("Faça o upload do arquivo CSV", type="csv")
