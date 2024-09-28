@@ -843,41 +843,11 @@ As análises realizadas fornecem uma visão abrangente das similaridades entre D
     Whatsapp: (88)981587145
     Instagram: [https://www.instagram.com/marceloclaro.geomaker/](https://www.instagram.com/marceloclaro.geomaker/)
     """)
-    # Exibe as informações de contato do responsável (e-mail, WhatsApp e Instagram).
-    # Vantagem: Facilita a comunicação entre os usuários e o criador, permitindo feedback direto ou consultas.
-    # Desvantagem: Informações de contato fixas podem se desatualizar com o tempo (por exemplo, mudanças de número ou e-mail).
-    # Possível solução: Usar variáveis externas para armazenar essas informações, facilitando a atualização em caso de mudanças. Exemplo:
-    # ```python
-    # contato_email = "marceloclaro@gmail.com"
-    # contato_whatsapp = "(88)981587145"
-    # contato_instagram = "https://www.instagram.com/marceloclaro.geomaker/"
-    # st.sidebar.write(f"Contatos: {contato_email}\nWhatsapp: {contato_whatsapp}\nInstagram: {contato_instagram}")
-    # ```
-
-# Vantagens gerais:
-# 1. **Informação organizada**: A estrutura da sidebar, com seções separadas para insights e informações de contato, mantém tudo organizado e fácil de acessar.
-# 2. **Conteúdo expansível**: O uso de `expander` para ocultar/mostrar informações melhora a usabilidade, especialmente em interfaces mais densas.
-# 3. **Contato fácil**: O usuário pode entrar em contato rapidamente com o criador via diferentes canais, o que ajuda a criar uma comunidade em torno do projeto.
-
-# Desvantagens gerais:
-# 1. **Conteúdo estático**: Algumas partes do código são estáticas e exigem alterações manuais caso as informações mudem (como contato ou títulos).
-# 2. **Falta de interatividade**: Embora a barra lateral tenha muitas informações, faltam elementos interativos que incentivem a navegação ou a experimentação.
-# 3. **Dependência de arquivos externos**: A ausência ou falha ao carregar as imagens externas pode prejudicar a aparência da interface.
-
-# Possíveis soluções:
-# 1. **Conteúdo dinâmico**: Usar variáveis configuráveis para facilitar a atualização de informações, como os dados de contato e descrições.
-# 2. **Links interativos**: Adicionar mais links interativos que direcionem para seções ou funcionalidades relevantes da aplicação.
-# 3. **Verificação de imagem**: Implementar verificações automáticas para garantir que as imagens estejam disponíveis antes de carregá-las.
-
-# Inovações:
-# 1. **Barra lateral interativa**: Transformar a barra lateral em uma área interativa com menus, temas personalizados e opções dinâmicas.
-# 2. **Feedback do usuário**: Adicionar uma seção de feedback onde os usuários possam enviar diretamente sugestões ou comentários através da sidebar.
-# 3. **Análises em tempo real**: Incluir widgets que mostrem estatísticas ou insights em tempo real, como o número de usuários que utilizaram o sistema ou desempenho dos modelos de IA.
-
 # _____________________________________________
-
 # Controle de Áudio
+
 st.sidebar.title("Controle de Áudio")
+
 # O comando `st.sidebar.title` exibe um título na barra lateral. Neste caso, o título "Controle de Áudio" informa ao usuário que há uma seção dedicada ao controle de áudio.
 # Vantagem: A criação de um título claro e destacado facilita a navegação e a compreensão da interface pelo usuário.
 # Desvantagem: O título é estático e não reflete o conteúdo dinâmico, como a lista de arquivos ou o estado atual (por exemplo, se o áudio está tocando).
@@ -889,7 +859,7 @@ st.sidebar.title("Controle de Áudio")
 
 # Lista de arquivos MP3
 mp3_files = {
-    "Instrução e Técnica ": "kariri.mp3",
+    "Áudio explicação técnica": "kariri.mp3",
     
 }
 # O dicionário `mp3_files` mapeia nomes amigáveis de arquivos de áudio (como "Instrução de uso") para os respectivos nomes dos arquivos MP3.
@@ -1025,6 +995,10 @@ if play_button and selected_mp3:
         # except (FileNotFoundError, IOError) as e:
         #     audio_placeholder.error(f"Erro ao carregar o arquivo: {str(e)}")
         # ```
+
+# _____________________________________________
+
+
 
 
 # Certifique-se de que todas as funções estão definidas antes do main()
