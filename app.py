@@ -23,260 +23,6 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import silhouette_score
 from scipy.stats import f_oneway  # Para ANOVA
 from scipy.optimize import curve_fit  # Para q-Exponencial
-import qinfer  # Biblioteca para q-Estatística (se disponível)
-
-# Função para calcular correlações de Pearson, Spearman e Kendall
-def calcular_correlacoes_avancadas(similarity_df):
-    """Calcula as correlações de Pearson, Spearman e Kendall entre as variáveis de similaridade."""
-    pearson_corr = similarity_df.corr(method='pearson')
-    spearman_corr = similarity_df.corr(method='spearman')
-    kendall_corr = similarity_df.corr(method='kendall')
-    return pearson_corr, spearman_corr, kendall_corr
-
-# Função para realizar ANOVA
-def analise_anova(similarity_df):
-    """Realiza ANOVA para comparar as médias das similaridades entre grupos."""
-    # Exemplo usando as similaridades semânticas
-    f_stat, p_value = f_oneway(
-        similarity_df['Dzubukuá - Arcaico (Semântica)'],
-        similarity_df['Dzubukuá - Moderno (Semântica)'],
-        similarity_df['Arcaico - Moderno (Semântica)']
-    )
-    st.write(f"Resultado da ANOVA:")
-    st.write(f"Estatística F: {f_stat:.4f}")
-    st.write(f"Valor-p: {p_value:.4e}")
-    if p_value < 0.05:
-        st.write("Conclusão: As médias das similaridades semânticas diferem significativamente entre os grupos.")
-    else:
-        st.write("Conclusão: Não há evidência suficiente para afirmar que as médias diferem entre os grupos.")
-
-# Função para ajustar a distribuição q-exponencial
-def ajuste_q_exponencial(data):
-    """Ajusta uma distribuição q-exponencial aos dados e retorna os parâmetros."""
-    def q_exponential(x, a, b, q):
-        return a * (1 - (1 - q) * b * x) ** (1 / (1 - q))
-    
-    hist, bin_edges = np.histogram(data, bins=50, density=True)
-    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
-    
-    # Ajuste dos parâmetros
-    params, _ = curve_fit(q_exponential, bin_centers, hist, maxfev=10000)
-    a, b, q = params
-    return a, b, q
-
-# Função para realizar testes de hipóteses
-def testes_hipotese(similarity_df):
-    """Realiza testes de hipóteses estatísticas nas similaridades."""
-    # Teste t para duas amostras independentes
-    t_stat, p_value = stats.ttest_ind(
-        similarity_df['Dzubukuá - Arcaico (Semântica)'],
-        similarity_df['Dzubukuá - Moderno (Semântica)']
-    )
-    st.write(f"Teste t para duas amostras independentes (Semântica):")
-    st.write(f"Estatística t: {t_stat:.4f}")
-    st.write(f"Valor-p: {p_value:.4e}")
-    if p_value < 0.05:
-        st.write("Conclusão: Há uma diferença significativa entre as médias das similaridades semânticas.")
-    else:
-        st.write("Conclusão: Não há evidência suficiente para afirmar que as médias diferem.")
-
-# Função para aplicar PCA (Análise de Componentes Principais)
-def aplicar_pca(similarity_df):
-    """Reduz a dimensionalidade usando PCA para entender os padrões nas similaridades."""
-    pca = PCA(n_components=2)
-    pca_result = pca.fit_transform(similarity_df)
-    explained_variance = pca.explained_variance_ratio_
-    return pca_result, explained_variance
-
-# Função para gerar o gráfico de PCA
-def grafico_pca(similarity_df, pca_result, explained_variance):
-    """Plota os resultados da Análise de Componentes Principais (PCA)."""
-    fig, ax = plt.subplots(figsize=(10, 6))
-    scatter = ax.scatter(pca_result[:, 0], pca_result[:, 1], c='blue', edgecolor='k', s=100)
-    ax.set_title('Análise de Componentes Principais (PCA)', fontsize=16, pad=20)
-    ax.set_xlabel(f'Componente Principal 1 ({explained_variance[0]*100:.2f}% da variância)', fontsize=14, labelpad=15)
-    ax.set_ylabel(f'Componente Principal 2 ({explained_variance[1]*100:.2f}% da variância)', fontsize=14, labelpad=15)
-    ax.grid(True, which='both', linestyle='--', linewidth=0.5)
-    plt.tight_layout(pad=3.0)
-    st.pyplot(fig)
-
-# Função para gerar dendrograma (Análise de Agrupamento Hierárquico)
-def grafico_dendrograma(similarity_df):
-    """Gera um dendrograma para visualizar relações hierárquicas entre as variáveis."""
-    from scipy.cluster.hierarchy import linkage
-
-    linked = linkage(similarity_df.T, 'ward', metric='euclidean')
-    labelList = similarity_df.columns
-    fig, ax = plt.subplots(figsize=(12, 8))
-    dendrogram(linked, labels=labelList, ax=ax, orientation='top')
-    ax.set_title('Dendrograma das Similaridades', fontsize=16, pad=20)
-    ax.set_xlabel('Variáveis', fontsize=14, labelpad=15)
-    ax.set_ylabel('Distância Euclidiana', fontsize=14, labelpad=15)
-    plt.setp(ax.get_xticklabels(), rotation=45, ha='right')
-    plt.tight_layout(pad=3.0)
-    st.pyplot(fig)
-
-# Função para gerar gráficos de correlações
-def grafico_matriz_correlacao(pearson_corr, spearman_corr, kendall_corr):
-    """Gera gráficos para as correlações Pearson, Spearman e Kendall."""
-    fig, axs = plt.subplots(1, 3, figsize=(24, 6))
-
-    # Correlação de Pearson
-    sns.heatmap(pearson_corr, annot=True, cmap='coolwarm', ax=axs[0])
-    axs[0].set_title('Correlação de Pearson', pad=20)
-    axs[0].tick_params(axis='x', rotation=45)
-    axs[0].tick_params(axis='y', rotation=0)
-    axs[0].set_xlabel('Variáveis', labelpad=15)
-    axs[0].set_ylabel('Variáveis', labelpad=15)
-
-    # Correlação de Spearman
-    sns.heatmap(spearman_corr, annot=True, cmap='coolwarm', ax=axs[1])
-    axs[1].set_title('Correlação de Spearman', pad=20)
-    axs[1].tick_params(axis='x', rotation=45)
-    axs[1].tick_params(axis='y', rotation=0)
-    axs[1].set_xlabel('Variáveis', labelpad=15)
-    axs[1].set_ylabel('Variáveis', labelpad=15)
-
-    # Correlação de Kendall
-    sns.heatmap(kendall_corr, annot=True, cmap='coolwarm', ax=axs[2])
-    axs[2].set_title('Correlação de Kendall', pad=20)
-    axs[2].tick_params(axis='x', rotation=45)
-    axs[2].tick_params(axis='y', rotation=0)
-    axs[2].set_xlabel('Variáveis', labelpad=15)
-    axs[2].set_ylabel('Variáveis', labelpad=15)
-
-    plt.tight_layout(pad=3.0)
-    st.pyplot(fig)
-
-# Função atualizada para gerar o mapa de calor interativo da matriz de correlação
-def grafico_interativo_plotly(similarity_df):
-    """Gera um mapa de calor interativo da matriz de correlação com Plotly."""
-    # Calcula a matriz de correlação
-    corr = similarity_df.corr()
-
-    # Cria um mapa de calor da matriz de correlação
-    fig = go.Figure(data=go.Heatmap(
-        z=corr.values,
-        x=corr.columns,
-        y=corr.columns,
-        colorscale='Viridis',
-        colorbar=dict(title='Coeficiente de Correlação')
-    ))
-
-    # Ajusta o layout para melhor legibilidade
-    fig.update_layout(
-        title="Mapa de Correlação entre Similaridades",
-        xaxis_tickangle=-45,
-        xaxis={'side': 'bottom'},
-        width=800,
-        height=800,
-        margin=dict(l=200, r=200, b=200, t=100),
-        font=dict(size=10),
-    )
-
-    st.plotly_chart(fig)
-
-# Função para gerar gráficos de dispersão interativos com Plotly
-def grafico_regressao_plotly(similarity_df, model, y_pred):
-    """Gera gráfico interativo com a linha de regressão e informações estatísticas."""
-    X = similarity_df['Dzubukuá - Arcaico (Semântica)']
-    y = similarity_df['Dzubukuá - Moderno (Semântica)']
-    intervalo_confianca = model.conf_int(alpha=0.05)
-    r2 = model.rsquared
-    p_value = model.pvalues[1]  # p-valor do coeficiente da variável independente
-
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=X, y=y, mode='markers', name='Dados'))
-    fig.add_trace(go.Scatter(x=X, y=y_pred, mode='lines', name='Regressão Linear'))
-    fig.update_layout(
-        title=f"Regressão Linear - R²: {r2:.2f}, p-valor: {p_value:.4f}<br>Intervalo de Confiança do Coeficiente: [{intervalo_confianca.iloc[1,0]:.4f}, {intervalo_confianca.iloc[1,1]:.4f}]",
-        xaxis_title="Similaridade Dzubukuá - Arcaico (Semântica)",
-        yaxis_title="Similaridade Dzubukuá - Moderno (Semântica)",
-        xaxis=dict(title_font=dict(size=14), tickangle=-45),
-        yaxis=dict(title_font=dict(size=14)),
-        width=800,
-        height=600,
-        margin=dict(l=100, r=100, b=100, t=100),
-        font=dict(size=12),
-    )
-    st.plotly_chart(fig)
-
-# Função para realizar análise de clustering
-def analise_clustering(similarity_df):
-    """Realiza análise de clustering utilizando K-Means e DBSCAN."""
-    # Padronizar os dados
-    scaler = StandardScaler()
-    data_scaled = scaler.fit_transform(similarity_df)
-
-    # K-Means clustering
-    # Determinar o número ótimo de clusters usando o método Elbow
-    distortions = []
-    K = range(1, 10)
-    for k in K:
-        kmeanModel = KMeans(n_clusters=k, random_state=42)
-        kmeanModel.fit(data_scaled)
-        distortions.append(kmeanModel.inertia_)
-
-    # Plotar o gráfico do método Elbow
-    fig, ax = plt.subplots()
-    ax.plot(K, distortions, 'bx-')
-    ax.set_xlabel('Número de Clusters')
-    ax.set_ylabel('Distortion')
-    ax.set_title('Método Elbow para Determinação do Número Ótimo de Clusters')
-    st.pyplot(fig)
-
-    # Escolher k com base no método Elbow ou outras considerações
-    k = 3  # Ajuste conforme necessário
-    kmeans = KMeans(n_clusters=k, random_state=42)
-    kmeans_labels = kmeans.fit_predict(data_scaled)
-    similarity_df['Cluster_KMeans'] = kmeans_labels
-
-    # Avaliar o modelo K-Means usando o coeficiente de silhueta
-    silhouette_avg = silhouette_score(data_scaled, kmeans_labels)
-    st.write(f"Coeficiente de Silhueta para K-Means: {silhouette_avg:.4f}")
-
-    # DBSCAN clustering
-    dbscan = DBSCAN(eps=1.5, min_samples=5)
-    dbscan_labels = dbscan.fit_predict(data_scaled)
-    similarity_df['Cluster_DBSCAN'] = dbscan_labels
-
-    # Avaliar o modelo DBSCAN (ignorar ruído, label = -1)
-    labels_unique = np.unique(dbscan_labels)
-    labels_unique = labels_unique[labels_unique != -1]
-    if len(labels_unique) > 1:
-        silhouette_avg_dbscan = silhouette_score(data_scaled[dbscan_labels != -1], dbscan_labels[dbscan_labels != -1])
-        st.write(f"Coeficiente de Silhueta para DBSCAN: {silhouette_avg_dbscan:.4f}")
-    else:
-        st.write("DBSCAN não encontrou clusters significativos.")
-
-    return similarity_df
-
-# Função para visualizar os clusters
-def visualizar_clusters(similarity_df):
-    """Visualiza os clusters obtidos pelo K-Means e DBSCAN."""
-    # PCA para reduzir a dimensionalidade
-    features = similarity_df.drop(columns=['Cluster_KMeans', 'Cluster_DBSCAN'], errors='ignore')
-    pca = PCA(n_components=2)
-    data_pca = pca.fit_transform(features)
-
-    fig, axs = plt.subplots(1, 2, figsize=(16, 6))
-
-    # Gráfico para K-Means
-    scatter = axs[0].scatter(data_pca[:, 0], data_pca[:, 1], c=similarity_df['Cluster_KMeans'], cmap='Set1', s=50)
-    axs[0].set_title('Clusters K-Means', fontsize=16)
-    axs[0].set_xlabel('Componente Principal 1', fontsize=14)
-    axs[0].set_ylabel('Componente Principal 2', fontsize=14)
-    axs[0].grid(True, linestyle='--', linewidth=0.5)
-
-    # Gráfico para DBSCAN
-    scatter = axs[1].scatter(data_pca[:, 0], data_pca[:, 1], c=similarity_df['Cluster_DBSCAN'], cmap='Set1', s=50)
-    axs[1].set_title('Clusters DBSCAN', fontsize=16)
-    axs[1].set_xlabel('Componente Principal 1', fontsize=14)
-    axs[1].set_ylabel('Componente Principal 2', fontsize=14)
-    axs[1].grid(True, linestyle='--', linewidth=0.5)
-
-    plt.tight_layout(pad=3.0)
-    st.pyplot(fig)
 
 # Função para calcular similaridade semântica usando Sentence-BERT
 def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico, sentences_moderno):
@@ -380,7 +126,7 @@ def calcular_similaridade_fonologica(sentences_dzubukua, sentences_arcaico, sent
     def average_levenshtein_similarity(s1_list, s2_list):
         similarities = []
         for s1, s2 in zip(s1_list, s2_list):
-            # Codificação fonética usando Soundex (mais adequado para português)
+            # Codificação fonética usando Soundex
             s1_phonetic = ''.join(jellyfish.soundex(s1))
             s2_phonetic = ''.join(jellyfish.soundex(s2))
             # Distância de Levenshtein
@@ -402,6 +148,315 @@ def calcular_similaridade_fonologica(sentences_dzubukua, sentences_arcaico, sent
     similarity_arcaico_moderno_phon = average_levenshtein_similarity(sentences_arcaico, sentences_moderno)
 
     return similarity_arcaico_dzubukua_phon, similarity_moderno_dzubukua_phon, similarity_arcaico_moderno_phon
+
+# Função para calcular correlações de Pearson, Spearman e Kendall
+def calcular_correlacoes_avancadas(similarity_df):
+    """Calcula as correlações de Pearson, Spearman e Kendall entre as variáveis de similaridade."""
+    pearson_corr = similarity_df.corr(method='pearson')
+    spearman_corr = similarity_df.corr(method='spearman')
+    kendall_corr = similarity_df.corr(method='kendall')
+    return pearson_corr, spearman_corr, kendall_corr
+
+# Função para realizar regressão linear com teste de significância e diagnósticos
+def regressao_linear(similarity_df):
+    """Aplica regressão linear entre duas variáveis de similaridade e realiza testes de significância estatística."""
+    X = similarity_df['Dzubukuá - Arcaico (Semântica)']
+    y = similarity_df['Dzubukuá - Moderno (Semântica)']
+    X_const = sm.add_constant(X)
+    model = sm.OLS(y, X_const).fit()
+    y_pred = model.predict(X_const)
+    
+    # Obter intervalos de confiança
+    intervalo_confianca = model.conf_int(alpha=0.05)
+    
+    # Diagnósticos de resíduos
+    residuos = model.resid
+    fig, axs = plt.subplots(1, 2, figsize=(12, 5))
+    sns.histplot(residuos, kde=True, ax=axs[0])
+    axs[0].set_title('Distribuição dos Resíduos')
+    stats.probplot(residuos, dist="norm", plot=axs[1])
+    axs[1].set_title('QQ-Plot dos Resíduos')
+    st.pyplot(fig)
+    
+    return model, y_pred
+
+# Função para realizar regressão múltipla com diagnósticos
+def regressao_multipla(similarity_df):
+    """Aplica regressão múltipla entre as variáveis de similaridade e realiza testes de significância estatística."""
+    # Definir variáveis independentes (X) e variável dependente (y)
+    X = similarity_df.drop(columns=['Dzubukuá - Moderno (Semântica)', 'Cluster_KMeans', 'Cluster_DBSCAN'], errors='ignore')
+    y = similarity_df['Dzubukuá - Moderno (Semântica)']
+    
+    # Verificar multicolinearidade usando VIF
+    X_const = sm.add_constant(X)
+    vif_data = pd.DataFrame()
+    vif_data["Variável"] = X.columns
+    vif_data["VIF"] = [variance_inflation_factor(X_const.values, i+1) for i in range(len(X.columns))]
+    st.write("Fatores de Inflação da Variância (VIF):")
+    st.dataframe(vif_data)
+    
+    # Ajustar o modelo
+    model = sm.OLS(y, X_const).fit()
+    
+    # Diagnósticos de resíduos
+    residuos = model.resid
+    fig, axs = plt.subplots(1, 2, figsize=(12, 5))
+    sns.histplot(residuos, kde=True, ax=axs[0])
+    axs[0].set_title('Distribuição dos Resíduos da Regressão Múltipla')
+    stats.probplot(residuos, dist="norm", plot=axs[1])
+    axs[1].set_title('QQ-Plot dos Resíduos da Regressão Múltipla')
+    st.pyplot(fig)
+    
+    return model
+
+# Função para aplicar PCA (Análise de Componentes Principais)
+def aplicar_pca(similarity_df):
+    """Reduz a dimensionalidade usando PCA para entender os padrões nas similaridades."""
+    pca = PCA(n_components=2)
+    pca_result = pca.fit_transform(similarity_df)
+    explained_variance = pca.explained_variance_ratio_
+    return pca_result, explained_variance
+
+# Função para gerar o gráfico de PCA
+def grafico_pca(similarity_df, pca_result, explained_variance):
+    """Plota os resultados da Análise de Componentes Principais (PCA)."""
+    fig, ax = plt.subplots(figsize=(10, 6))
+    scatter = ax.scatter(pca_result[:, 0], pca_result[:, 1], c='blue', edgecolor='k', s=100)
+    ax.set_title('Análise de Componentes Principais (PCA)', fontsize=16, pad=20)
+    ax.set_xlabel(f'Componente Principal 1 ({explained_variance[0]*100:.2f}% da variância)', fontsize=14, labelpad=15)
+    ax.set_ylabel(f'Componente Principal 2 ({explained_variance[1]*100:.2f}% da variância)', fontsize=14, labelpad=15)
+    ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+    plt.tight_layout(pad=3.0)
+    st.pyplot(fig)
+
+# Função para realizar análise de clustering
+def analise_clustering(similarity_df):
+    """Realiza análise de clustering utilizando K-Means e DBSCAN."""
+    # Padronizar os dados
+    scaler = StandardScaler()
+    data_scaled = scaler.fit_transform(similarity_df)
+    
+    # K-Means clustering
+    distortions = []
+    K = range(1, 10)
+    for k in K:
+        kmeanModel = KMeans(n_clusters=k, random_state=42)
+        kmeanModel.fit(data_scaled)
+        distortions.append(kmeanModel.inertia_)
+    
+    # Plotar o gráfico do método Elbow
+    fig, ax = plt.subplots()
+    ax.plot(K, distortions, 'bx-')
+    ax.set_xlabel('Número de Clusters')
+    ax.set_ylabel('Distortion')
+    ax.set_title('Método Elbow para Determinação do Número Ótimo de Clusters')
+    st.pyplot(fig)
+    
+    # Escolher k com base no método Elbow ou outras considerações
+    k = 3  # Ajuste conforme necessário
+    kmeans = KMeans(n_clusters=k, random_state=42)
+    kmeans_labels = kmeans.fit_predict(data_scaled)
+    similarity_df['Cluster_KMeans'] = kmeans_labels
+    
+    # Avaliar o modelo K-Means usando o coeficiente de silhueta
+    silhouette_avg = silhouette_score(data_scaled, kmeans_labels)
+    st.write(f"Coeficiente de Silhueta para K-Means: {silhouette_avg:.4f}")
+    
+    # DBSCAN clustering
+    dbscan = DBSCAN(eps=1.5, min_samples=5)
+    dbscan_labels = dbscan.fit_predict(data_scaled)
+    similarity_df['Cluster_DBSCAN'] = dbscan_labels
+    
+    # Avaliar o modelo DBSCAN (ignorar ruído, label = -1)
+    labels_unique = np.unique(dbscan_labels)
+    labels_unique = labels_unique[labels_unique != -1]
+    if len(labels_unique) > 1:
+        silhouette_avg_dbscan = silhouette_score(data_scaled[dbscan_labels != -1], dbscan_labels[dbscan_labels != -1])
+        st.write(f"Coeficiente de Silhueta para DBSCAN: {silhouette_avg_dbscan:.4f}")
+    else:
+        st.write("DBSCAN não encontrou clusters significativos.")
+    
+    return similarity_df
+
+# Função para visualizar os clusters
+def visualizar_clusters(similarity_df):
+    """Visualiza os clusters obtidos pelo K-Means e DBSCAN."""
+    # PCA para reduzir a dimensionalidade
+    features = similarity_df.drop(columns=['Cluster_KMeans', 'Cluster_DBSCAN'], errors='ignore')
+    pca = PCA(n_components=2)
+    data_pca = pca.fit_transform(features)
+    
+    fig, axs = plt.subplots(1, 2, figsize=(16, 6))
+    
+    # Gráfico para K-Means
+    scatter = axs[0].scatter(data_pca[:, 0], data_pca[:, 1], c=similarity_df['Cluster_KMeans'], cmap='Set1', s=50)
+    axs[0].set_title('Clusters K-Means', fontsize=16)
+    axs[0].set_xlabel('Componente Principal 1', fontsize=14)
+    axs[0].set_ylabel('Componente Principal 2', fontsize=14)
+    axs[0].grid(True, linestyle='--', linewidth=0.5)
+    
+    # Gráfico para DBSCAN
+    scatter = axs[1].scatter(data_pca[:, 0], data_pca[:, 1], c=similarity_df['Cluster_DBSCAN'], cmap='Set1', s=50)
+    axs[1].set_title('Clusters DBSCAN', fontsize=16)
+    axs[1].set_xlabel('Componente Principal 1', fontsize=14)
+    axs[1].set_ylabel('Componente Principal 2', fontsize=14)
+    axs[1].grid(True, linestyle='--', linewidth=0.5)
+    
+    plt.tight_layout(pad=3.0)
+    st.pyplot(fig)
+
+# Função para gerar o mapa de calor interativo da matriz de correlação
+def grafico_interativo_plotly(similarity_df):
+    """Gera um mapa de calor interativo da matriz de correlação com Plotly."""
+    # Calcula a matriz de correlação
+    corr = similarity_df.corr()
+    
+    # Cria um mapa de calor da matriz de correlação
+    fig = go.Figure(data=go.Heatmap(
+        z=corr.values,
+        x=corr.columns,
+        y=corr.columns,
+        colorscale='Viridis',
+        colorbar=dict(title='Coeficiente de Correlação')
+    ))
+    
+    # Ajusta o layout para melhor legibilidade
+    fig.update_layout(
+        title="Mapa de Correlação entre Similaridades",
+        xaxis_tickangle=-45,
+        xaxis={'side': 'bottom'},
+        width=800,
+        height=800,
+        margin=dict(l=200, r=200, b=200, t=100),
+        font=dict(size=10),
+    )
+    
+    st.plotly_chart(fig)
+
+# Funções adicionais (testes de hipótese, ANOVA, ajuste q-exponencial, etc.)
+def testes_hipotese(similarity_df):
+    """Realiza testes de hipóteses estatísticas nas similaridades."""
+    # Teste t para duas amostras independentes
+    t_stat, p_value = stats.ttest_ind(
+        similarity_df['Dzubukuá - Arcaico (Semântica)'],
+        similarity_df['Dzubukuá - Moderno (Semântica)']
+    )
+    st.write(f"Teste t para duas amostras independentes (Semântica):")
+    st.write(f"Estatística t: {t_stat:.4f}")
+    st.write(f"Valor-p: {p_value:.4e}")
+    if p_value < 0.05:
+        st.write("Conclusão: Há uma diferença significativa entre as médias das similaridades semânticas.")
+    else:
+        st.write("Conclusão: Não há evidência suficiente para afirmar que as médias diferem.")
+
+def analise_anova(similarity_df):
+    """Realiza ANOVA para comparar as médias das similaridades entre grupos."""
+    # Exemplo usando as similaridades semânticas
+    f_stat, p_value = f_oneway(
+        similarity_df['Dzubukuá - Arcaico (Semântica)'],
+        similarity_df['Dzubukuá - Moderno (Semântica)'],
+        similarity_df['Arcaico - Moderno (Semântica)']
+    )
+    st.write(f"Resultado da ANOVA:")
+    st.write(f"Estatística F: {f_stat:.4f}")
+    st.write(f"Valor-p: {p_value:.4e}")
+    if p_value < 0.05:
+        st.write("Conclusão: As médias das similaridades semânticas diferem significativamente entre os grupos.")
+    else:
+        st.write("Conclusão: Não há evidência suficiente para afirmar que as médias diferem entre os grupos.")
+
+def ajuste_q_exponencial(data):
+    """Ajusta uma distribuição q-exponencial aos dados e retorna os parâmetros."""
+    def q_exponential(x, a, b, q):
+        return a * (1 - (1 - q) * b * x) ** (1 / (1 - q))
+    
+    hist, bin_edges = np.histogram(data, bins=50, density=True)
+    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+    
+    # Ajuste dos parâmetros
+    params, _ = curve_fit(q_exponential, bin_centers, hist, maxfev=10000)
+    a, b, q = params
+    return a, b, q
+
+def grafico_dendrograma(similarity_df):
+    """Gera um dendrograma para visualizar relações hierárquicas entre as variáveis."""
+    from scipy.cluster.hierarchy import linkage
+
+    linked = linkage(similarity_df.T, 'ward', metric='euclidean')
+    labelList = similarity_df.columns
+    fig, ax = plt.subplots(figsize=(12, 8))
+    dendrogram(linked, labels=labelList, ax=ax, orientation='top')
+    ax.set_title('Dendrograma das Similaridades', fontsize=16, pad=20)
+    ax.set_xlabel('Variáveis', fontsize=14, labelpad=15)
+    ax.set_ylabel('Distância Euclidiana', fontsize=14, labelpad=15)
+    plt.setp(ax.get_xticklabels(), rotation=45, ha='right')
+    plt.tight_layout(pad=3.0)
+    st.pyplot(fig)
+
+def grafico_matriz_correlacao(pearson_corr, spearman_corr, kendall_corr):
+    """Gera gráficos para as correlações Pearson, Spearman e Kendall."""
+    fig, axs = plt.subplots(1, 3, figsize=(24, 6))
+
+    # Correlação de Pearson
+    sns.heatmap(pearson_corr, annot=True, cmap='coolwarm', ax=axs[0])
+    axs[0].set_title('Correlação de Pearson', pad=20)
+    axs[0].tick_params(axis='x', rotation=45)
+    axs[0].tick_params(axis='y', rotation=0)
+    axs[0].set_xlabel('Variáveis', labelpad=15)
+    axs[0].set_ylabel('Variáveis', labelpad=15)
+
+    # Correlação de Spearman
+    sns.heatmap(spearman_corr, annot=True, cmap='coolwarm', ax=axs[1])
+    axs[1].set_title('Correlação de Spearman', pad=20)
+    axs[1].tick_params(axis='x', rotation=45)
+    axs[1].tick_params(axis='y', rotation=0)
+    axs[1].set_xlabel('Variáveis', labelpad=15)
+    axs[1].set_ylabel('Variáveis', labelpad=15)
+
+    # Correlação de Kendall
+    sns.heatmap(kendall_corr, annot=True, cmap='coolwarm', ax=axs[2])
+    axs[2].set_title('Correlação de Kendall', pad=20)
+    axs[2].tick_params(axis='x', rotation=45)
+    axs[2].tick_params(axis='y', rotation=0)
+    axs[2].set_xlabel('Variáveis', labelpad=15)
+    axs[2].set_ylabel('Variáveis', labelpad=15)
+
+    plt.tight_layout(pad=3.0)
+    st.pyplot(fig)
+
+def grafico_regressao_plotly(similarity_df, model, y_pred):
+    """Gera gráfico interativo com a linha de regressão e informações estatísticas."""
+    X = similarity_df['Dzubukuá - Arcaico (Semântica)']
+    y = similarity_df['Dzubukuá - Moderno (Semântica)']
+    intervalo_confianca = model.conf_int(alpha=0.05)
+    r2 = model.rsquared
+    p_value = model.pvalues[1]  # p-valor do coeficiente da variável independente
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=X, y=y, mode='markers', name='Dados'))
+    fig.add_trace(go.Scatter(x=X, y=y_pred, mode='lines', name='Regressão Linear'))
+    fig.update_layout(
+        title=f"Regressão Linear - R²: {r2:.2f}, p-valor: {p_value:.4f}<br>Intervalo de Confiança do Coeficiente: [{intervalo_confianca.iloc[1,0]:.4f}, {intervalo_confianca.iloc[1,1]:.4f}]",
+        xaxis_title="Similaridade Dzubukuá - Arcaico (Semântica)",
+        yaxis_title="Similaridade Dzubukuá - Moderno (Semântica)",
+        xaxis=dict(title_font=dict(size=14), tickangle=-45),
+        yaxis=dict(title_font=dict(size=14)),
+        width=800,
+        height=600,
+        margin=dict(l=100, r=100, b=100, t=100),
+        font=dict(size=12),
+    )
+    st.plotly_chart(fig)
+
+def salvar_dataframe(similarity_df):
+    """Permite o download do DataFrame em formato CSV."""
+    csv = similarity_df.to_csv(index=False).encode('utf-8')
+    st.download_button(
+        label="Baixar Similaridades em CSV",
+        data=csv,
+        file_name='similaridades_linguisticas.csv',
+        mime='text/csv',
+    )
 
 # Função principal para rodar a aplicação no Streamlit
 def main():
@@ -464,7 +519,7 @@ def main():
         st.subheader("Similaridade Calculada entre as Três Línguas")
         st.dataframe(similarity_df)
 
-        # Gráfico interativo de correlações usando Plotly (atualizado)
+        # Gráfico interativo de correlações usando Plotly
         st.subheader("Mapa de Correlação entre Similaridades")
         grafico_interativo_plotly(similarity_df)
 
@@ -540,17 +595,6 @@ def main():
         if st.checkbox("Deseja baixar os resultados como CSV?"):
             salvar_dataframe(similarity_df)
 
-# Função para salvar o dataframe como CSV para download
-def salvar_dataframe(similarity_df):
-    """Permite o download do DataFrame em formato CSV."""
-    csv = similarity_df.to_csv(index=False).encode('utf-8')
-    st.download_button(
-        label="Baixar Similaridades em CSV",
-        data=csv,
-        file_name='similaridades_linguisticas.csv',
-        mime='text/csv',
-    )
-
-# Função principal para rodar a aplicação no Streamlit
+# Executar a aplicação
 if __name__ == '__main__':
     main()
