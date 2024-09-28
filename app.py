@@ -844,157 +844,71 @@ As análises realizadas fornecem uma visão abrangente das similaridades entre D
     Instagram: [https://www.instagram.com/marceloclaro.geomaker/](https://www.instagram.com/marceloclaro.geomaker/)
     """)
 # _____________________________________________
-# Controle de Áudio
+import streamlit as st
+import base64
+import os
 
+# Título da seção de controle de áudio
 st.sidebar.title("Controle de Áudio")
 
-# O comando `st.sidebar.title` exibe um título na barra lateral. Neste caso, o título "Controle de Áudio" informa ao usuário que há uma seção dedicada ao controle de áudio.
-# Vantagem: A criação de um título claro e destacado facilita a navegação e a compreensão da interface pelo usuário.
-# Desvantagem: O título é estático e não reflete o conteúdo dinâmico, como a lista de arquivos ou o estado atual (por exemplo, se o áudio está tocando).
-# Possível solução: Tornar o título dinâmico, atualizando-o conforme o áudio selecionado ou o estado do player, como "Controle de Áudio (Tocando)".
-# Exemplo:
-# ```python
-# st.sidebar.title(f"Controle de Áudio (Tocando: {selected_mp3})" if play_button else "Controle de Áudio")
-# ```
-
-# Lista de arquivos MP3
+# Dicionário de arquivos de áudio, com nomes amigáveis mapeando para o caminho do arquivo
 mp3_files = {
-    "Áudio explicação técnica": "kariri.mp3",
-    
+    "Áudio explicativo 1": "kariri.mp3",
+   
 }
-# O dicionário `mp3_files` mapeia nomes amigáveis de arquivos de áudio (como "Instrução de uso") para os respectivos nomes dos arquivos MP3.
-# Vantagem: Facilita a exibição de nomes descritivos para os arquivos de áudio, permitindo ao usuário escolher com base no contexto, sem ver os nomes reais dos arquivos.
-# Desvantagem: O código assume que todos os arquivos listados estão presentes no sistema, sem verificação prévia.
-# Possível solução: Implementar uma verificação para garantir que todos os arquivos de áudio listados estão disponíveis antes de exibi-los na interface.
-# Exemplo:
-# ```python
-# valid_mp3_files = {k: v for k, v in mp3_files.items() if os.path.exists(v)}
-# ```
 
-# Controle de seleção de música
-selected_mp3 = st.sidebar.radio("Escolha um áudio explicativo:", options=list(mp3_files.keys()))  # Certifique-se de usar 'options'
-# O widget `st.sidebar.radio` cria um botão de seleção (radio button) na barra lateral, permitindo que o usuário escolha entre as opções fornecidas (os nomes amigáveis de MP3).
-# Vantagem: Simples e intuitivo, o controle radio limita a seleção a uma opção por vez, o que é ideal quando o usuário precisa escolher apenas um arquivo de áudio.
-# Desvantagem: Se houver muitos arquivos de áudio, a lista pode ficar muito longa, dificultando a navegação.
-# Possível solução: Adicionar uma funcionalidade de busca ou agrupamento para facilitar a seleção de arquivos em listas grandes.
-# Exemplo:
-# ```python
-# selected_mp3 = st.sidebar.selectbox("Escolha uma música", options=list(mp3_files.keys()))  # Para listas maiores
-# ```
+# Lista de arquivos MP3 para seleção
+selected_mp3 = st.sidebar.radio("Escolha um áudio explicativo:", options=list(mp3_files.keys()))
 
-# Opção de loop
+# Controle de opção de repetição
 loop = st.sidebar.checkbox("Repetir áudio")
-# O widget `st.sidebar.checkbox` cria uma caixa de seleção que permite ao usuário definir se deseja repetir a música (loop).
-# Vantagem: O controle é direto e funcional, permitindo que o usuário ative ou desative a repetição de forma simples.
-# Desvantagem: Não há feedback visual imediato sobre o estado atual da música (se está em loop ou não) no player de áudio.
-# Possível solução: Atualizar dinamicamente o título ou o player para refletir o estado de loop, como "Repetindo: Sim/Não" na interface.
-# Exemplo:
-# ```python
-# st.sidebar.text(f"Repetindo: {'Sim' if loop else 'Não'}")
-# ```
 
-# Botão de play
+# Botão de Play para iniciar o áudio
 play_button = st.sidebar.button("Play")
-# O widget `st.sidebar.button` cria um botão de "Play" que, quando clicado, dispara o carregamento e a execução do áudio selecionado.
-# Vantagem: A interação via botão é intuitiva e tradicional para controles de áudio.
-# Desvantagem: Não há indicação visual clara de que o áudio está sendo tocado ou foi pausado, além do próprio botão.
-# Possível solução: Alterar o rótulo do botão para "Pausar" enquanto o áudio está tocando ou adicionar um botão de "Parar".
-# Exemplo:
-# ```python
-# play_button = st.sidebar.button("Pausar" if is_playing else "Play")
-# ```
 
-# Carregar e exibir o player de áudio
-audio_placeholder = st.sidebar.empty()  # Placeholder para o player de áudio
-# `st.sidebar.empty()` cria um espaço reservado (placeholder) onde o player de áudio será exibido. Este espaço vazio será preenchido posteriormente com o player HTML.
-# Vantagem: O placeholder permite a exibição condicional de conteúdo (como o player de áudio) de maneira controlada e dinâmica.
-# Desvantagem: O uso de um placeholder vazio pode causar confusão visual se o espaço não for preenchido adequadamente após a interação.
-# Possível solução: Exibir uma mensagem de "Aguardando seleção de música" antes de o áudio ser carregado, para que o espaço não fique visualmente vazio.
-# Exemplo:
-# ```python
-# audio_placeholder.text("Selecione uma música para tocar")
-# ```
+# Placeholder para o player de áudio
+audio_placeholder = st.sidebar.empty()
 
+# Função para verificar se o arquivo existe
+def check_file_exists(mp3_path):
+    if not os.path.exists(mp3_path):
+        st.sidebar.error(f"Arquivo {mp3_path} não encontrado.")
+        return False
+    return True
+
+# Se o botão Play for pressionado e um arquivo de áudio estiver selecionado
 if play_button and selected_mp3:
-    # A condição `if play_button and selected_mp3:` verifica se o botão "Play" foi clicado e se uma música foi selecionada. Somente nesse caso o áudio será carregado.
-    # Vantagem: Garante que o áudio só seja carregado quando o usuário realizar as duas ações necessárias (selecionar e clicar em play).
-    # Desvantagem: Não há feedback caso o usuário clique no botão sem selecionar uma música.
-    # Possível solução: Adicionar uma mensagem de erro ou aviso caso o usuário clique em "Play" sem selecionar um áudio.
-    # Exemplo:
-    # ```python
-    # if play_button and not selected_mp3:
-    #     st.sidebar.error("Por favor, selecione uma música antes de clicar em play.")
-    # ```
-
     mp3_path = mp3_files[selected_mp3]
-    # `mp3_path` armazena o caminho do arquivo MP3 correspondente à música selecionada pelo usuário.
-    # Vantagem: A extração do caminho do arquivo com base no nome selecionado é eficiente e intuitiva.
-    # Desvantagem: O caminho é assumido como correto sem verificação prévia.
-    # Possível solução: Verificar se o arquivo realmente existe antes de prosseguir com o carregamento do áudio, evitando erros de arquivo inexistente.
-    # Exemplo:
-    # ```python
-    # if not os.path.exists(mp3_path):
-    #     st.sidebar.error(f"Arquivo {mp3_path} não encontrado.")
-    # ```
+    
+    # Verificação da existência do arquivo
+    if check_file_exists(mp3_path):
+        try:
+            # Abrindo o arquivo de áudio no modo binário
+            with open(mp3_path, "rb") as audio_file:
+                audio_bytes = audio_file.read()
+                
+                # Codificando o arquivo em base64 para embutir no HTML
+                audio_base64 = base64.b64encode(audio_bytes).decode('utf-8')
+                
+                # Controle de loop (repetição)
+                loop_attr = "loop" if loop else ""
+                
+                # Gerando o player de áudio em HTML
+                audio_html = f"""
+                <audio id="audio-player" controls autoplay {loop_attr}>
+                  <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
+                  Seu navegador não suporta o elemento de áudio.
+                </audio>
+                """
+                
+                # Inserindo o player de áudio na interface
+                audio_placeholder.markdown(audio_html, unsafe_allow_html=True)
+        
+        except FileNotFoundError:
+            st.sidebar.error(f"Arquivo {mp3_path} não encontrado.")
+        except Exception as e:
+            st.sidebar.error(f"Erro ao carregar o arquivo: {str(e)}")
 
-    try:
-        with open(mp3_path, "rb") as audio_file:
-            # Abre o arquivo de áudio no modo de leitura binária (rb).
-            # Vantagem: O uso do modo binário é essencial para ler corretamente o conteúdo do arquivo MP3.
-            # Desvantagem: Se o arquivo estiver corrompido ou indisponível, pode gerar uma exceção que não está sendo tratada adequadamente.
-            # Possível solução: Ampliar o tratamento de exceções para lidar com outros possíveis erros além de `FileNotFoundError`, como permissões ou arquivos corrompidos.
-
-            audio_bytes = audio_file.read()
-            # Lê o conteúdo do arquivo MP3 em bytes.
-            # Vantagem: O uso de bytes permite manipulação e transmissão eficiente dos dados do áudio.
-            # Desvantagem: Não há validação para garantir que o conteúdo lido seja realmente um arquivo MP3 válido.
-            # Possível solução: Adicionar uma verificação básica para garantir que o arquivo é válido ou está no formato esperado.
-
-            audio_base64 = base64.b64encode(audio_bytes).decode('utf-8')
-            # Codifica o áudio lido em base64 para ser embutido no HTML.
-            # Vantagem: A codificação base64 permite a inserção do áudio diretamente em HTML, sem a necessidade de um servidor de mídia externo.
-            # Desvantagem: Arquivos de áudio grandes podem gerar strings base64 enormes, sobrecarregando a transferência de dados e o carregamento da página.
-            # Possível solução: Limitar o tamanho dos arquivos MP3 ou adicionar suporte a streaming em vez de carregar o arquivo inteiro.
-            # Exemplo:
-            # ```python
-            # if len(audio_bytes) > MAX_SIZE:
-            #     st.sidebar.error("O arquivo de áudio é muito grande.")
-            # ```
-
-            loop_attr = "loop" if loop else ""
-            # A variável `loop_attr` é uma string condicional que define o atributo `loop` no player de áudio HTML.
-            # Vantagem: Condicional simples e clara para habilitar ou desabilitar a repetição do áudio.
-            # Desvantagem: Se o atributo `loop` for omitido acidentalmente, o comportamento pode não ser o esperado.
-            # Possível solução: Garantir que o atributo seja aplicado corretamente, adicionando mais verificações sobre o estado do checkbox de loop.
-
-            audio_html = f"""
-            <audio id="audio-player" controls autoplay {loop_attr}>
-              <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
-              Seu navegador não suporta o elemento de áudio.
-            </audio>
-            """
-            # A string `audio_html` define o player de áudio HTML com controle de autoplay e loop, se necessário.
-            # Vantagem: Usar HTML embutido para exibir o player de áudio é eficiente e direto, sem a necessidade de bibliotecas externas.
-            # Desvantagem: Dependente do suporte do navegador para HTML5 e a tag <audio>. Alguns navegadores ou versões podem não suportar.
-            # Possível solução: Adicionar um fallback para navegadores que não suportam a tag <audio>, ou instruções para atualização de navegador.
-
-            audio_placeholder.markdown(audio_html, unsafe_allow_html=True)
-            # A função `audio_placeholder.markdown` insere o HTML gerado no espaço reservado da barra lateral, exibindo o player de áudio.
-            # Vantagem: O uso de `unsafe_allow_html=True` permite injetar HTML diretamente, permitindo uma personalização completa da interface de áudio.
-            # Desvantagem: O uso de `unsafe_allow_html` pode abrir brechas de segurança se o conteúdo HTML não for validado corretamente.
-            # Possível solução: Certificar-se de que o HTML gerado é seguro, especialmente se partes dele forem dinâmicas ou controladas pelo usuário.
-
-    except FileNotFoundError:
-        audio_placeholder.error(f"Arquivo {mp3_path} não encontrado.")
-        # Se o arquivo MP3 não for encontrado, uma mensagem de erro é exibida no espaço reservado (audio_placeholder).
-        # Vantagem: A função de erro alerta o usuário de maneira clara quando um arquivo está ausente.
-        # Desvantagem: O tratamento de exceção está limitado ao `FileNotFoundError`, mas pode haver outros erros de I/O que não são capturados.
-        # Possível solução: Ampliar o bloco `except` para capturar outros tipos de erros de arquivo.
-        # Exemplo:
-        # ```python
-        # except (FileNotFoundError, IOError) as e:
-        #     audio_placeholder.error(f"Erro ao carregar o arquivo: {str(e)}")
-        # ```
 
 # _____________________________________________
 
