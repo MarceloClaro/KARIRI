@@ -25,68 +25,21 @@ from scipy.stats import f_oneway  # Para ANOVA
 from scipy.optimize import curve_fit  # Para q-Exponencial
 
 # Função principal para rodar a aplicação no Streamlit
-def main():
-    st.title('Análises Avançadas de Similaridade Linguística para Línguas Mortas')
+import os
+import logging
 
-    # Adicionar o expander no sidebar com as explicações detalhadas
-    with st.sidebar.expander("Explicações Detalhadas"):
-        st.write("""
-        ## Sobre o Projeto
-        Este aplicativo realiza análises avançadas de similaridade linguística entre três idiomas: **Dzubukuá**, **Português Arcaico** e **Português Moderno**. Utilizamos técnicas de processamento de linguagem natural (PLN) e estatística para explorar as relações entre essas línguas.
 
-        ## Objetivos das Análises
-        - **Similaridade Semântica**: Avaliar o quão semelhantes são as sentenças em termos de significado.
-        - **Similaridade Lexical**: Comparar as palavras e estruturas de caracteres entre as línguas.
-        - **Similaridade Fonológica**: Analisar a semelhança na pronúncia e sons das palavras.
+# Definir o caminho do ícone
+icon_path = "logo.png"  # Verifique se o arquivo logo.png está no diretório correto
 
-        ## Possíveis Interpretações dos Resultados
-        ### Similaridade Semântica
-        Utilizando modelos como o **Sentence-BERT**, medimos a proximidade de significado entre sentenças correspondentes. Por exemplo, se uma frase em Dzubukuá tem alta similaridade semântica com sua tradução em Português Moderno, isso indica que, apesar das diferenças linguísticas, o conceito transmitido é semelhante.
-
-        *Exemplo*: Se a frase Dzubukuá "Umake zuka" tem alta similaridade com "O sol nasce", podemos inferir que a tradução captura bem o significado original.
-
-        ### Similaridade Lexical
-        A análise lexical com **N-gramas** e **Word2Vec** nos permite entender como as palavras e suas estruturas se relacionam entre as línguas.
-
-        - **N-gramas**: Se o coeficiente de similaridade for alto entre Português Arcaico e Moderno, pode indicar que a ortografia e construção de palavras permaneceram relativamente constantes ao longo do tempo.
-        - **Word2Vec**: Captura contextos semânticos das palavras. Similaridades altas podem sugerir empréstimos linguísticos ou influências culturais.
-
-        ### Similaridade Fonológica
-        Avaliamos como os sons das palavras se comparam entre as línguas usando codificação fonética e distâncias de edição.
-
-        *Exemplo*: Se "coração" em Português Moderno e "coraçon" em Português Arcaico têm alta similaridade fonológica, isso reflete a evolução da pronúncia e escrita ao longo do tempo.
-
-        ### Análises Estatísticas
-        - **Correlações**: Identificam relações entre diferentes medidas de similaridade. Correlações fortes podem indicar que mudanças em uma dimensão (por exemplo, semântica) estão associadas a mudanças em outra (por exemplo, lexical).
-        - **Regressões**: Modelam relações entre variáveis. Uma regressão linear significativa entre similaridades semânticas de Dzubukuá-Português Arcaico e Dzubukuá-Português Moderno pode sugerir que as traduções modernas preservam elementos semânticos do arcaico.
-        - **Testes de Hipóteses e ANOVA**: Verificam se as diferenças observadas são estatisticamente significativas. Isso ajuda a validar se as similaridades ou diferenças não ocorrem ao acaso.
-
-        ### Análise de Componentes Principais (PCA)
-        Reduz a dimensionalidade dos dados para identificar padrões. Componentes principais que explicam grande parte da variância podem revelar fatores subjacentes importantes nas similaridades linguísticas.
-
-        ### Clustering (Agrupamento)
-        Agrupa dados com base em características semelhantes.
-
-        - **K-Means**: Separa os dados em k clusters distintos. Por exemplo, frases que formam um cluster podem compartilhar características linguísticas específicas.
-        - **DBSCAN**: Identifica clusters de alta densidade e é útil para detectar outliers.
-
-        ### Ajuste q-Exponencial
-        Modela distribuições de dados que não seguem uma distribuição normal. O parâmetro *q* indica o grau de não-extensividade, relevante em sistemas complexos como a evolução de línguas.
-
-        ## Considerações para Leigos
-        - **Semelhanças e Diferenças Linguísticas**: As análises ajudam a entender como línguas evoluem e influenciam umas às outras.
-        - **Importância Cultural**: Estudar o Dzubukuá pode revelar aspectos culturais e históricos importantes, especialmente ao compará-lo com o Português Arcaico e Moderno.
-        - **Evolução da Linguagem**: Observando as similaridades, podemos inferir como certas palavras e estruturas mudaram ou permaneceram ao longo do tempo.
-
-        ## Exemplos Práticos
-        - **Tradução e Preservação**: Se uma palavra em Dzubukuá não tem equivalente direto em Português Moderno, mas encontra correspondência no Português Arcaico, isso pode indicar perda ou mudança de conceitos culturais.
-        - **Educação e Pesquisa**: As ferramentas e análises apresentadas podem ser utilizadas por estudantes e pesquisadores para aprofundar o conhecimento em linguística histórica e comparativa.
-
-        ## Conclusão
-        Este aplicativo oferece uma forma interativa de explorar e compreender as complexas relações entre línguas, combinando técnicas modernas de análise de dados com estudos linguísticos tradicionais.
-
-        **Nota**: Os resultados das análises devem ser interpretados com cautela e, preferencialmente, com apoio de especialistas em linguística para insights mais profundos.
-        """)
+# Verificar se o arquivo de ícone existe antes de configurá-lo
+if os.path.exists(icon_path):
+    st.set_page_config(page_title="Geomaker +IA", page_icon=icon_path, layout="wide")
+    logging.info(f"Ícone {icon_path} carregado com sucesso.")
+else:
+    # Se o ícone não for encontrado, carrega sem favicon
+    st.set_page_config(page_title="Geomaker +IA", layout="wide")
+    logging.warning(f"Ícone {icon_path} não encontrado, carregando sem favicon.")
 # Certifique-se de que todas as funções estão definidas antes do main()
 # Função para calcular similaridade semântica usando Sentence-BERT
 def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico, sentences_moderno):
