@@ -17,3 +17,4 @@ statsmodels
 Levenshtein
 qinfer
 base64
+beautifulsoup4
