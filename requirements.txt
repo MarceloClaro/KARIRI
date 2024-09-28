@@ -16,4 +16,5 @@ ete3
 statsmodels 
 Levenshtein
 qinfer
-beautifulsoup4
+os
+base64
