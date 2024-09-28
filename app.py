@@ -101,7 +101,7 @@ with st.sidebar.expander("Insights do Código"):
     # Exemplo: Adicionar uma seta ou destaque que incentive o usuário a expandir.
     
     st.markdown("""
-            ## Sobre o Projeto
+        ## Sobre o Projeto
         Este aplicativo realiza análises avançadas de similaridade linguística entre três idiomas: **Dzubukuá**, **Português Arcaico** e **Português Moderno**. Utilizamos técnicas de processamento de linguagem natural (PLN) e estatística para explorar as relações entre essas línguas.
 
         ## Objetivos das Análises
@@ -156,7 +156,7 @@ with st.sidebar.expander("Insights do Código"):
         Este aplicativo oferece uma forma interativa de explorar e compreender as complexas relações entre línguas, combinando técnicas modernas de análise de dados com estudos linguísticos tradicionais.
 
         **Nota**: Os resultados das análises devem ser interpretados com cautela e, preferencialmente, com apoio de especialistas em linguística para insights mais profundos.
-        """))
+        """)
     # A função `st.markdown` permite exibir um texto com formatação Markdown dentro do expander. Neste caso, ela está sendo usada para fornecer uma introdução ao código e sua funcionalidade.
     # Vantagem: O Markdown permite uma apresentação estruturada e organizada do conteúdo, incluindo listas, negrito, e outros elementos de formatação.
     # Desvantagem: O Markdown não é tão flexível quanto HTML para personalizações mais avançadas de estilo e pode limitar a formatação visual.
