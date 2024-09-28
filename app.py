@@ -101,70 +101,69 @@ with st.sidebar.expander("Insights do Código"):
     # Exemplo: Adicionar uma seta ou destaque que incentive o usuário a expandir.
     
     st.markdown("""
-    O código do Agentes Alan Kay é um exemplo de uma aplicação de chat baseada em modelos de linguagem (LLMs) utilizando a biblioteca Streamlit e a API Groq. Aqui, vamos analisar detalhadamente o código e discutir suas inovações, pontos positivos e limitações.
-    """)
+            ## Sobre o Projeto
+        Este aplicativo realiza análises avançadas de similaridade linguística entre três idiomas: **Dzubukuá**, **Português Arcaico** e **Português Moderno**. Utilizamos técnicas de processamento de linguagem natural (PLN) e estatística para explorar as relações entre essas línguas.
+
+        ## Objetivos das Análises
+        - **Similaridade Semântica**: Avaliar o quão semelhantes são as sentenças em termos de significado.
+        - **Similaridade Lexical**: Comparar as palavras e estruturas de caracteres entre as línguas.
+        - **Similaridade Fonológica**: Analisar a semelhança na pronúncia e sons das palavras.
+
+        ## Possíveis Interpretações dos Resultados
+        ### Similaridade Semântica
+        Utilizando modelos como o **Sentence-BERT**, medimos a proximidade de significado entre sentenças correspondentes. Por exemplo, se uma frase em Dzubukuá tem alta similaridade semântica com sua tradução em Português Moderno, isso indica que, apesar das diferenças linguísticas, o conceito transmitido é semelhante.
+
+        *Exemplo*: Se a frase Dzubukuá "Umake zuka" tem alta similaridade com "O sol nasce", podemos inferir que a tradução captura bem o significado original.
+
+        ### Similaridade Lexical
+        A análise lexical com **N-gramas** e **Word2Vec** nos permite entender como as palavras e suas estruturas se relacionam entre as línguas.
+
+        - **N-gramas**: Se o coeficiente de similaridade for alto entre Português Arcaico e Moderno, pode indicar que a ortografia e construção de palavras permaneceram relativamente constantes ao longo do tempo.
+        - **Word2Vec**: Captura contextos semânticos das palavras. Similaridades altas podem sugerir empréstimos linguísticos ou influências culturais.
+
+        ### Similaridade Fonológica
+        Avaliamos como os sons das palavras se comparam entre as línguas usando codificação fonética e distâncias de edição.
+
+        *Exemplo*: Se "coração" em Português Moderno e "coraçon" em Português Arcaico têm alta similaridade fonológica, isso reflete a evolução da pronúncia e escrita ao longo do tempo.
+
+        ### Análises Estatísticas
+        - **Correlações**: Identificam relações entre diferentes medidas de similaridade. Correlações fortes podem indicar que mudanças em uma dimensão (por exemplo, semântica) estão associadas a mudanças em outra (por exemplo, lexical).
+        - **Regressões**: Modelam relações entre variáveis. Uma regressão linear significativa entre similaridades semânticas de Dzubukuá-Português Arcaico e Dzubukuá-Português Moderno pode sugerir que as traduções modernas preservam elementos semânticos do arcaico.
+        - **Testes de Hipóteses e ANOVA**: Verificam se as diferenças observadas são estatisticamente significativas. Isso ajuda a validar se as similaridades ou diferenças não ocorrem ao acaso.
+
+        ### Análise de Componentes Principais (PCA)
+        Reduz a dimensionalidade dos dados para identificar padrões. Componentes principais que explicam grande parte da variância podem revelar fatores subjacentes importantes nas similaridades linguísticas.
+
+        ### Clustering (Agrupamento)
+        Agrupa dados com base em características semelhantes.
+
+        - **K-Means**: Separa os dados em k clusters distintos. Por exemplo, frases que formam um cluster podem compartilhar características linguísticas específicas.
+        - **DBSCAN**: Identifica clusters de alta densidade e é útil para detectar outliers.
+
+        ### Ajuste q-Exponencial
+        Modela distribuições de dados que não seguem uma distribuição normal. O parâmetro *q* indica o grau de não-extensividade, relevante em sistemas complexos como a evolução de línguas.
+
+        ## Considerações para Leigos
+        - **Semelhanças e Diferenças Linguísticas**: As análises ajudam a entender como línguas evoluem e influenciam umas às outras.
+        - **Importância Cultural**: Estudar o Dzubukuá pode revelar aspectos culturais e históricos importantes, especialmente ao compará-lo com o Português Arcaico e Moderno.
+        - **Evolução da Linguagem**: Observando as similaridades, podemos inferir como certas palavras e estruturas mudaram ou permaneceram ao longo do tempo.
+
+        ## Exemplos Práticos
+        - **Tradução e Preservação**: Se uma palavra em Dzubukuá não tem equivalente direto em Português Moderno, mas encontra correspondência no Português Arcaico, isso pode indicar perda ou mudança de conceitos culturais.
+        - **Educação e Pesquisa**: As ferramentas e análises apresentadas podem ser utilizadas por estudantes e pesquisadores para aprofundar o conhecimento em linguística histórica e comparativa.
+
+        ## Conclusão
+        Este aplicativo oferece uma forma interativa de explorar e compreender as complexas relações entre línguas, combinando técnicas modernas de análise de dados com estudos linguísticos tradicionais.
+
+        **Nota**: Os resultados das análises devem ser interpretados com cautela e, preferencialmente, com apoio de especialistas em linguística para insights mais profundos.
+        """))
     # A função `st.markdown` permite exibir um texto com formatação Markdown dentro do expander. Neste caso, ela está sendo usada para fornecer uma introdução ao código e sua funcionalidade.
     # Vantagem: O Markdown permite uma apresentação estruturada e organizada do conteúdo, incluindo listas, negrito, e outros elementos de formatação.
     # Desvantagem: O Markdown não é tão flexível quanto HTML para personalizações mais avançadas de estilo e pode limitar a formatação visual.
     # Possível solução: Se mais personalização for necessária, usar `st.markdown` com o parâmetro `unsafe_allow_html=True` para incorporar elementos HTML mais avançados.
     # Exemplo: `st.markdown("<h1>Agentes Alan Kay</h1>", unsafe_allow_html=True)`
 
-    st.markdown("""
-    **Inovações:**
-    - Suporte a múltiplos modelos de linguagem: O código permite que o usuário escolha entre diferentes modelos de linguagem, como o LLaMA, para gerar respostas mais precisas e personalizadas.
-    - Integração com a API Groq: A integração com a API Groq permite que o aplicativo utilize a capacidade de processamento de linguagem natural de alta performance para gerar respostas precisas.
-    - Refinamento de respostas: O código permite que o usuário refine as respostas do modelo de linguagem, tornando-as mais precisas e relevantes para a consulta.
-    - Avaliação com o RAG: A avaliação com o RAG (Rational Agent Generator) permite que o aplicativo avalie a qualidade e a precisão das respostas do modelo de linguagem.
-    """)
-    # O texto apresenta as inovações implementadas no código, detalhando os benefícios e funcionalidades.
-    # Vantagem: Proporciona uma explicação clara e direta dos principais recursos inovadores do código, destacando aspectos técnicos como o suporte a múltiplos modelos e a integração com Groq.
-    # Desvantagem: A lista não fornece exemplos concretos ou uma explicação de como cada inovação pode ser utilizada pelo usuário.
-    # Possível solução: Incluir exemplos práticos ou cenários de uso para que os leitores entendam melhor como essas inovações podem ser aplicadas no contexto da aplicação.
-    # Exemplo: Após cada item, adicionar uma breve explicação com exemplos: "Por exemplo, ao usar o modelo LLaMA, você pode gerar respostas específicas para consultas técnicas."
-
-    st.markdown("""
-    **Pontos positivos:**
-    - Personalização: O aplicativo permite que o usuário escolha entre diferentes modelos de linguagem e personalize as respostas de acordo com suas necessidades.
-    - Precisão: A integração com a API Groq e o refinamento de respostas garantem que as respostas sejam precisas e relevantes para a consulta.
-    - Flexibilidade: O código é flexível o suficiente para permitir que o usuário escolha entre diferentes modelos de linguagem e personalize as respostas.
-    """)
-    # A seção destaca os pontos fortes do código, como a personalização e flexibilidade oferecidas ao usuário.
-    # Vantagem: Fornece uma visão geral dos aspectos positivos, o que pode ajudar a convencer desenvolvedores ou usuários sobre a eficiência da aplicação.
-    # Desvantagem: A lista de pontos positivos não aborda possíveis desafios para os novos usuários ou limitações operacionais.
-    # Possível solução: Equilibrar os pontos positivos com exemplos de como eles superam desafios comuns ou facilitam a experiência do usuário.
-    # Exemplo: "A flexibilidade permite que até usuários iniciantes adaptem o sistema às suas necessidades sem conhecimento técnico profundo."
-
-    st.markdown("""
-    **Limitações:**
-    - Dificuldade de uso: O aplicativo pode ser difícil de usar para os usuários que não têm experiência com modelos de linguagem ou API.
-    - Limitações de token: O código tem limitações em relação ao número de tokens que podem ser processados pelo modelo de linguagem.
-    - Necessidade de treinamento adicional: O modelo de linguagem pode precisar de treinamento adicional para lidar com consultas mais complexas ou específicas.
-    """)
-    # Aqui são listadas as limitações do código, como dificuldades de uso para iniciantes e restrições técnicas relacionadas aos tokens.
-    # Vantagem: Fornecer uma visão clara das limitações do código ajuda a preparar o usuário para possíveis desafios e a entender melhor os pontos a serem melhorados.
-    # Desvantagem: As limitações são abordadas de forma geral, sem sugerir soluções concretas para os problemas.
-    # Possível solução: Oferecer possíveis melhorias ou soluções para as limitações mencionadas.
-    # Exemplo: "A necessidade de treinamento adicional pode ser mitigada com um módulo de treinamento dinâmico para adaptação contínua a novas consultas."
-
-    st.markdown("""
-    **Importância de ter colocado instruções em chinês:**
-    A linguagem chinesa tem uma densidade de informação mais alta do que muitas outras línguas, o que significa que os modelos de linguagem precisam processar menos tokens para entender o contexto e gerar respostas precisas. Isso torna a linguagem chinesa mais apropriada para a utilização de modelos de linguagem com baixa quantidade de tokens. Portanto, ter colocado instruções em chinês no código é um recurso importante para garantir que o aplicativo possa lidar com consultas em chinês de forma eficaz.
-    """)
-    # O texto explica a vantagem de usar instruções em chinês, destacando a eficiência em termos de tokens processados.
-    # Vantagem: Explicar a relevância de otimizar o código para a língua chinesa ajuda a justificar decisões técnicas que podem parecer menos intuitivas para quem não está familiarizado com a densidade de informação do idioma.
-    # Desvantagem: A explicação pode ser densa para usuários que não possuem conhecimento técnico sobre modelos de linguagem e processamento de tokens.
-    # Possível solução: Simplificar a linguagem para torná-la mais acessível, ou dividir a explicação em partes menores e mais digeríveis.
-    # Exemplo: "Como o chinês utiliza menos caracteres para transmitir a mesma quantidade de informação, ele é mais eficiente para a IA processar."
-
-    st.markdown("""
-    Em resumo, o código é uma aplicação inovadora que combina modelos de linguagem com a API Groq para proporcionar respostas precisas e personalizadas. No entanto, é importante considerar as limitações do aplicativo e trabalhar para melhorá-lo ainda mais.
-    """)
-    # Um resumo é fornecido para consolidar os pontos discutidos, destacando as inovações e limitações.
-    # Vantagem: Ajuda a sintetizar as informações em um formato fácil de entender e cria um ponto de fechamento claro para a análise.
-    # Desvantagem: O resumo não sugere ações práticas ou passos a seguir para a melhoria do código, sendo mais informativo do que propositivo.
-    # Possível solução: Incluir recomendações práticas ou sugestões de melhorias no final do resumo.
-    # Exemplo: "Recomenda-se implementar um módulo de suporte interativo para usuários novos, e ajustar as limitações de tokens para maior flexibilidade."
-
+   
 # _____________________________________________
 with st.sidebar.expander("Insights do Código"):
     # O comando `st.sidebar.expander` cria uma seção expansível na barra lateral com o título "Insights do Código".
