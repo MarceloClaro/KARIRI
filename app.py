@@ -92,7 +92,7 @@ st.sidebar.title("Geomaker +IA")
 
 # _____________________________________________
 
-with st.sidebar.expander("Insights do Código"):
+with st.sidebar.expander("Insights do Projeto"):
     # A função `st.sidebar.expander` cria um elemento de "expansão" na barra lateral, que pode ser aberto ou fechado pelo usuário.
     # - "Insights do Código": É o título do expander, que indica que ele contém informações detalhadas sobre o código.
     # Vantagem: O uso de um expander permite organizar informações que não precisam ser exibidas o tempo todo, economizando espaço visual.
