@@ -448,11 +448,15 @@ with st.sidebar.expander("Insights metodológicos"):
     """)
     st.latex(r'''
     \small
-    1. \ \text{Geração de Embeddings: Cada frase é convertida em um vetor de números que}
+    1. \ \text{Geração de Embeddings: Cada frase é convertida}
     ''')
     st.latex(r'''
     \small
-     \text{representa o seu significado. Esses vetores são de alta dimensão, representados como } \vec{v}_i
+     \text{em um vetor de números querepresenta o seu significado.}
+    ''')
+     st.latex(r'''
+    \small
+     \text{Esses vetores são de alta dimensão, representados como } \vec{v}_i
     ''')
 
     st.latex(r'''
