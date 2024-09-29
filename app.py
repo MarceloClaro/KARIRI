@@ -63,289 +63,233 @@ with st.sidebar.expander("Insights do Projeto"):
     """)
 
 # Expander de Insights do Código
+import streamlit as st
+
+# Expander de Insights do Código
 with st.sidebar.expander("Insights do Código"):
-       
+    st.markdown("""
+    ### **Introdução**
+
+    Este aplicativo web foi desenvolvido para auxiliar no estudo de três idiomas: **Dzubukuá** (uma língua morta ou em risco de extinção), **Português Arcaico** e **Português Moderno**. Ele oferece uma análise detalhada das similaridades e diferenças entre esses idiomas, utilizando técnicas avançadas de processamento de linguagem natural (PLN) e métodos estatísticos. O principal objetivo é investigar como esses idiomas se relacionam em termos de significado, construção lexical e som.
+
+    No decorrer da explicação, apresentaremos os métodos utilizados, com detalhes matemáticos e justificativas para cada análise, além de exemplos práticos e insights que podem ser extraídos dos resultados. Também serão discutidas as limitações de cada técnica aplicada.
+
+    ---
+
+    ### **1. Ferramentas Utilizadas**
+
+    Antes de começar as análises, é importante compreender as ferramentas que foram utilizadas para realizar o estudo:
+
+    - **Pandas**: Usado para manipular dados e criar estruturas organizadas, como DataFrames.
+    - **Streamlit**: Facilita a construção de uma interface web interativa.
+    - **Matplotlib e Seaborn**: Auxiliam na visualização de gráficos e dados.
+    - **Plotly**: Permite a criação de gráficos interativos.
+    - **Scikit-learn**: Fornece algoritmos de aprendizado de máquina e estatística.
+    - **Gensim**: Implementa o modelo **Word2Vec** para trabalhar com representações de palavras.
+    - **Jellyfish**: Facilita cálculos de similaridade fonética.
+    - **Statsmodels e Scipy**: Conjunto de ferramentas para realizar testes estatísticos e cálculos avançados.
+
+    **Objetivo:** Utilizar essas bibliotecas para analisar como os três idiomas se comparam em diferentes aspectos, como semântica, estrutura lexical e fonologia.
+
+    ---
+
+    ### **2. Carregamento e Organização dos Dados**
+
+    O primeiro passo é carregar o arquivo CSV que contém as frases nos três idiomas. Esse arquivo deve conter as seguintes colunas:
+
+    - **Idioma**: Identifica qual das três línguas a frase pertence.
+    - **Texto Original**: A frase no idioma original.
+    - **Tradução para o Português Moderno**: A tradução da frase no Português Moderno.
+
+    **Objetivo:** Extrair essas frases para que possamos compará-las em diferentes níveis e medir as similaridades linguísticas entre os três idiomas.
+
+    ---
+
+    ### **3. Cálculo das Similaridades**
+
+    As similaridades entre as frases de cada idioma são medidas em três níveis principais: **semântica** (significado), **lexical** (construção das palavras) e **fonológica** (som).
+
+    #### **3.1 Similaridade Semântica com Sentence-BERT**
+
+    **O que é:** O **Sentence-BERT** é um modelo de linguagem que transforma frases em vetores, permitindo que possamos medir o quanto duas frases têm significados parecidos.
+
+    **Como funciona:**
+
+    1. **Geração de Embeddings:** Para cada frase, o modelo gera um vetor (ou "embedding") que representa o significado dessa frase.
+    """)
     st.latex(r'''
-    \text{### Introdução}
-    
-    \text{Este aplicativo web foi desenvolvido para auxiliar no estudo de três idiomas: \textbf{Dzubukuá} (uma língua morta ou em risco de extinção), \textbf{Português Arcaico} e \textbf{Português Moderno}. Ele oferece uma análise detalhada das similaridades e diferenças entre esses idiomas, utilizando técnicas avançadas de processamento de linguagem natural (PLN) e métodos estatísticos. O principal objetivo é investigar como esses idiomas se relacionam em termos de significado, construção lexical e som.}
-    
-    \text{No decorrer da explicação, apresentaremos os métodos utilizados, com detalhes matemáticos e justificativas para cada análise, além de exemplos práticos e insights que podem ser extraídos dos resultados. Também serão discutidas as limitações de cada técnica aplicada.}
-    
-    \text{---}
-    
-    \text{### 1. Ferramentas Utilizadas}
-    
-    \text{Antes de começar as análises, é importante compreender as ferramentas que foram utilizadas para realizar o estudo:}
-    
-    \text{- \textbf{Pandas}: Usado para manipular dados e criar estruturas organizadas, como DataFrames.}
-    
-    \text{- \textbf{Streamlit}: Facilita a construção de uma interface web interativa.}
-    
-    \text{- \textbf{Matplotlib e Seaborn}: Auxiliam na visualização de gráficos e dados.}
-    
-    \text{- \textbf{Plotly}: Permite a criação de gráficos interativos.}
-    
-    \text{- \textbf{Scikit-learn}: Fornece algoritmos de aprendizado de máquina e estatística.}
-    
-    \text{- \textbf{Gensim}: Implementa o modelo \textbf{Word2Vec} para trabalhar com representações de palavras.}
-    
-    \text{- \textbf{Jellyfish}: Facilita cálculos de similaridade fonética.}
-    
-    \text{- \textbf{Statsmodels e Scipy}: Conjunto de ferramentas para realizar testes estatísticos e cálculos avançados.}
-    
-    \text{\textbf{Objetivo}: Utilizar essas bibliotecas para analisar como os três idiomas se comparam em diferentes aspectos, como semântica, estrutura lexical e fonologia.}
-    
-    \text{---}
-    
-    \text{### 2. Carregamento e Organização dos Dados}
-    
-    \text{O primeiro passo é carregar o arquivo CSV que contém as frases nos três idiomas. Esse arquivo deve conter as seguintes colunas:}
-    
-    \text{- \textbf{Idioma}: Identifica qual das três línguas a frase pertence.}
-    
-    \text{- \textbf{Texto Original}: A frase no idioma original.}
-    
-    \text{- \textbf{Tradução para o Português Moderno}: A tradução da frase no Português Moderno.}
-    
-    \text{\textbf{Objetivo}: Extrair essas frases para que possamos compará-las em diferentes níveis e medir as similaridades linguísticas entre os três idiomas.}
-    
-    \text{---}
-    
-    \text{### 3. Cálculo das Similaridades}
-    
-    \text{As similaridades entre as frases de cada idioma são medidas em três níveis principais: \textbf{semântica} (significado), \textbf{lexical} (construção das palavras) e \textbf{fonológica} (som).}
-    
-    \text{#### 3.1 Similaridade Semântica com Sentence-BERT}
-    
-    \text{\textbf{O que é}: O \textbf{Sentence-BERT} é um modelo de linguagem que transforma frases em vetores, permitindo que possamos medir o quanto duas frases têm significados parecidos.}
-    
-    \text{\textbf{Como funciona}:}
-    
-    \text{1. \textbf{Geração de Embeddings}: Para cada frase, o modelo gera um vetor (ou "embedding") que representa o significado dessa frase. Isso é como um "resumo" matemático do conteúdo semântico da frase.}
-    
-    \text{Seja \( s_i \) a \( i \)-ésima frase, obtemos um vetor \( \vec{v}_i \in \mathbb{R}^d \).}
-    
-    \text{2. \textbf{Cálculo da Similaridade de Cosseno}: A semelhança entre duas frases é calculada comparando os seus vetores usando a métrica de \textbf{similaridade de cosseno}:}
-    
-    \( \text{similaridade}(\vec{v}_i, \vec{v}_j) = \cos(\theta) = \frac{\vec{v}_i \cdot \vec{v}_j}{\|\vec{v}_i\| \|\vec{v}_j\|} \)
-    
-    \text{Onde:}
-    
-    \text{- \( \vec{v}_i \cdot \vec{v}_j \) é o produto escalar dos vetores.}
-    
-    \text{- \( \|\vec{v}_i\| \) é a norma (comprimento) do vetor \( \vec{v}_i \).}
-    
-    \text{\textbf{Objetivo}: Descobrir se duas frases em diferentes idiomas possuem o mesmo significado, mesmo que escritas de forma diferente.}
-    
-    \text{\textbf{Exemplo}: Se houver uma alta similaridade semântica entre uma frase em Dzubukuá e sua tradução no Português Arcaico, isso pode significar que o significado dessa frase foi preservado ao longo do tempo.}
-    
-    \text{---}
-    
-    \text{#### 3.2 Similaridade Lexical com N-gramas}
-    
-    \text{\textbf{O que é}: Um \textbf{N-grama} é uma sequência de \( N \) caracteres que aparece em uma palavra ou frase. Por exemplo, na palavra "casa", os \textbf{bigramas} (N=2) seriam: "ca", "as" e "sa".}
-    
-    \text{\textbf{Como funciona}:}
-    
-    \text{1. \textbf{Extração de N-gramas}: O sistema divide cada frase em N-gramas de caracteres.}
-    
-    \text{Exemplo de bigramas da palavra "casa": \{ "ca", "as", "sa" \}.}
-    
-    \text{2. \textbf{Representação Vetorial}: Cada frase é representada como um vetor binário indicando a presença ou ausência de cada N-grama possível.}
-    
-    \text{3. \textbf{Cálculo do Coeficiente de Sorensen-Dice}: Para medir essa similaridade, usamos a fórmula:}
-    
-    \( \text{SDC}(A, B) = \frac{2 \times |A \cap B|}{|A| + |B|} \)
-    
-    \text{Onde:}
-    
-    \text{- \( A \) e \( B \) são os conjuntos de N-gramas das duas frases.}
-    
-    \text{- \( |A| \) é o número total de N-gramas na frase \( A \).}
-    
-    \text{- \( |A \cap B| \) é o número de N-gramas em comum entre \( A \) e \( B \).}
-    
-    \text{\textbf{Objetivo}: Avaliar a semelhança na construção das palavras entre as frases dos três idiomas.}
-    
-    \text{\textbf{Exemplo}: Se houver uma alta similaridade lexical entre o Português Arcaico e Moderno, isso pode indicar que muitos padrões de palavras foram mantidos ao longo dos séculos.}
-    
-    \text{---}
-    
-    \text{#### 3.3 Similaridade Lexical com Word2Vec}
-    
-    \text{\textbf{O que é}: O \textbf{Word2Vec} é um modelo que cria vetores para palavras baseados no contexto em que elas aparecem. Esse modelo aprende os significados das palavras ao observar como elas são usadas em diferentes frases.}
-    
-    \text{\textbf{Como funciona}:}
-    
-    \text{1. \textbf{Tokenização das Frases}: Cada frase é dividida em palavras individuais.}
-    
-    \text{2. \textbf{Treinamento do Modelo}: O \textbf{Word2Vec} é treinado para gerar um vetor para cada palavra \( \vec{w}_i \), baseado nas palavras que a cercam no texto.}
-    
-    \text{3. \textbf{Representação das Frases}: Para representar uma frase inteira, o sistema calcula a média dos vetores de todas as palavras da frase:}
-    
-    \( \vec{v}_{\text{frase}} = \frac{1}{n} \sum_{i=1}^{n} \vec{w}_i \)
-    
-    \text{Onde:}
-    
-    \text{- \( n \) é o número de palavras na frase.}
-    
-    \text{- \( \vec{w}_i \) é o vetor da \( i \)-ésima palavra.}
-    
-    \text{4. \textbf{Cálculo da Similaridade de Cosseno}: A similaridade entre frases é medida pela similaridade de cosseno entre seus vetores médios, assim como no método semântico.}
-    
-    \text{\textbf{Objetivo}: Identificar semelhanças lexicais entre os idiomas com base no contexto em que as palavras aparecem.}
-    
-    \text{\textbf{Exemplo}: O modelo pode capturar o fato de que, mesmo que a grafia das palavras tenha mudado, seu uso em certos contextos permaneceu similar.}
-    
-    \text{---}
-    
-    \text{#### 3.4 Similaridade Fonológica}
-    
-    \text{\textbf{O que é}: A análise fonológica se preocupa com o som das palavras. Podemos avaliar a semelhança de como as palavras \textbf{soam}, mesmo que sua escrita seja diferente.}
-    
-    \text{\textbf{Como funciona}:}
-    
-    \text{1. \textbf{Codificação Fonética}: Cada palavra é convertida em um código fonético usando a técnica \textbf{Soundex}, que atribui um código baseado no som da palavra.}
-    
-    \text{2. \textbf{Cálculo da Distância de Levenshtein}: A \textbf{distância de Levenshtein} mede quantas mudanças (inserções, deleções ou substituições) são necessárias para transformar uma palavra em outra.}
-    
-    \( D(S_1, S_2) = \text{Número mínimo de operações para transformar } S_1 \text{ em } S_2 \)
-    
-    \text{3. \textbf{Cálculo da Similaridade}: A distância entre os sons das frases é normalizada para fornecer uma pontuação de similaridade de 0 a 1:}
-    
-    \( \text{Similaridade} = 1 - \frac{D(S_1, S_2)}{\max(\text{len}(S_1), \text{len}(S_2))} \)
-    
-    \text{Onde:}
-    
-    \text{- \( D(S_1, S_2) \) é a distância de Levenshtein entre as sequências fonéticas.}
-    
-    \text{- \( \text{len}(S_i) \) é o comprimento da sequência fonética \( S_i \).}
-    
-    \text{\textbf{Objetivo}: Avaliar o quanto as palavras de dois idiomas diferentes soam de forma semelhante, independentemente de sua ortografia.}
-    
-    \text{\textbf{Exemplo}: Se as palavras de Dzubukuá e Português Arcaico tiverem uma alta similaridade fonológica, isso pode sugerir que o som dessas línguas permaneceu semelhante ao longo do tempo, mesmo com mudanças na grafia.}
-    
-    \text{---}
-    
-    \text{### 4. Análises Estatísticas e Visualizações}
-    
-    \text{Após calcular as similaridades, podemos realizar análises estatísticas para explorar a relação entre as diferentes medidas de similaridade.}
-    
-    \text{#### 4.1 Cálculo de Correlações}
-    
-    \text{As \textbf{correlações} medem como duas variáveis se movem juntas. Usamos três tipos de correlação: \textbf{Pearson}, \textbf{Spearman} e \textbf{Kendall}.}
-    
-    \text{\textbf{Fórmulas}:}
-    
-    \text{1. \textbf{Correlação de Pearson}:}
-    
-    \( r = \frac{\sum_{i=1}^{n}(X_i - \bar{X})(Y_i - \bar{Y})}{\sqrt{\sum_{i=1}^{n}(X_i - \bar{X})^2} \sqrt{\sum_{i=1}^{n}(Y_i - \bar{Y})^2}} \)
-    
-    \text{2. \textbf{Correlação de Spearman}:}
-    
-    \( \rho = 1 - \frac{6 \sum_{i=1}^{n} d_i^2}{n(n^2 - 1)} \)
-    
-    \text{Onde:}
-    
-    \text{- \( d_i \) é a diferença entre os postos (ranks) de \( X_i \) e \( Y_i \).}
-    
-    \text{3. \textbf{Correlação de Kendall}:}
-    
-    \( \tau = \frac{C - D}{\frac{1}{2} n(n - 1)} \)
-    
-    \text{Onde:}
-    
-    \text{- \( C \) é o número de pares concordantes.}
-    
-    \text{- \( D \) é o número de pares discordantes.}
-    
-    \text{\textbf{Objetivo}: Entender se, por exemplo, a similaridade lexical e semântica entre as frases estão relacionadas. Se duas variáveis têm uma correlação forte, significa que há uma relação entre elas.}
-    
-    \text{---}
-    
-    \text{#### 4.2 Regressão Linear}
-    
-    \text{A \textbf{regressão linear} é usada para determinar se há uma relação direta entre duas variáveis, como entre a similaridade semântica de Dzubukuá e Português Arcaico e a similaridade com o Português Moderno.}
-    
-    \text{\textbf{Modelo}:}
-    
-    \( y = \beta_0 + \beta_1 x + \epsilon \)
-    
-    \text{Onde:}
-    
-    \text{- \( y \) é a variável dependente.}
-    
-    \text{- \( x \) é a variável independente.}
-    
-    \text{- \( \beta_0 \) é o intercepto.}
-    
-    \text{- \( \beta_1 \) é o coeficiente angular.}
-    
-    \text{- \( \epsilon \) é o termo de erro.}
-    
-    \text{\textbf{Objetivo}: Avaliar se uma medida de similaridade pode ser usada para prever outra, indicando uma possível relação causal ou dependente.}
-    
-    \text{---}
-    
-    \text{#### 4.3 Regressão Múltipla}
-    
-    \text{A \textbf{regressão múltipla} estende a regressão linear para considerar várias variáveis de uma vez.}
-    
-    \text{\textbf{Modelo}:}
-    
-    \( y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \dots + \beta_p x_p + \epsilon \)
-    
-    \text{Onde:}
-    
-    \text{- \( y \) é a variável dependente.}
-    
-    \text{- \( x_1, x_2, \dots, x_p \) são as variáveis independentes.}
-    
-    \text{- \( \beta_0 \) é o intercepto.}
-    
-    \text{- \( \beta_1, \beta_2, \dots, \beta_p \) são os coeficientes das variáveis independentes.}
-    
-    \text{\textbf{Objetivo}: Entender quais medidas de similaridade (semântica, lexical ou fonológica) mais influenciam a relação entre os idiomas.}
-    
-    \text{---}
-    
-    \text{#### 4.4 Análise de Variância (ANOVA)}
-    
-    \text{A \textbf{ANOVA} compara as médias de grupos diferentes para ver se há uma diferença significativa.}
-    
-    \text{\textbf{Estatística F}:}
-    
-    \( F = \frac{\text{Variância entre os grupos}}{\text{Variância dentro dos grupos}} \)
-    
-    \text{Onde:}
-    
-    \text{- A variância entre os grupos mede a diferença das médias de cada grupo em relação à média geral.}
-    
-    \text{- A variância dentro dos grupos mede a dispersão dos dados dentro de cada grupo.}
-    
-    \text{\textbf{Objetivo}: Entender se, por exemplo, as similaridades entre Dzubukuá e Português Arcaico são significativamente diferentes daquelas entre Dzubukuá e Português Moderno.}
-    
-    \text{---}
-    
-    \text{### 5. Considerações e Limitações}
-    
-    \text{As análises realizadas fornecem uma visão detalhada das semelhanças entre Dzubukuá, Português Arcaico e Português Moderno. Entretanto, é importante considerar que:}
-    
-    \text{- \textbf{A qualidade dos dados} é crucial: Análises imprecisas podem ocorrer se os dados não forem representativos.}
-    
-    \text{- \textbf{Assunções estatísticas} devem ser verificadas: Algumas análises requerem normalidade e independência dos dados.}
-    
-    \text{- \textbf{Multicolinearidade} pode influenciar as regressões: Se as variáveis de similaridade estiverem muito correlacionadas, pode ser difícil determinar a importância individual de cada uma.}
-    
-    \text{---}
-    
-    \text{### Conclusão}
-    
-    \text{Este estudo sobre a comparação de três idiomas oferece insights valiosos sobre a evolução linguística. Ele mostra como as línguas podem se manter semelhantes ou divergir ao longo do tempo, não apenas em termos de palavras, mas também no significado e som.}
-    
-    \text{Resultados como esses nos ajudam a entender a história linguística e cultural dos povos que falavam essas línguas, oferecendo uma visão mais profunda sobre a preservação de conceitos e ideias ao longo do tempo.}
+    \text{Para cada frase } s_i, \text{ obtemos um vetor } \vec{v}_i \in \mathbb{R}^d
     ''')
+    st.markdown("""
+    Onde:
+
+    - \( s_i \) é a \( i \)-ésima frase.
+    - \( \vec{v}_i \) é o vetor de dimensão \( d \) que representa \( s_i \).
+
+    2. **Cálculo da Similaridade de Cosseno:** A semelhança entre duas frases é calculada comparando os seus vetores usando a métrica de **similaridade de cosseno**:
+    """)
+    st.latex(r'''
+    \text{similaridade}(\vec{v}_i, \vec{v}_j) = \frac{\vec{v}_i \cdot \vec{v}_j}{\|\vec{v}_i\| \|\vec{v}_j\|}
+    ''')
+    st.markdown("""
+    Onde:
+
+    - \( \vec{v}_i \cdot \vec{v}_j \) é o produto escalar dos vetores.
+    - \( \|\vec{v}_i\| \) é a norma (comprimento) do vetor \( \vec{v}_i \).
+
+    **Objetivo:** Descobrir se duas frases em diferentes idiomas possuem o mesmo significado, mesmo que escritas de forma diferente.
+
+    **Exemplo:** Se houver uma alta similaridade semântica entre uma frase em Dzubukuá e sua tradução no Português Arcaico, isso pode significar que o significado dessa frase foi preservado ao longo do tempo.
+
+    ---
+
+    #### **3.2 Similaridade Lexical com N-gramas**
+
+    **O que é:** Um **N-grama** é uma sequência de \( N \) caracteres que aparece em uma palavra ou frase. Por exemplo, na palavra "casa", os **bigramas** (N=2) seriam: "ca", "as" e "sa".
+
+    **Como funciona:**
+
+    1. **Extração de N-gramas:** O sistema divide cada frase em N-gramas de caracteres.
+
+    Exemplo de bigramas da palavra "casa": {"ca", "as", "sa"}.
+
+    2. **Representação Vetorial:** Cada frase é representada como um vetor binário indicando a presença ou ausência de cada N-grama possível.
+
+    3. **Cálculo do Coeficiente de Sorensen-Dice:** Para medir essa similaridade, usamos a fórmula:
+    """)
+    st.latex(r'''
+    \text{SDC}(A, B) = \frac{2 \times |A \cap B|}{|A| + |B|}
+    ''')
+    st.markdown("""
+    Onde:
+
+    - \( A \) e \( B \) são os conjuntos de N-gramas das duas frases.
+    - \( |A| \) é o número total de N-gramas na frase \( A \).
+    - \( |A \cap B| \) é o número de N-gramas em comum entre \( A \) e \( B \).
+
+    **Objetivo:** Avaliar a semelhança na construção das palavras entre as frases dos três idiomas.
+
+    **Exemplo:** Se houver uma alta similaridade lexical entre o Português Arcaico e Moderno, isso pode indicar que muitos padrões de palavras foram mantidos ao longo dos séculos.
+
+    ---
+
+    #### **3.3 Similaridade Lexical com Word2Vec**
+
+    **O que é:** O **Word2Vec** é um modelo que cria vetores para palavras baseados no contexto em que elas aparecem. Esse modelo aprende os significados das palavras ao observar como elas são usadas em diferentes frases.
+
+    **Como funciona:**
+
+    1. **Tokenização das Frases:** Cada frase é dividida em palavras individuais.
+
+    2. **Treinamento do Modelo:** O **Word2Vec** é treinado para gerar um vetor para cada palavra \( \vec{w}_i \), baseado nas palavras que a cercam no texto.
+
+    3. **Representação das Frases:** Para representar uma frase inteira, o sistema calcula a média dos vetores de todas as palavras da frase:
+    """)
+    st.latex(r'''
+    \vec{v}_{\text{frase}} = \frac{1}{n} \sum_{i=1}^{n} \vec{w}_i
+    ''')
+    st.markdown("""
+    Onde:
+
+    - \( n \) é o número de palavras na frase.
+    - \( \vec{w}_i \) é o vetor da \( i \)-ésima palavra.
+
+    4. **Cálculo da Similaridade de Cosseno:** A similaridade entre frases é medida pela similaridade de cosseno entre seus vetores médios.
+
+    **Objetivo:** Identificar semelhanças lexicais entre os idiomas com base no contexto em que as palavras aparecem.
+
+    **Exemplo:** O modelo pode capturar o fato de que, mesmo que a grafia das palavras tenha mudado, seu uso em certos contextos permaneceu similar.
+
+    ---
+
+    #### **3.4 Similaridade Fonológica**
+
+    **O que é:** A análise fonológica se preocupa com o som das palavras. Podemos avaliar a semelhança de como as palavras **soam**, mesmo que sua escrita seja diferente.
+
+    **Como funciona:**
+
+    1. **Codificação Fonética:** Cada palavra é convertida em um código fonético usando a técnica **Soundex**, que atribui um código baseado no som da palavra.
+
+    2. **Cálculo da Distância de Levenshtein:** A **distância de Levenshtein** mede quantas mudanças (inserções, deleções ou substituições) são necessárias para transformar uma palavra em outra.
+    """)
+    st.latex(r'''
+    D(S_1, S_2) = \text{Número mínimo de operações para transformar } S_1 \text{ em } S_2
+    ''')
+    st.markdown("""
+    3. **Cálculo da Similaridade:** A distância entre os sons das frases é normalizada para fornecer uma pontuação de similaridade de 0 a 1:
+    """)
+    st.latex(r'''
+    \text{Similaridade} = 1 - \frac{D(S_1, S_2)}{\max(\text{len}(S_1), \text{len}(S_2))}
+    ''')
+    st.markdown("""
+    Onde:
+
+    - \( D(S_1, S_2) \) é a distância de Levenshtein entre as sequências fonéticas.
+    - \( \text{len}(S_i) \) é o comprimento da sequência fonética \( S_i \).
+
+    **Objetivo:** Avaliar o quanto as palavras de dois idiomas diferentes soam de forma semelhante, independentemente de sua ortografia.
+
+    **Exemplo:** Se as palavras de Dzubukuá e Português Arcaico tiverem uma alta similaridade fonológica, isso pode sugerir que o som dessas línguas permaneceu semelhante ao longo do tempo, mesmo com mudanças na grafia.
+
+    ---
+
+    ### **4. Análises Estatísticas e Visualizações**
+
+    Após calcular as similaridades, podemos realizar análises estatísticas para explorar a relação entre as diferentes medidas de similaridade.
+
+    #### **4.1 Cálculo de Correlações**
+
+    As **correlações** medem como duas variáveis se movem juntas. Usamos três tipos de correlação: **Pearson**, **Spearman** e **Kendall**.
+
+    **Fórmulas:**
+
+    1. **Correlação de Pearson:**
+    """)
+    st.latex(r'''
+    r = \frac{\sum_{i=1}^{n}(X_i - \bar{X})(Y_i - \bar{Y})}{\sqrt{\sum_{i=1}^{n}(X_i - \bar{X})^2} \sqrt{\sum_{i=1}^{n}(Y_i - \bar{Y})^2}}
+    ''')
+    st.markdown("""
+    2. **Correlação de Spearman:**
+    """)
+    st.latex(r'''
+    \rho = 1 - \frac{6 \sum_{i=1}^{n} d_i^2}{n(n^2 - 1)}
+    ''')
+    st.markdown("""
+    Onde:
+
+    - \( d_i \) é a diferença entre os postos (ranks) de \( X_i \) e \( Y_i \).
+
+    3. **Correlação de Kendall:**
+    """)
+    st.latex(r'''
+    \tau = \frac{C - D}{\frac{1}{2} n(n - 1)}
+    ''')
+    st.markdown("""
+    Onde:
+
+    - \( C \) é o número de pares concordantes.
+    - \( D \) é o número de pares discordantes.
+
+    **Objetivo:** Entender se, por exemplo, a similaridade lexical e semântica entre as frases estão relacionadas.
+
+    ---
+
+    ### **5. Considerações e Limitações**
+
+    As análises realizadas fornecem uma visão detalhada das semelhanças entre Dzubukuá, Português Arcaico e Português Moderno. Entretanto, é importante considerar que:
+
+    - **A qualidade dos dados** é crucial: Análises imprecisas podem ocorrer se os dados não forem representativos.
+    - **Assunções estatísticas** devem ser verificadas: Algumas análises requerem normalidade e independência dos dados.
+    - **Multicolinearidade** pode influenciar as regressões: Se as variáveis de similaridade estiverem muito correlacionadas, pode ser difícil determinar a importância individual de cada uma.
+
+    ---
+
+    ### **Conclusão**
+
+    Este estudo sobre a comparação de três idiomas oferece insights valiosos sobre a evolução linguística. Ele mostra como as línguas podem se manter semelhantes ou divergir ao longo do tempo, não apenas em termos de palavras, mas também no significado e som.
+
+    Resultados como esses nos ajudam a entender a história linguística e cultural dos povos que falavam essas línguas, oferecendo uma visão mais profunda sobre a preservação de conceitos e ideias ao longo do tempo.
+    """)
 
 
 # Imagem e Contatos
