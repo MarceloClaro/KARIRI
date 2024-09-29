@@ -454,7 +454,8 @@ with st.sidebar.expander("Insights metodológicos"):
     \small
      \text{em um vetor de números querepresenta o seu significado.}
     ''')
-     st.latex(r'''
+    
+    st.latex(r'''
     \small
      \text{Esses vetores são de alta dimensão, representados como } \vec{v}_i
     ''')
