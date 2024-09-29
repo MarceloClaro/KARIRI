@@ -249,7 +249,7 @@ with st.sidebar.expander("Pesquisa compreenda:"):
         """)
     
     st.latex(r'''
-    \small
+    \scriptsize
     D(S_1, S_2) = \text{Número mínimo de operações para transformar } S_1 \text{ em } S_2
     ''')
     st.markdown("""    
