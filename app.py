@@ -55,10 +55,7 @@ else:
 st.sidebar.title("Geomaker +IA")
 
 # Expander de Insights
-with st.sidebar.expander("Insights do Projeto"):
-import streamlit as st
 
-# Expander de Insights do Código
 with st.sidebar.expander("Insights do Código"):
     st.markdown("""
     # Introdução
