@@ -129,10 +129,13 @@ with st.sidebar.expander("Pesquisa compreenda:"):
     **Processo Metodológico:**
 
     1. **Geração de Embeddings:**
+    """)
+    
+    st.latex(r'''
+    \text{Treinamento do Modelo: Para cada frase } (s_i), \text{ o modelo Sentence-BERT gera um vetor de dimensão } (d):
+    ''')
 
-        Para cada frase \( s_i \), o modelo Sentence-BERT gera um vetor de dimensão \( d \):
 
-        """)
     st.latex(r'''
     \vec{v}_i \in \mathbb{R}^d
     ''')
@@ -141,7 +144,7 @@ with st.sidebar.expander("Pesquisa compreenda:"):
 
         A similaridade entre duas frases \( s_i \) e \( s_j \) é calculada por:
 
-        """)
+    """)
     st.latex(r'''
     \text{similaridade}(\vec{v}_i, \vec{v}_j) = \frac{\vec{v}_i \cdot \vec{v}_j}{\|\vec{v}_i\| \times \|\vec{v}_j\|}
     ''')
