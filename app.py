@@ -130,13 +130,8 @@ with st.sidebar.expander("Pesquisa compreenda:"):
 
     1. **Geração de Embeddings:**
     """)
+     st.markdown(""" Treinamento do Modelo: Para cada frase """) st.latex(r'''( s_i ), o modelo Sentence-BERT gera um vetor de dimensão ( d ): ''')
     
-    st.latex(r'''
-    \text{Treinamento do Modelo: Para cada frase } (s_i),
-    ''')
-    st.latex(r'''
-    \text{ o modelo Sentence-BERT gera um vetor de dimensão } (d):
-    ''')
 
 
     st.latex(r'''
