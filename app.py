@@ -247,12 +247,14 @@ with st.sidebar.expander("Pesquisa compreenda:"):
         """)
     
     st.latex(r'''
+    \small
     D(S_1, S_2) = \text{Número mínimo de operações para transformar } S_1 \text{ em } S_2
     ''')
     st.markdown("""    
     3. **Normalização da Similaridade:**
         """)
     st.latex(r'''
+    \small
     \text{Similaridade} = 1 - \frac{D(S_1, S_2)}{\max(\text{len}(S_1), \text{len}(S_2))}
     ''')
     st.markdown("""    
