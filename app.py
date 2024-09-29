@@ -59,7 +59,7 @@ st.sidebar.title("Geomaker +IA")
 import streamlit as st
 
 # Expander de Insights do Código
-with st.sidebar.expander("Insights do Código"):
+with st.sidebar.expander("Pesquisa compreenda:"):
     st.markdown("""
     # **Análise Comparativa de Idiomas: Dzubukuá, Português Arcaico e Português Moderno**
 
