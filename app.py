@@ -257,9 +257,7 @@ with st.sidebar.expander("Pesquisa compreenda:"):
     $$
     \text{Similaridade} = 1 - \frac{D(S_1, S_2)}{\max(\text{len}(S_1), \text{len}(S_2))}
     $$
-    """)
-    
-    st.markdown("""
+
     **Exemplo:**
 
     - Palavra em Dzubukuá: "Ama" (Codificação: "A500")
