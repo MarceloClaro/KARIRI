@@ -231,7 +231,6 @@ with st.sidebar.expander("Pesquisa compreenda:"):
 
     - A similaridade indica que, apesar das diferenças lexicais, há uma relação semântica capturada pelo contexto.
 
-                   
     #### **3.2.4 Similaridade Fonológica**
     
     **Fundamentos Teóricos:**
@@ -247,13 +246,13 @@ with st.sidebar.expander("Pesquisa compreenda:"):
     2. **Cálculo da Distância de Levenshtein:**
     
     $$
-    {\small D(S_1, S_2) = \text{Número mínimo de operações para transformar } S_1 \text{ em } S_2}
+    D(S_1, S_2) = \text{Número mínimo de operações para transformar } S_1 \text{ em } S_2
     $$
     
     3. **Normalização da Similaridade:**
     
     $$
-    {\small \text{Similaridade} = 1 - \frac{D(S_1, S_2)}{\max(\text{len}(S_1), \text{len}(S_2))}}
+    \text{Similaridade} = 1 - \frac{D(S_1, S_2)}{\max(\text{len}(S_1), \text{len}(S_2))}
     $$
     
     **Exemplo:**
@@ -266,8 +265,6 @@ with st.sidebar.expander("Pesquisa compreenda:"):
     
     - A similaridade fonológica sugere possíveis influências ou origens comuns.
     
-    ---
-    """, unsafe_allow_html=True)
     ---
 
     ## **4. Análises Estatísticas**
@@ -385,7 +382,6 @@ with st.sidebar.expander("Pesquisa compreenda:"):
     - Smith, A., Johnson, B., & Clark, E. (2021). **Computational Approaches to Historical Linguistics.** Annual Review of Linguistics, 7, 341-361.
 
     """)
-
 
 
 import streamlit as st
