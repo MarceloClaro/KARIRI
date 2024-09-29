@@ -173,11 +173,10 @@ with st.sidebar.expander("Pesquisa compreenda:"):
 
         Exemplo para a palavra "linguagem":
 
-        """)
-    st.latex(r'''
-    \text{Trigramas de "linguagem": } \{ "lin", "ing", "ngu", "gua", "uag", "age", "gem" \}
-    ''')
-    st.markdown("""
+        
+    Trigramas de "linguagem": ${ "lin", "ing", "ngu", "gua", "uag", "age", "gem" }$
+ 
+   
     2. **Cálculo do Coeficiente de Sorensen-Dice:**
 
         """)
