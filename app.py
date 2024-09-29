@@ -181,6 +181,7 @@ with st.sidebar.expander("Pesquisa compreenda:"):
 
         """)
     st.latex(r'''
+    \small
     \text{SDC}(A, B) = \frac{2 \times |A \cap B|}{|A| + |B|}
     ''')
     st.markdown("""
@@ -214,6 +215,7 @@ with st.sidebar.expander("Pesquisa compreenda:"):
 
         """)
     st.latex(r'''
+    \small
     \vec{v}_{\text{frase}} = \frac{1}{n} \sum_{i=1}^{n} \vec{w}_i
     ''')
     st.markdown("""
