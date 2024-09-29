@@ -393,7 +393,6 @@ import streamlit as st
 
 # Expander de Insights do Código
 with st.sidebar.expander("Insights do Código"):
-import streamlit as st
 
 # Expander de Insights do Código
 with st.sidebar.expander("Insights do Código"):
