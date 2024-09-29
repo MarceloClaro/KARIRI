@@ -56,11 +56,377 @@ st.sidebar.title("Geomaker +IA")
 
 # Expander de Insights
 with st.sidebar.expander("Insights do Projeto"):
+import streamlit as st
+
+# Expander de Insights do Código
+with st.sidebar.expander("Insights do Código"):
     st.markdown("""
-        ## Sobre o Projeto
-        Este aplicativo realiza análises avançadas de similaridade linguística entre três idiomas: **Dzubukuá**, **Português Arcaico** e **Português Moderno**. Utilizamos técnicas de processamento de linguagem natural (PLN) e estatística para explorar as relações entre essas línguas.
-        ...[Explicações detalhadas sobre o projeto]...
+    # Introdução
+
+    Este aplicativo web foi desenvolvido para auxiliar no estudo comparativo de três idiomas: **Dzubukuá** (uma língua extinta ou em risco de extinção), **Português Arcaico** e **Português Moderno**. O objetivo é analisar as similaridades e diferenças entre esses idiomas em termos de significado (semântica), estrutura das palavras (léxico) e som (fonologia), utilizando técnicas avançadas de Processamento de Linguagem Natural (PLN) e métodos estatísticos.
+
+    A seguir, apresentaremos de forma detalhada os fundamentos teóricos, conceitos, metodologias, exemplos de análises e interpretações realizadas. Pretende-se proporcionar uma compreensão aprofundada para leitores interessados em linguística, tradução de línguas extintas e aplicações de técnicas computacionais na área.
+
+    ---
+
+    # 1. Ferramentas Utilizadas
+
+    Para realizar as análises, foram utilizadas as seguintes bibliotecas:
+
+    - **Pandas**: Manipulação e análise de dados estruturados em DataFrames.
+    - **Streamlit**: Criação de aplicativos web interativos em Python.
+    - **Matplotlib** e **Seaborn**: Visualização de dados por meio de gráficos estáticos.
+    - **Plotly**: Criação de gráficos interativos.
+    - **Scikit-learn**: Algoritmos de aprendizado de máquina e ferramentas estatísticas.
+    - **Gensim**: Implementação de modelos de tópicos e representações de palavras (Word2Vec).
+    - **Jellyfish**: Cálculos de distâncias fonéticas e de edição.
+    - **Statsmodels** e **SciPy**: Estatística avançada e testes de hipóteses.
+
+    **Objetivo das Ferramentas:** Utilizar essas bibliotecas para processar os dados linguísticos, calcular similaridades em diferentes níveis, realizar análises estatísticas e visualizar os resultados de forma compreensível.
+
+    ---
+
+    # 2. Carregamento e Organização dos Dados
+
+    O primeiro passo é carregar o conjunto de dados que contém as frases nos três idiomas. O arquivo CSV deve possuir as seguintes colunas:
+
+    - **Idioma**: Indica o idioma da frase (Dzubukuá, Português Arcaico ou Português Moderno).
+    - **Texto Original**: A frase escrita no idioma original.
+    - **Tradução para o Português Moderno**: Tradução da frase para o Português Moderno, quando aplicável.
+
+    **Objetivo:** Organizar os dados de maneira que permita o pareamento correto das frases nos diferentes idiomas para comparação direta.
+
+    **Processo:**
+
+    - Leitura do arquivo CSV utilizando o Pandas.
+    - Verificação e tratamento de valores ausentes ou inconsistências.
+    - Estruturação dos dados em um DataFrame para facilitar as operações subsequentes.
+
+    ---
+
+    # 3. Cálculo das Similaridades
+
+    As similaridades entre as frases dos três idiomas são medidas em três níveis principais:
+
+    1. **Similaridade Semântica**: Avalia o quanto os significados das frases são semelhantes.
+    2. **Similaridade Lexical**: Mede a semelhança na construção das palavras.
+    3. **Similaridade Fonológica**: Compara a semelhança nos sons das frases.
+
+    ## 3.1 Similaridade Semântica com Sentence-BERT
+
+    ### Fundamentos Teóricos
+
+    **Sentence-BERT** é um modelo de linguagem baseado em transformadores que gera embeddings (representações vetoriais) de sentenças, permitindo comparações semânticas eficientes. Ao contrário de modelos BERT padrão, o Sentence-BERT é otimizado para produzir embeddings que capturam o significado global de frases.
+
+    ### Metodologia
+
+    **Passos:**
+
+    1. **Geração de Embeddings:**
+
+        Para cada frase \( s_i \), o modelo Sentence-BERT gera um vetor de dimensão \( d \):
+
+        """)
+    st.latex(r'''
+    \vec{v}_i \in \mathbb{R}^d
+    ''')
+    st.markdown("""
+    2. **Cálculo da Similaridade de Cosseno:**
+
+        A similaridade entre duas frases \( s_i \) e \( s_j \) é calculada usando a **similaridade de cosseno** entre seus embeddings:
+
+        """)
+    st.latex(r'''
+    \text{similaridade}(\vec{v}_i, \vec{v}_j) = \cos(\theta) = \frac{\vec{v}_i \cdot \vec{v}_j}{\|\vec{v}_i\| \times \|\vec{v}_j\|}
+    ''')
+    st.markdown("""
+    **Onde:**
     """)
+    st.latex(r'''
+    \vec{v}_i \cdot \vec{v}_j = \sum_{k=1}^{d} v_{ik} \times v_{jk}
+    ''')
+    st.latex(r'''
+    \|\vec{v}_i\| = \sqrt{\sum_{k=1}^{d} v_{ik}^2}
+    ''')
+    st.latex(r'''
+    \|\vec{v}_j\| = \sqrt{\sum_{k=1}^{d} v_{jk}^2}
+    ''')
+    st.markdown("""
+    ### Objetivo
+
+    Avaliar o quanto as frases correspondentes nos diferentes idiomas possuem significados semelhantes, independentemente de diferenças lexicais ou fonológicas.
+
+    ### Exemplo e Possíveis Insights
+
+    - **Exemplo:** Se a similaridade semântica entre uma frase em Dzubukuá e sua tradução em Português Moderno for alta, isso indica que o significado foi preservado na tradução.
+    - **Insight:** Baixa similaridade semântica pode apontar para divergências culturais ou dificuldades na tradução de conceitos específicos.
+
+    ---
+
+    ## 3.2 Similaridade Lexical com N-gramas
+
+    ### Fundamentos Teóricos
+
+    **N-gramas** são sequências de \( N \) itens (neste caso, caracteres ou palavras) extraídos de um texto. Analisar N-gramas de caracteres permite captar padrões lexicais e morfológicos entre idiomas.
+
+    ### Metodologia
+
+    **Passos:**
+
+    1. **Extração de N-gramas:**
+
+        Cada frase é decomposta em N-gramas de caracteres. Por exemplo, para N=3 (trigramas), a palavra "linguagem" resulta em:
+
+        """)
+    st.latex(r'''
+    \text{Trigramas de "linguagem": } \{ "lin", "ing", "ngu", "gua", "uag", "age" \}
+    ''')
+    st.markdown("""
+    2. **Representação Vetorial:**
+
+        - Cada frase é representada por um conjunto de N-gramas.
+        - Um vocabulário de N-gramas é construído a partir de todas as frases.
+        - As frases são vetorizadas utilizando técnicas como o CountVectorizer.
+
+    3. **Cálculo do Coeficiente de Sorensen-Dice:**
+
+        A similaridade entre duas frases \( A \) e \( B \) é calculada usando o coeficiente de Sorensen-Dice:
+
+        """)
+    st.latex(r'''
+    \text{SDC}(A, B) = \frac{2 \times |A \cap B|}{|A| + |B|}
+    ''')
+    st.markdown("""
+    **Onde:**
+
+    """)
+    st.latex(r'''
+    |A| \text{ é o número total de N\text{-}gramas na frase } A
+    ''')
+    st.latex(r'''
+    |B| \text{ é o número total de N\text{-}gramas na frase } B
+    ''')
+    st.latex(r'''
+    |A \cap B| \text{ é o número de N\text{-}gramas comuns entre } A \text{ e } B
+    ''')
+    st.markdown("""
+    ### Objetivo
+
+    Avaliar a similaridade na construção das palavras entre os idiomas, capturando semelhanças e diferenças em padrões lexicais.
+
+    ### Exemplo e Possíveis Insights
+
+    - **Exemplo:** Alta similaridade lexical entre Português Arcaico e Moderno pode indicar conservação de estruturas lexicais ao longo do tempo.
+    - **Insight:** Baixa similaridade lexical entre Dzubukuá e Português pode evidenciar diferenças profundas nas raízes linguísticas.
+
+    ---
+
+    ## 3.3 Similaridade Lexical com Word2Vec
+
+    ### Fundamentos Teóricos
+
+    **Word2Vec** é uma técnica que gera embeddings para palavras, aprendendo representações vetoriais com base no contexto em que as palavras aparecem em um corpus de texto.
+
+    ### Metodologia
+
+    **Passos:**
+
+    1. **Tokenização das Frases:**
+
+        - As frases são divididas em palavras individuais (tokens).
+
+    2. **Treinamento do Modelo Word2Vec:**
+
+        - O modelo é treinado nas frases dos idiomas para aprender os embeddings das palavras.
+
+    3. **Representação das Frases:**
+
+        - Cada frase é representada pela média dos vetores das palavras que a compõem:
+
+        """)
+    st.latex(r'''
+    \vec{v}_{\text{frase}} = \frac{1}{n} \sum_{i=1}^{n} \vec{w}_i
+    ''')
+    st.markdown("""
+    **Onde:**
+
+    """)
+    st.latex(r'''
+    n \text{ é o número de palavras na frase}
+    ''')
+    st.latex(r'''
+    \vec{w}_i \text{ é o vetor embedding da } i\text{-ésima palavra}
+    ''')
+    st.markdown("""
+    4. **Cálculo da Similaridade de Cosseno:**
+
+        - A similaridade entre frases é calculada como anteriormente, utilizando a similaridade de cosseno entre os vetores das frases.
+
+    ### Objetivo
+
+    Capturar semelhanças lexicais considerando o contexto semântico em que as palavras aparecem.
+
+    ### Exemplo e Possíveis Insights
+
+    - **Exemplo:** Pode revelar semelhanças em termos de uso e significado das palavras, mesmo entre idiomas diferentes.
+    - **Insight:** Identifica relações semânticas que não são evidentes apenas pela análise de caracteres.
+
+    ---
+
+    ## 3.4 Similaridade Fonológica
+
+    ### Fundamentos Teóricos
+
+    A análise fonológica considera os sons das palavras, independentemente de sua representação escrita. Comparações fonológicas podem revelar proximidades não detectáveis por análises lexicais.
+
+    ### Metodologia
+
+    **Passos:**
+
+    1. **Codificação Fonética:**
+
+        - As palavras são convertidas em códigos fonéticos utilizando algoritmos como o Soundex.
+
+    2. **Cálculo da Distância de Levenshtein:**
+
+        - A distância de edição (Levenshtein) é calculada entre as sequências codificadas foneticamente das frases:
+
+        """)
+    st.latex(r'''
+    D(S_1, S_2) = \text{Número mínimo de operações necessárias para transformar } S_1 \text{ em } S_2
+    ''')
+    st.markdown("""
+    **Onde:**
+
+    """)
+    st.latex(r'''
+    S_1 \text{ e } S_2 \text{ são as sequências fonéticas das frases}
+    ''')
+    st.markdown("""
+    3. **Cálculo da Similaridade Normalizada:**
+
+        - A similaridade é normalizada para o intervalo [0, 1]:
+
+        """)
+    st.latex(r'''
+    \text{Similaridade} = 1 - \frac{D(S_1, S_2)}{\max(\text{len}(S_1), \text{len}(S_2))}
+    ''')
+    st.markdown("""
+    **Onde:**
+
+    """)
+    st.latex(r'''
+    \text{len}(S_i) \text{ é o comprimento da sequência fonética } S_i
+    ''')
+    st.markdown("""
+    ### Objetivo
+
+    Avaliar o quanto as frases soam semelhantes, o que pode indicar influências históricas ou origens comuns entre os idiomas.
+
+    ### Exemplo e Possíveis Insights
+
+    - **Exemplo:** Semelhanças fonológicas podem sugerir contato linguístico ou empréstimos entre as línguas.
+    - **Insight:** Diferenças marcantes podem indicar evolução separada ou falta de interação entre os povos.
+
+    ---
+
+    # 4. Análises Estatísticas e Visualizações
+
+    Após o cálculo das similaridades, realizamos diversas análises estatísticas para compreender as relações entre as medidas e extrair insights significativos.
+
+    ## 4.1 Cálculo de Correlações
+
+    ### Fundamentos Teóricos
+
+    As correlações medem a força e a direção da relação linear entre duas variáveis.
+
+    ### Metodologia
+
+    **Correlação de Pearson:**
+
+    - Mede a relação linear entre duas variáveis quantitativas.
+
+    """)
+    st.latex(r'''
+    r = \frac{\sum_{i=1}^{n}(X_i - \bar{X})(Y_i - \bar{Y})}{\sqrt{\sum_{i=1}^{n}(X_i - \bar{X})^2} \times \sqrt{\sum_{i=1}^{n}(Y_i - \bar{Y})^2}}
+    ''')
+    st.markdown("""
+    **Onde:**
+
+    """)
+    st.latex(r'''
+    X_i \text{ e } Y_i \text{ são as observações das variáveis}
+    ''')
+    st.latex(r'''
+    \bar{X} = \frac{1}{n} \sum_{i=1}^{n} X_i
+    ''')
+    st.latex(r'''
+    \bar{Y} = \frac{1}{n} \sum_{i=1}^{n} Y_i
+    ''')
+    st.markdown("""
+    **Correlação de Spearman:**
+
+    - Uma medida não paramétrica que avalia a monotonicidade entre duas variáveis.
+
+    """)
+    st.latex(r'''
+    \rho = 1 - \frac{6 \sum_{i=1}^{n} d_i^2}{n(n^2 - 1)}
+    ''')
+    st.markdown("""
+    **Onde:**
+
+    """)
+    st.latex(r'''
+    d_i = \text{posto}(X_i) - \text{posto}(Y_i)
+    ''')
+    st.markdown("""
+    **Correlação de Kendall:**
+
+    - Outra medida não paramétrica baseada em concordâncias e discordâncias entre pares.
+
+    """)
+    st.latex(r'''
+    \tau = \frac{C - D}{\frac{1}{2} n(n - 1)}
+    ''')
+    st.markdown("""
+    **Onde:**
+
+    """)
+    st.latex(r'''
+    C \text{ é o número de pares concordantes}
+    ''')
+    st.latex(r'''
+    D \text{ é o número de pares discordantes}
+    ''')
+    st.markdown("""
+    ### Objetivo
+
+    Identificar se existe relação significativa entre as diferentes medidas de similaridade, o que pode sugerir interdependência entre os aspectos analisados (semântica, léxico, fonologia).
+
+    ### Exemplo e Possíveis Insights
+
+    - **Exemplo:** Uma correlação alta entre similaridade semântica e lexical pode indicar que palavras semelhantes carregam significados semelhantes entre os idiomas.
+    - **Insight:** Ausência de correlação pode sugerir que as medidas capturam aspectos distintos.
+
+    ---
+
+    # 5. Considerações e Limitações
+
+    - **Qualidade dos Dados:** A confiabilidade das análises depende da qualidade e representatividade dos dados coletados.
+    - **Tamanho da Amostra:** Amostras pequenas podem não ser estatisticamente significativas.
+    - **Assunções Estatísticas:** Algumas técnicas assumem normalidade dos dados, o que nem sempre é o caso em linguística.
+    - **Complexidade Linguística:** Línguas possuem nuances culturais e históricas que podem não ser capturadas totalmente por análises quantitativas.
+
+    ---
+
+    # Conclusão
+
+    Este estudo fornece uma análise detalhada das similaridades entre Dzubukuá, Português Arcaico e Português Moderno em diferentes níveis linguísticos. Utilizando técnicas de PLN e estatística, é possível compreender melhor a evolução das línguas, influências mútuas e preservação de conceitos ao longo do tempo.
+
+    As metodologias apresentadas podem ser aplicadas a outros estudos linguísticos, contribuindo para a preservação de línguas em risco de extinção e para a compreensão da diversidade linguística global.
+
+    """)
+
 
 import streamlit as st
 
