@@ -232,40 +232,39 @@ with st.sidebar.expander("Pesquisa compreenda:"):
     - A similaridade indica que, apesar das diferenças lexicais, há uma relação semântica capturada pelo contexto.
 
     #### **3.2.4 Similaridade Fonológica**
-
+    
     **Fundamentos Teóricos:**
-
+    
     - A análise fonológica é crucial para identificar influências linguísticas que não são evidentes apenas pela escrita.
-
+    
     **Processo Metodológico:**
-
+    
     1. **Codificação Fonética:**
-
+    
         - Utilizamos o algoritmo **Soundex** adaptado para o português.
-
+    
     2. **Cálculo da Distância de Levenshtein:**
-
+    
     $$
     D(S_1, S_2) = \text{Número mínimo de operações para transformar } S_1 \text{ em } S_2
     $$
     
-       
     3. **Normalização da Similaridade:**
-
+    
     $$
     \text{Similaridade} = 1 - \frac{D(S_1, S_2)}{\max(\text{len}(S_1), \text{len}(S_2))}
     $$
-
+    
     **Exemplo:**
-
+    
     - Palavra em Dzubukuá: "Ama" (Codificação: "A500")
     - Palavra em Português: "Amar" (Codificação: "A560")
     - Similaridade calculada: **0,75**.
-
+    
     **Interpretação:**
-
+    
     - A similaridade fonológica sugere possíveis influências ou origens comuns.
-
+    
     ---
 
     ## **4. Análises Estatísticas**
