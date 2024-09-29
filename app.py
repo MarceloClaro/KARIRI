@@ -445,11 +445,11 @@ with st.sidebar.expander("Insights metodológicos"):
     **O que é:** O **Sentence-BERT** é um modelo de linguagem que transforma frases em vetores numéricos (chamados de "embeddings"), representando o significado da frase.
 
     **Como funciona:**
-
-    st.latex(r'1. \ \text{Geração de Embeddings: Cada frase é convertida em um vetor de números que representa o seu significado. Esses vetores são de alta dimensão, representados como } \vec{v}_i')
-
-
     """)
+    st.latex(r'''
+    \small
+    1. \ \text{Geração de Embeddings: Cada frase é convertida em um vetor de números que representa o seu significado. Esses vetores são de alta dimensão, representados como } \vec{v}_i
+    ''')
 
     st.latex(r'''
     \small
