@@ -62,7 +62,6 @@ with st.sidebar.expander("Insights do Projeto"):
         ...[Explicações detalhadas sobre o projeto]...
     """)
 
-# Expander de Insights do Código
 import streamlit as st
 
 # Expander de Insights do Código
@@ -117,26 +116,36 @@ with st.sidebar.expander("Insights do Código"):
 
     1. **Geração de Embeddings:** Para cada frase, o modelo gera um vetor (ou "embedding") que representa o significado dessa frase.
     """)
+
     st.latex(r'''
     \text{Para cada frase } s_i, \text{ obtemos um vetor } \vec{v}_i \in \mathbb{R}^d
     ''')
+
     st.markdown("""
-    Onde:
-
-    - \( s_i \) é a \( i \)-ésima frase.
-    - \( \vec{v}_i \) é o vetor de dimensão \( d \) que representa \( s_i \).
-
     2. **Cálculo da Similaridade de Cosseno:** A semelhança entre duas frases é calculada comparando os seus vetores usando a métrica de **similaridade de cosseno**:
     """)
+
     st.latex(r'''
-    \text{similaridade}(\vec{v}_i, \vec{v}_j) = \frac{\vec{v}_i \cdot \vec{v}_j}{\|\vec{v}_i\| \|\vec{v}_j\|}
+    \text{similaridade}(\vec{v}_i, \vec{v}_j) = \frac{\vec{v}_i \cdot \vec{v}_j}{\|\vec{v}_i\| \cdot \|\vec{v}_j\|}
     ''')
+
+    st.latex(r'''
+    \text{Onde:}
+    ''')
+
+    st.latex(r'''
+    \vec{v}_i \cdot \vec{v}_j \text{ é o produto escalar dos vetores}
+    ''')
+
+    st.latex(r'''
+    \|\vec{v}_i\| \text{ é a norma (magnitude) do vetor } \vec{v}_i
+    ''')
+
+    st.latex(r'''
+    \|\vec{v}_j\| \text{ é a norma (magnitude) do vetor } \vec{v}_j
+    ''')
+
     st.markdown("""
-    Onde:
-
-    - \( \vec{v}_i \cdot \vec{v}_j \) é o produto escalar dos vetores.
-    - \( \|\vec{v}_i\| \) é a norma (comprimento) do vetor \( \vec{v}_i \).
-
     **Objetivo:** Descobrir se duas frases em diferentes idiomas possuem o mesmo significado, mesmo que escritas de forma diferente.
 
     **Exemplo:** Se houver uma alta similaridade semântica entre uma frase em Dzubukuá e sua tradução no Português Arcaico, isso pode significar que o significado dessa frase foi preservado ao longo do tempo.
@@ -157,16 +166,28 @@ with st.sidebar.expander("Insights do Código"):
 
     3. **Cálculo do Coeficiente de Sorensen-Dice:** Para medir essa similaridade, usamos a fórmula:
     """)
+
     st.latex(r'''
     \text{SDC}(A, B) = \frac{2 \times |A \cap B|}{|A| + |B|}
     ''')
+
+    st.latex(r'''
+    \text{Onde:}
+    ''')
+
+    st.latex(r'''
+    |A| \text{ é o número total de N\text{-}gramas em } A
+    ''')
+
+    st.latex(r'''
+    |B| \text{ é o número total de N\text{-}gramas em } B
+    ''')
+
+    st.latex(r'''
+    |A \cap B| \text{ é o número de N\text{-}gramas comuns entre } A \text{ e } B
+    ''')
+
     st.markdown("""
-    Onde:
-
-    - \( A \) e \( B \) são os conjuntos de N-gramas das duas frases.
-    - \( |A| \) é o número total de N-gramas na frase \( A \).
-    - \( |A \cap B| \) é o número de N-gramas em comum entre \( A \) e \( B \).
-
     **Objetivo:** Avaliar a semelhança na construção das palavras entre as frases dos três idiomas.
 
     **Exemplo:** Se houver uma alta similaridade lexical entre o Português Arcaico e Moderno, isso pode indicar que muitos padrões de palavras foram mantidos ao longo dos séculos.
@@ -175,7 +196,7 @@ with st.sidebar.expander("Insights do Código"):
 
     #### **3.3 Similaridade Lexical com Word2Vec**
 
-    **O que é:** O **Word2Vec** é um modelo que cria vetores para palavras baseados no contexto em que elas aparecem. Esse modelo aprende os significados das palavras ao observar como elas são usadas em diferentes frases.
+    **O que é:** O **Word2Vec** é um modelo que cria vetores para palavras baseados no contexto em que elas aparecem.
 
     **Como funciona:**
 
@@ -185,15 +206,24 @@ with st.sidebar.expander("Insights do Código"):
 
     3. **Representação das Frases:** Para representar uma frase inteira, o sistema calcula a média dos vetores de todas as palavras da frase:
     """)
+
     st.latex(r'''
     \vec{v}_{\text{frase}} = \frac{1}{n} \sum_{i=1}^{n} \vec{w}_i
     ''')
+
+    st.latex(r'''
+    \text{Onde:}
+    ''')
+
+    st.latex(r'''
+    n \text{ é o número de palavras na frase}
+    ''')
+
+    st.latex(r'''
+    \vec{w}_i \text{ é o vetor da } i\text{-ésima palavra}
+    ''')
+
     st.markdown("""
-    Onde:
-
-    - \( n \) é o número de palavras na frase.
-    - \( \vec{w}_i \) é o vetor da \( i \)-ésima palavra.
-
     4. **Cálculo da Similaridade de Cosseno:** A similaridade entre frases é medida pela similaridade de cosseno entre seus vetores médios.
 
     **Objetivo:** Identificar semelhanças lexicais entre os idiomas com base no contexto em que as palavras aparecem.
@@ -204,92 +234,128 @@ with st.sidebar.expander("Insights do Código"):
 
     #### **3.4 Similaridade Fonológica**
 
-    **O que é:** A análise fonológica se preocupa com o som das palavras. Podemos avaliar a semelhança de como as palavras **soam**, mesmo que sua escrita seja diferente.
+    **O que é:** A análise fonológica se preocupa com o som das palavras.
 
     **Como funciona:**
 
-    1. **Codificação Fonética:** Cada palavra é convertida em um código fonético usando a técnica **Soundex**, que atribui um código baseado no som da palavra.
+    1. **Codificação Fonética:** Cada palavra é convertida em um código fonético usando a técnica **Soundex**.
 
-    2. **Cálculo da Distância de Levenshtein:** A **distância de Levenshtein** mede quantas mudanças (inserções, deleções ou substituições) são necessárias para transformar uma palavra em outra.
+    2. **Cálculo da Distância de Levenshtein:** Mede quantas operações são necessárias para transformar uma palavra em outra.
     """)
+
     st.latex(r'''
     D(S_1, S_2) = \text{Número mínimo de operações para transformar } S_1 \text{ em } S_2
     ''')
+
+    st.latex(r'''
+    \text{Onde:}
+    ''')
+
+    st.latex(r'''
+    S_1, S_2 \text{ são as sequências fonéticas das palavras}
+    ''')
+
     st.markdown("""
-    3. **Cálculo da Similaridade:** A distância entre os sons das frases é normalizada para fornecer uma pontuação de similaridade de 0 a 1:
+    3. **Cálculo da Similaridade:** A distância é normalizada para fornecer uma pontuação de similaridade entre 0 e 1:
     """)
+
     st.latex(r'''
     \text{Similaridade} = 1 - \frac{D(S_1, S_2)}{\max(\text{len}(S_1), \text{len}(S_2))}
     ''')
+
+    st.latex(r'''
+    \text{Onde:}
+    ''')
+
+    st.latex(r'''
+    \text{len}(S_i) \text{ é o comprimento da sequência fonética } S_i
+    ''')
+
     st.markdown("""
-    Onde:
-
-    - \( D(S_1, S_2) \) é a distância de Levenshtein entre as sequências fonéticas.
-    - \( \text{len}(S_i) \) é o comprimento da sequência fonética \( S_i \).
-
     **Objetivo:** Avaliar o quanto as palavras de dois idiomas diferentes soam de forma semelhante, independentemente de sua ortografia.
 
-    **Exemplo:** Se as palavras de Dzubukuá e Português Arcaico tiverem uma alta similaridade fonológica, isso pode sugerir que o som dessas línguas permaneceu semelhante ao longo do tempo, mesmo com mudanças na grafia.
+    **Exemplo:** Se as palavras de Dzubukuá e Português Arcaico tiverem uma alta similaridade fonológica, isso pode sugerir que o som dessas línguas permaneceu semelhante ao longo do tempo.
 
     ---
 
     ### **4. Análises Estatísticas e Visualizações**
 
-    Após calcular as similaridades, podemos realizar análises estatísticas para explorar a relação entre as diferentes medidas de similaridade.
+    Após calcular as similaridades, podemos realizar análises estatísticas para explorar a relação entre as diferentes medidas.
 
     #### **4.1 Cálculo de Correlações**
 
-    As **correlações** medem como duas variáveis se movem juntas. Usamos três tipos de correlação: **Pearson**, **Spearman** e **Kendall**.
+    As **correlações** medem como duas variáveis se relacionam. Usamos três tipos de correlação: **Pearson**, **Spearman** e **Kendall**.
 
     **Fórmulas:**
 
     1. **Correlação de Pearson:**
     """)
+
     st.latex(r'''
-    r = \frac{\sum_{i=1}^{n}(X_i - \bar{X})(Y_i - \bar{Y})}{\sqrt{\sum_{i=1}^{n}(X_i - \bar{X})^2} \sqrt{\sum_{i=1}^{n}(Y_i - \bar{Y})^2}}
+    r = \frac{\sum_{i=1}^{n}(X_i - \bar{X})(Y_i - \bar{Y})}{\sqrt{\sum_{i=1}^{n}(X_i - \bar{X})^2} \cdot \sqrt{\sum_{i=1}^{n}(Y_i - \bar{Y})^2}}
     ''')
-    st.markdown("""
+
+    st.latex(r'''
+    \text{Onde:}
+    ''')
+
+    st.latex(r'''
+    \bar{X} \text{ e } \bar{Y} \text{ são as médias de } X \text{ e } Y
+    ''')
+
     2. **Correlação de Spearman:**
-    """)
+
     st.latex(r'''
     \rho = 1 - \frac{6 \sum_{i=1}^{n} d_i^2}{n(n^2 - 1)}
     ''')
-    st.markdown("""
-    Onde:
 
-    - \( d_i \) é a diferença entre os postos (ranks) de \( X_i \) e \( Y_i \).
+    st.latex(r'''
+    \text{Onde:}
+    ''')
+
+    st.latex(r'''
+    d_i = \text{posto}(X_i) - \text{posto}(Y_i)
+    ''')
 
     3. **Correlação de Kendall:**
-    """)
+
     st.latex(r'''
     \tau = \frac{C - D}{\frac{1}{2} n(n - 1)}
     ''')
+
+    st.latex(r'''
+    \text{Onde:}
+    ''')
+
+    st.latex(r'''
+    C \text{ é o número de pares concordantes}
+    ''')
+
+    st.latex(r'''
+    D \text{ é o número de pares discordantes}
+    ''')
+
     st.markdown("""
-    Onde:
-
-    - \( C \) é o número de pares concordantes.
-    - \( D \) é o número de pares discordantes.
-
-    **Objetivo:** Entender se, por exemplo, a similaridade lexical e semântica entre as frases estão relacionadas.
+    **Objetivo:** Entender se as diferentes medidas de similaridade estão relacionadas entre si.
 
     ---
 
     ### **5. Considerações e Limitações**
 
-    As análises realizadas fornecem uma visão detalhada das semelhanças entre Dzubukuá, Português Arcaico e Português Moderno. Entretanto, é importante considerar que:
+    As análises realizadas fornecem uma visão detalhada das semelhanças entre os idiomas. Entretanto, é importante considerar que:
 
-    - **A qualidade dos dados** é crucial: Análises imprecisas podem ocorrer se os dados não forem representativos.
-    - **Assunções estatísticas** devem ser verificadas: Algumas análises requerem normalidade e independência dos dados.
-    - **Multicolinearidade** pode influenciar as regressões: Se as variáveis de similaridade estiverem muito correlacionadas, pode ser difícil determinar a importância individual de cada uma.
+    - **A qualidade dos dados** é crucial.
+    - **Assunções estatísticas** devem ser verificadas.
+    - **Multicolinearidade** pode influenciar as regressões.
 
     ---
 
     ### **Conclusão**
 
-    Este estudo sobre a comparação de três idiomas oferece insights valiosos sobre a evolução linguística. Ele mostra como as línguas podem se manter semelhantes ou divergir ao longo do tempo, não apenas em termos de palavras, mas também no significado e som.
+    Este estudo oferece insights sobre a evolução linguística, mostrando como as línguas podem permanecer semelhantes ou divergir ao longo do tempo.
 
-    Resultados como esses nos ajudam a entender a história linguística e cultural dos povos que falavam essas línguas, oferecendo uma visão mais profunda sobre a preservação de conceitos e ideias ao longo do tempo.
     """)
+
 
 
 # Imagem e Contatos
