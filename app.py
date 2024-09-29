@@ -132,7 +132,9 @@ with st.sidebar.expander("Pesquisa compreenda:"):
     """)
     
     st.latex(r'''
-    \text{Treinamento do Modelo: Para cada frase } (s_i), 
+    \text{Treinamento do Modelo: Para cada frase } (s_i),
+    ''')
+    st.latex(r'''
     \text{ o modelo Sentence-BERT gera um vetor de dimensão } (d):
     ''')
 
