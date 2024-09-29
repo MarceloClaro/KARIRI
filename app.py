@@ -302,8 +302,10 @@ with st.sidebar.expander("Insights do Código"):
     st.latex(r'''
     \bar{X} \text{ e } \bar{Y} \text{ são as médias de } X \text{ e } Y
     ''')
-
+    
+    st.markdown("""
     2. **Correlação de Spearman:**
+     """)
 
     st.latex(r'''
     \rho = 1 - \frac{6 \sum_{i=1}^{n} d_i^2}{n(n^2 - 1)}
