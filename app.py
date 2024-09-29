@@ -294,8 +294,8 @@ with st.sidebar.expander("Pesquisa compreenda:"):
     st.markdown("""
     **Resultados:**
 
-    - **Coeficiente $\beta_1\$ :** 0,55 (p < 0,01)
-    - **Coeficiente $\beta_2\$:** 0,30 (p < 0,05)
+    - **Coeficiente $beta_1$ :** 0,55 (p < 0,01)
+    - **Coeficiente $beta_2$:** 0,30 (p < 0,05)
     - **R² Ajustado:** 0,62
 
     **Interpretação:**
