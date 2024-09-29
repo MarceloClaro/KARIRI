@@ -716,11 +716,12 @@ else:
 
 st.sidebar.write("""
 Projeto Geomaker + IA 
+https://doi.org/10.5281/zenodo.13856575
 - Professor: Marcelo Claro.
 Contatos: marceloclaro@gmail.com
 Whatsapp: (88)981587145
 Instagram: [marceloclaro.geomaker](https://www.instagram.com/marceloclaro.geomaker/)
-https://doi.org/10.5281/zenodo.13856575
+
 """)
 
 # _____________________________________________
