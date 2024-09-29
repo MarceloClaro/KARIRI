@@ -252,10 +252,12 @@ with st.sidebar.expander("Pesquisa compreenda:"):
     st.markdown("""
     3. **Normalização da Similaridade:**
 
-        """)
-    st.latex(r'''
+    """)
+    st.markdown("""
+    $$
     \text{Similaridade} = 1 - \frac{D(S_1, S_2)}{\max(\text{len}(S_1), \text{len}(S_2))}
-    ''')
+    $$
+    """)
     st.markdown("""
     **Exemplo:**
 
@@ -291,10 +293,7 @@ with st.sidebar.expander("Pesquisa compreenda:"):
 
     **Modelo de Regressão Múltipla:**
 
-    """)
-    st.latex(r'''
-    \text{Similaridade Semântica} = \beta_0 + \beta_1 \times \text{Similaridade Lexical} + \beta_2 \times \text{Similaridade Fonológica} + \epsilon
-    ''')
+
     st.markdown("""
     **Resultados:**
 
