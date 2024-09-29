@@ -457,6 +457,7 @@ with st.sidebar.expander("Insights do Código"):
     """)
 
     st.latex(r'''
+    \small
     \text{Para cada frase } s_i, \text{ obtemos um vetor } \vec{v}_i \in \mathbb{R}^d
     ''')
 
@@ -465,22 +466,27 @@ with st.sidebar.expander("Insights do Código"):
     """)
 
     st.latex(r'''
+    \small
     \text{similaridade}(\vec{v}_i, \vec{v}_j) = \frac{\vec{v}_i \cdot \vec{v}_j}{\|\vec{v}_i\| \cdot \|\vec{v}_j\|}
     ''')
 
     st.latex(r'''
+    \small
     \text{Onde:}
     ''')
 
     st.latex(r'''
+    \small
     \vec{v}_i \cdot \vec{v}_j \text{ é o produto escalar dos vetores}
     ''')
 
     st.latex(r'''
+    \small
     \|\vec{v}_i\| \text{ é a magnitude do vetor } \vec{v}_i
     ''')
 
     st.latex(r'''
+    \small
     \|\vec{v}_j\| \text{ é a magnitude do vetor } \vec{v}_j
     ''')
 
@@ -510,18 +516,22 @@ with st.sidebar.expander("Insights do Código"):
     """)
 
     st.latex(r'''
+    \small
     \text{SDC}(A, B) = \frac{2 \times |A \cap B|}{|A| + |B|}
     ''')
 
     st.latex(r'''
+    \small
     \text{Onde:}
     ''')
 
     st.latex(r'''
+    \small
     |A| \text{ e } |B| \text{ são o número de N\text{-}gramas em } A \text{ e } B
     ''')
 
     st.latex(r'''
+    \small
     |A \cap B| \text{ é o número de N\text{-}gramas comuns entre } A \text{ e } B
     ''')
 
@@ -547,10 +557,12 @@ with st.sidebar.expander("Insights do Código"):
     """)
 
     st.latex(r'''
+    \small
     \vec{v}_{\text{frase}} = \frac{1}{n} \sum_{i=1}^{n} \vec{w}_i
     ''')
 
     st.latex(r'''
+    \small
     \text{Onde: } n \text{ é o número de palavras e } \vec{w}_i \text{ é o vetor de cada palavra.}
     ''')
 
@@ -583,6 +595,7 @@ with st.sidebar.expander("Insights do Código"):
     """)
     
     st.latex(r'''
+    \small
     D(S_1, S_2) = \text{Número mínimo de operações para transformar } S_1 \text{ em } S_2
     ''')
     
@@ -592,6 +605,7 @@ with st.sidebar.expander("Insights do Código"):
     """)
     
     st.latex(r'''
+    \small
     \text{Similaridade} = 1 - \frac{D(S_1, S_2)}{\max(\text{len}(S_1), \text{len}(S_2))}
     ''')
     
@@ -617,6 +631,7 @@ with st.sidebar.expander("Insights do Código"):
     """)
     
     st.latex(r'''
+    \small
     r = \frac{\sum_{i=1}^{n}(X_i - \bar{X})(Y_i - \bar{Y})}{\sqrt{\sum_{i=1}^{n}(X_i - \bar{X})^2} \cdot \sqrt{\sum_{i=1}^{n}(Y_i - \bar{Y})^2}}
     ''')
     
@@ -628,10 +643,12 @@ with st.sidebar.expander("Insights do Código"):
     """)
     
     st.latex(r'''
+    \small
     \rho = 1 - \frac{6 \sum_{i=1}^{n} d_i^2}{n(n^2 - 1)}
     ''')
     
     st.latex(r'''
+    \small
     \text{Onde } d_i = \text{posto}(X_i) - \text{posto}(Y_i)
     ''')
     
@@ -643,18 +660,22 @@ with st.sidebar.expander("Insights do Código"):
     """)
     
     st.latex(r'''
+    \small
     \tau = \frac{C - D}{\frac{1}{2} n(n - 1)}
     ''')
     
     st.latex(r'''
+    \small
     \text{Onde:}
     ''')
     
     st.latex(r'''
+    \small
     C \text{ é o número de pares concordantes}
     ''')
     
     st.latex(r'''
+    \small
     D \text{ é o número de pares discordantes}
     ''')
     
