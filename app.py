@@ -318,9 +318,9 @@ with st.sidebar.expander("Insights do Código"):
     st.latex(r'''
     d_i = \text{posto}(X_i) - \text{posto}(Y_i)
     ''')
-
+    st.markdown("""
     3. **Correlação de Kendall:**
-
+    """)
     st.latex(r'''
     \tau = \frac{C - D}{\frac{1}{2} n(n - 1)}
     ''')
