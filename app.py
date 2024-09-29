@@ -142,7 +142,7 @@ with st.sidebar.expander("Pesquisa compreenda:"):
     st.markdown("""
     2. **Cálculo da Similaridade de Cosseno:**
 
-        A similaridade entre duas frases \( s_i \) e \( s_j \) é calculada por:
+        A similaridade entre duas frases $s_i$ e $s_j$ é calculada por:
 
     """)
     st.latex(r'''
