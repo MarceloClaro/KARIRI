@@ -249,7 +249,9 @@ with st.sidebar.expander("Pesquisa compreenda:"):
     st.latex(r'''
     D(S_1, S_2) = \text{Número mínimo de operações para transformar } S_1 \text{ em } S_2
     ''')
+    
     st.markdown("""
+       
     3. **Normalização da Similaridade:**
 
     $$
@@ -290,6 +292,7 @@ with st.sidebar.expander("Pesquisa compreenda:"):
 
     **Modelo de Regressão Múltipla:**
 
+        """)
 
     st.markdown("""
     **Resultados:**
