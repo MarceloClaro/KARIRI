@@ -252,8 +252,6 @@ with st.sidebar.expander("Pesquisa compreenda:"):
     st.markdown("""
     3. **Normalização da Similaridade:**
 
-    """)
-    st.markdown("""
     $$
     \text{Similaridade} = 1 - \frac{D(S_1, S_2)}{\max(\text{len}(S_1), \text{len}(S_2))}
     $$
