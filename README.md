@@ -2,7 +2,7 @@
 TRADUÇÃO 
 
 
-
+'''
 projeto/
 │
 ├── app.py  # Arquivo principal que integra todos os módulos
@@ -24,3 +24,4 @@ projeto/
 └── utils/
     ├── salvar_dados.py  # Funções para salvar CSVs
     └── ajustes.py       # Funções de ajustes matemáticos como o q-exponencial
+'''
