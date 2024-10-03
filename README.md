@@ -1,5 +1,8 @@
 # KARIRI
 TRADUÇÃO 
+
+
+
 projeto/
 │
 ├── app.py  # Arquivo principal que integra todos os módulos
