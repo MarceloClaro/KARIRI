@@ -1,4 +1,4 @@
-# Importar as bibliotecas necessárias 
+# Importar as bibliotecas necessárias
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
@@ -23,55 +23,43 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import silhouette_score
 from scipy.stats import f_oneway  # Para ANOVA
 from scipy.optimize import curve_fit  # Para q-Exponencial
+
 import os
+import logging
 import base64
-import openpyxl
 
-# Função para calcular similaridade semântica usando Sentence-BERT
-def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico, sentences_moderno):
-    """Calcula a similaridade semântica usando o modelo Sentence-BERT."""
-    all_sentences = sentences_dzubukua + sentences_arcaico + sentences_moderno
-    embeddings = model.encode(all_sentences, batch_size=32, normalize_embeddings=True)
+# Definir o caminho do ícone
+icon_path = "logo.png"  # Verifique se o arquivo logo.png está no diretório correto
 
-    # Separar embeddings de cada conjunto de frases
-    embeddings_dzubukua = embeddings[:len(sentences_dzubukua)]
-    embeddings_arcaico = embeddings[len(sentences_dzubukua):len(sentences_dzubukua) + len(sentences_arcaico)]
-    embeddings_moderno = embeddings[len(sentences_dzubukua) + len(sentences_arcaico):]
+# Verificar se o arquivo de ícone existe antes de configurá-lo
+if os.path.exists(icon_path):
+    st.set_page_config(page_title="Geomaker +IA", page_icon=icon_path, layout="wide")
+    logging.info(f"Ícone {icon_path} carregado com sucesso.")
+else:
+    # Se o ícone não for encontrado, carrega sem favicon
+    st.set_page_config(page_title="Geomaker +IA", layout="wide")
+    logging.warning(f"Ícone {icon_path} não encontrado, carregando sem favicon.")
 
-    # Calculando a similaridade de cosseno entre os embeddings
-    similarity_arcaico_dzubukua = cosine_similarity(embeddings_dzubukua, embeddings_arcaico).diagonal()
-    similarity_moderno_dzubukua = cosine_similarity(embeddings_dzubukua, embeddings_moderno).diagonal()
-    similarity_arcaico_moderno = cosine_similarity(embeddings_arcaico, embeddings_moderno).diagonal()
+# Layout da página
+if os.path.exists('capa.png'):
+    st.image('capa.png', width=100, caption='Laboratório de Educação e Inteligência Artificial - Geomaker. "A melhor forma de prever o futuro é inventá-lo." - Alan Kay', use_column_width='always')
+else:
+    st.warning("Imagem 'capa.png' não encontrada.")
 
-    return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
+if os.path.exists("logo.png"):
+    st.sidebar.image("logo.png", width=200)
+else:
+    st.sidebar.text("Imagem do logotipo não encontrada.")
 
-# Função para calcular a similaridade fonológica
-def calcular_transcricao_ipa(sentences):
-    """Calcula uma transcrição fonética simplificada das frases."""
-    ipa_transcriptions = ["Transcrição simplificada para: " + sent for sent in sentences]
-    return ipa_transcriptions
+st.sidebar.title("Geomaker +IA")
 
-# Função para calcular similaridade morfológica
-def calcular_analise_morfologica(sentences):
-    """Analisa os morfemas das frases fornecidas, incluindo gênero, número e tempo verbal."""
-    # Simplificação para fins de exemplo
-    morfologia = ["Gênero: Masculino, Número: Singular, Tempo: Presente" for _ in sentences]
-    return morfologia
+# Expander de Insights
+with st.sidebar.expander("Pesquisa compreenda:"):
+    st.markdown("""
+    # **Análise Comparativa de Idiomas: Dzubukuá, Português Arcaico e Português Moderno**
 
-# Função para calcular a análise sintática
-def calcular_analise_sintatica(sentences):
-    """Analisa a estrutura sintática das frases, identificando sujeito, verbo e complementos."""
-    sintaxe = ["Sujeito: Identificado, Verbo: Presente, Complemento: Existente" for _ in sentences]
-    return sintaxe
-
-# Função para calcular correlações e estatísticas descritivas
-def calcular_correlacoes_e_estatisticas(similarity_df):
-    """Calcula correlações e estatísticas descritivas das similaridades."""
-    pearson_corr = similarity_df.corr(method='pearson')
-    spearman_corr = similarity_df.corr(method='spearman')
-    kendall_corr = similarity_df.corr(method='kendall')
-    estatisticas_descritivas = similarity_df.describe()
-    return pearson_corr, spearman_corr, kendall_corr, estatisticas_descritivas
+    Este estudo apresenta uma análise comparativa entre três idiomas: **Dzubukuá** (uma língua extinta), **Português Arcaico** e **Português Moderno**. O objetivo principal é investigar as similaridades e diferenças entre esses idiomas em termos de semântica, léxico e fonologia, utilizando técnicas avançadas de Processamento de Linguagem Natural (PLN) e métodos estatísticos.
+    """)
 
 # Função principal para rodar a aplicação no Streamlit
 def main():
@@ -98,14 +86,10 @@ def main():
         sentences_arcaico = df[df['Idioma'] == 'Português Arcaico']['Texto Original'].tolist()
         sentences_moderno = df['Tradução para o Português Moderno'].tolist()
 
-        # Dados Processados
-        st.subheader("1. Dados Processados")
-        st.write("**Entrada:**")
-        st.write("Frases em Dzubukuá, Português Arcaico e Português Moderno, extraídas de um arquivo CSV.")
-        st.write("Texto original e traduções organizados em colunas.")
-        st.write("**Pré-Processamento:**")
-        st.write("Tokenização de frases.")
-        st.write("Geração de vetores semânticos e lexicais.")
+        # Certificar-se de que há dados suficientes para análise
+        if not sentences_dzubukua or not sentences_arcaico or not sentences_moderno:
+            st.error("Dados insuficientes em uma ou mais categorias linguísticas.")
+            return
 
         # Similaridade Semântica (Sentence-BERT)
         st.info("Calculando similaridade semântica...")
@@ -114,125 +98,107 @@ def main():
         similarity_arcaico_dzubukua_sem, similarity_moderno_dzubukua_sem, similarity_arcaico_moderno_sem = calcular_similaridade_semantica(
             model, sentences_dzubukua, sentences_arcaico, sentences_moderno)
 
-        # Criar DataFrame para salvar resultados
+        # Similaridade Lexical (N-gramas)
+        st.info("Calculando similaridade lexical (N-gramas)...")
+        similarity_arcaico_dzubukua_ng, similarity_moderno_dzubukua_ng, similarity_arcaico_moderno_ng = calcular_similaridade_ngramas(
+            sentences_dzubukua, sentences_arcaico, sentences_moderno)
+
+        # Similaridade Lexical (Word2Vec)
+        st.info("Calculando similaridade lexical (Word2Vec)...")
+        similarity_arcaico_dzubukua_w2v, similarity_moderno_dzubukua_w2v, similarity_arcaico_moderno_w2v = calcular_similaridade_word2vec(
+            sentences_dzubukua, sentences_arcaico, sentences_moderno)
+
+        # Similaridade Fonológica
+        st.info("Calculando similaridade fonológica...")
+        similarity_arcaico_dzubukua_phon, similarity_moderno_dzubukua_phon, similarity_arcaico_moderno_phon = calcular_similaridade_fonologica(
+            sentences_dzubukua, sentences_arcaico, sentences_moderno)
+
+        # Criando DataFrame com as similaridades calculadas
         similarity_df = pd.DataFrame({
             'Dzubukuá - Arcaico (Semântica)': similarity_arcaico_dzubukua_sem,
             'Dzubukuá - Moderno (Semântica)': similarity_moderno_dzubukua_sem,
-            'Arcaico - Moderno (Semântica)': similarity_arcaico_moderno_sem
+            'Arcaico - Moderno (Semântica)': similarity_arcaico_moderno_sem,
+            'Dzubukuá - Arcaico (N-gramas)': similarity_arcaico_dzubukua_ng,
+            'Dzubukuá - Moderno (N-gramas)': similarity_moderno_dzubukua_ng,
+            'Arcaico - Moderno (N-gramas)': similarity_arcaico_moderno_ng,
+            'Dzubukuá - Arcaico (Word2Vec)': similarity_arcaico_dzubukua_w2v,
+            'Dzubukuá - Moderno (Word2Vec)': similarity_moderno_dzubukua_w2v,
+            'Arcaico - Moderno (Word2Vec)': similarity_arcaico_moderno_w2v,
+            'Dzubukuá - Arcaico (Fonológica)': similarity_arcaico_dzubukua_phon,
+            'Dzubukuá - Moderno (Fonológica)': similarity_moderno_dzubukua_phon,
+            'Arcaico - Moderno (Fonológica)': similarity_arcaico_moderno_phon
         })
 
-        # Similaridade Fonológica com IPA
-        st.info("Calculando transcrições fonéticas simplificadas...")
-        transcricoes_dzubukua = calcular_transcricao_ipa(sentences_dzubukua)
-        transcricoes_arcaico = calcular_transcricao_ipa(sentences_arcaico)
-        transcricoes_moderno = calcular_transcricao_ipa(sentences_moderno)
+        # Exibir o DataFrame das similaridades
+        st.subheader("Similaridade Calculada entre as Três Línguas")
+        st.dataframe(similarity_df)
 
-        # Exibir transcrições em IPA
-        st.subheader("Transcrições Fonéticas Simplificadas")
-        st.write("**Dzubukuá:**", transcricoes_dzubukua)
-        st.write("**Português Arcaico:**", transcricoes_arcaico)
-        st.write("**Português Moderno:**", transcricoes_moderno)
-
-        # Análise Morfológica
-        st.info("Realizando análise morfológica...")
-        morfologia_dzubukua = calcular_analise_morfologica(sentences_dzubukua)
-        morfologia_arcaico = calcular_analise_morfologica(sentences_arcaico)
-        morfologia_moderno = calcular_analise_morfologica(sentences_moderno)
-
-        # Exibir análise morfológica
-        st.subheader("Análise Morfológica")
-        st.write("**Dzubukuá:**", morfologia_dzubukua)
-        st.write("**Português Arcaico:**", morfologia_arcaico)
-        st.write("**Português Moderno:**", morfologia_moderno)
-
-        # Análise Sintática
-        st.info("Realizando análise sintática...")
-        sintaxe_dzubukua = calcular_analise_sintatica(sentences_dzubukua)
-        sintaxe_arcaico = calcular_analise_sintatica(sentences_arcaico)
-        sintaxe_moderno = calcular_analise_sintatica(sentences_moderno)
-
-        # Exibir análise sintática
-        st.subheader("Análise Sintática")
-        st.write("**Dzubukuá:**", sintaxe_dzubukua)
-        st.write("**Português Arcaico:**", sintaxe_arcaico)
-        st.write("**Português Moderno:**", sintaxe_moderno)
-
-        # Calcular correlações e estatísticas descritivas
-        st.info("Calculando correlações e estatísticas descritivas...")
-        pearson_corr, spearman_corr, kendall_corr, estatisticas_descritivas = calcular_correlacoes_e_estatisticas(similarity_df)
-
-        # Exibir correlações
-        st.subheader("Correlação entre as Similaridades")
-        st.write("**Correlação de Pearson:**")
-        st.dataframe(pearson_corr)
-        st.write("**Correlação de Spearman:**")
-        st.dataframe(spearman_corr)
-        st.write("**Correlação de Kendall:**")
-        st.dataframe(kendall_corr)
-
-        # Exibir estatísticas descritivas
+        # Adicionando Estatísticas Descritivas
         st.subheader("Estatísticas Descritivas das Similaridades")
-        st.dataframe(estatisticas_descritivas)
+        descriptive_stats = similarity_df.describe()
+        st.dataframe(descriptive_stats)
 
-        # Salvar resultados como CSV e Excel
-        st.info("Salvando os resultados como arquivos CSV e Excel...")
-        similarity_df.to_csv('similaridades_linguisticas.csv', index=False)
-        similarity_df.to_excel('similaridades_linguisticas.xlsx', index=False)
+        # Salvando o DataFrame
+        st.subheader("Baixar Dados Calculados")
+        salvar_dataframe(similarity_df)
 
-        # Botões para download
-        st.download_button(
-            label="Baixar Similaridades em CSV",
-            data=open('similaridades_linguisticas.csv', 'rb').read(),
-            file_name='similaridades_linguisticas.csv',
-            mime='text/csv',
-        )
+# Função para calcular similaridade semântica usando Sentence-BERT
+def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico, sentences_moderno):
+    all_sentences = sentences_dzubukua + sentences_arcaico + sentences_moderno
+    embeddings = model.encode(all_sentences, batch_size=32, normalize_embeddings=True)
 
-        st.download_button(
-            label="Baixar Similaridades em Excel",
-            data=open('similaridades_linguisticas.xlsx', 'rb').read(),
-            file_name='similaridades_linguisticas.xlsx',
-            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        )
+    embeddings_dzubukua = embeddings[:len(sentences_dzubukua)]
+    embeddings_arcaico = embeddings[len(sentences_dzubukua):len(sentences_dzubukua) + len(sentences_arcaico)]
+    embeddings_moderno = embeddings[len(sentences_dzubukua) + len(sentences_arcaico):]
 
-        # Metodologias Utilizadas e Resultados Calculados
-        st.subheader("2. Metodologias Utilizadas e Resultados Calculados")
-        st.write("**Similaridade Semântica:**")
-        st.write("Usando o Sentence-BERT para gerar embeddings de frases e calcular a similaridade de cosseno.")
-        st.write("Resultados fornecem uma medida da semelhança semântica entre frases em diferentes idiomas.")
-        st.write("**Similaridade Lexical:**")
-        st.write("N-gramas e Coeficiente de Sorensen-Dice para analisar a semelhança estrutural das palavras.")
-        st.write("Word2Vec para calcular a similaridade lexical baseada no contexto.")
-        st.write("**Similaridade Fonológica:**")
-        st.write("Utilizou-se Soundex e Distância de Levenshtein para medir a semelhança dos sons das palavras.")
+    similarity_arcaico_dzubukua = cosine_similarity(embeddings_dzubukua, embeddings_arcaico).diagonal()
+    similarity_moderno_dzubukua = cosine_similarity(embeddings_dzubukua, embeddings_moderno).diagonal()
+    similarity_arcaico_moderno = cosine_similarity(embeddings_arcaico, embeddings_moderno).diagonal()
 
-        # Análises Estatísticas Realizadas
-        st.subheader("3. Análises Estatísticas Realizadas")
-        st.write("**Correlação:**")
-        st.write("Calculou-se as correlações de Pearson, Spearman e Kendall entre as medidas de similaridade (semântica, lexical e fonológica).")
-        st.write("**Regressão Linear e Múltipla:**")
-        st.write("Regressão linear entre Dzubukuá e Português Moderno (semântica) e regressão múltipla usando medidas adicionais para prever relações entre os idiomas.")
-        st.write("**ANOVA (Análise de Variância):**")
-        st.write("Comparou as médias das similaridades para identificar diferenças significativas entre os idiomas.")
-        st.write("**Testes de Hipóteses:**")
-        st.write("Realizou testes t para verificar diferenças significativas entre as medidas de similaridade.")
-        st.write("**Ajuste q-Exponencial:**")
-        st.write("Ajustou uma distribuição q-exponencial para descrever a distribuição das similaridades.")
+    return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
 
-        # Visualizações e Clusterização
-        st.subheader("4. Visualizações e Clusterização")
-        st.write("**Análise de Componentes Principais (PCA):**")
-        st.write("Reduziu a dimensionalidade dos dados para identificar padrões.")
-        st.write("**Clusterização (K-Means e DBSCAN):**")
-        st.write("Aplicou K-Means e DBSCAN para segmentar as frases em clusters com base nas medidas de similaridade.")
-        st.write("Visualizações com PCA foram geradas para exibir a segmentação dos clusters.")
-        st.write("**Gráficos:")
-        st.write("Mapas de calor de correlações, dendrograma para análises hierárquicas, e gráficos de regressão linear.")
-        st.write("Gráficos interativos usando Plotly.")
+# Função para calcular similaridade de N-gramas
+def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentences_moderno, n=2):
+    def ngramas(sentences, n):
+        vectorizer = CountVectorizer(ngram_range=(n, n), binary=True, analyzer='char_wb').fit(sentences)
+        ngram_matrix = vectorizer.transform(sentences).toarray()
+        return ngram_matrix
 
-        # Outros Recursos
-        st.subheader("5. Outros Recursos")
-        st.write("Controle de áudio embutido com Streamlit para explicações.")
-        st.write("Disponibilidade de download dos resultados como arquivo CSV e Excel.")
+    ngramas_dzubukua = ngramas(sentences_dzubukua, n)
+    ngramas_arcaico = ngramas(sentences_arcaico, n)
+    ngramas_moderno = ngramas(sentences_moderno, n)
+
+    num_frases = min(len(ngramas_dzubukua), len(ngramas_arcaico), len(ngramas_moderno))
+
+    ngramas_dzubukua = ngramas_dzubukua[:num_frases]
+    ngramas_arcaico = ngramas_arcaico[:num_frases]
+    ngramas_moderno = ngramas_moderno[:num_frases]
+
+    min_dim = min(ngramas_dzubukua.shape[1], ngramas_arcaico.shape[1], ngramas_moderno.shape[1])
+    ngramas_dzubukua = ngramas_dzubukua[:, :min_dim]
+    ngramas_arcaico = ngramas_arcaico[:, :min_dim]
+    ngramas_moderno = ngramas_moderno[:, :min_dim]
+
+    def sorensen_dice(a, b):
+        intersection = np.sum(np.minimum(a, b))
+        total = np.sum(a) + np.sum(b)
+        return 2 * intersection / total if total > 0 else 0
+
+    similarity_arcaico_dzubukua = [sorensen_dice(ngramas_dzubukua[i], ngramas_arcaico[i]) for i in range(num_frases)]
+    similarity_moderno_dzubukua = [sorensen_dice(ngramas_dzubukua[i], ngramas_moderno[i]) for i in range(num_frases)]
+    similarity_arcaico_moderno = [sorensen_dice(ngramas_arcaico[i], ngramas_moderno[i]) for i in range(num_frases)]
+
+    return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
+
+# Função para salvar o DataFrame
+def salvar_dataframe(similarity_df):
+    csv = similarity_df.to_csv(index=False).encode('utf-8')
+    st.download_button(
+        label="Baixar Similaridades em CSV",
+        data=csv,
+        file_name='similaridades_linguisticas.csv',
+        mime='text/csv',
+    )
 
 if __name__ == '__main__':
     main()
