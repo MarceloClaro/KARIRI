@@ -25,6 +25,7 @@ from scipy.stats import f_oneway  # Para ANOVA
 from scipy.optimize import curve_fit  # Para q-Exponencial
 import os
 import base64
+import openpyxl
 
 # Função para calcular similaridade semântica usando Sentence-BERT
 def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico, sentences_moderno):
@@ -62,6 +63,15 @@ def calcular_analise_sintatica(sentences):
     """Analisa a estrutura sintática das frases, identificando sujeito, verbo e complementos."""
     sintaxe = ["Sujeito: Identificado, Verbo: Presente, Complemento: Existente" for _ in sentences]
     return sintaxe
+
+# Função para calcular correlações e estatísticas descritivas
+def calcular_correlacoes_e_estatisticas(similarity_df):
+    """Calcula correlações e estatísticas descritivas das similaridades."""
+    pearson_corr = similarity_df.corr(method='pearson')
+    spearman_corr = similarity_df.corr(method='spearman')
+    kendall_corr = similarity_df.corr(method='kendall')
+    estatisticas_descritivas = similarity_df.describe()
+    return pearson_corr, spearman_corr, kendall_corr, estatisticas_descritivas
 
 # Função principal para rodar a aplicação no Streamlit
 def main():
@@ -104,11 +114,12 @@ def main():
         similarity_arcaico_dzubukua_sem, similarity_moderno_dzubukua_sem, similarity_arcaico_moderno_sem = calcular_similaridade_semantica(
             model, sentences_dzubukua, sentences_arcaico, sentences_moderno)
 
-        # Exibir resultados de similaridade semântica
-        st.subheader("Similaridade Semântica Calculada")
-        st.write("**Dzubukuá - Português Arcaico:**", similarity_arcaico_dzubukua_sem)
-        st.write("**Dzubukuá - Português Moderno:**", similarity_moderno_dzubukua_sem)
-        st.write("**Português Arcaico - Português Moderno:**", similarity_arcaico_moderno_sem)
+        # Criar DataFrame para salvar resultados
+        similarity_df = pd.DataFrame({
+            'Dzubukuá - Arcaico (Semântica)': similarity_arcaico_dzubukua_sem,
+            'Dzubukuá - Moderno (Semântica)': similarity_moderno_dzubukua_sem,
+            'Arcaico - Moderno (Semântica)': similarity_arcaico_moderno_sem
+        })
 
         # Similaridade Fonológica com IPA
         st.info("Calculando transcrições fonéticas simplificadas...")
@@ -145,6 +156,43 @@ def main():
         st.write("**Dzubukuá:**", sintaxe_dzubukua)
         st.write("**Português Arcaico:**", sintaxe_arcaico)
         st.write("**Português Moderno:**", sintaxe_moderno)
+
+        # Calcular correlações e estatísticas descritivas
+        st.info("Calculando correlações e estatísticas descritivas...")
+        pearson_corr, spearman_corr, kendall_corr, estatisticas_descritivas = calcular_correlacoes_e_estatisticas(similarity_df)
+
+        # Exibir correlações
+        st.subheader("Correlação entre as Similaridades")
+        st.write("**Correlação de Pearson:**")
+        st.dataframe(pearson_corr)
+        st.write("**Correlação de Spearman:**")
+        st.dataframe(spearman_corr)
+        st.write("**Correlação de Kendall:**")
+        st.dataframe(kendall_corr)
+
+        # Exibir estatísticas descritivas
+        st.subheader("Estatísticas Descritivas das Similaridades")
+        st.dataframe(estatisticas_descritivas)
+
+        # Salvar resultados como CSV e Excel
+        st.info("Salvando os resultados como arquivos CSV e Excel...")
+        similarity_df.to_csv('similaridades_linguisticas.csv', index=False)
+        similarity_df.to_excel('similaridades_linguisticas.xlsx', index=False)
+
+        # Botões para download
+        st.download_button(
+            label="Baixar Similaridades em CSV",
+            data=open('similaridades_linguisticas.csv', 'rb').read(),
+            file_name='similaridades_linguisticas.csv',
+            mime='text/csv',
+        )
+
+        st.download_button(
+            label="Baixar Similaridades em Excel",
+            data=open('similaridades_linguisticas.xlsx', 'rb').read(),
+            file_name='similaridades_linguisticas.xlsx',
+            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        )
 
         # Metodologias Utilizadas e Resultados Calculados
         st.subheader("2. Metodologias Utilizadas e Resultados Calculados")
@@ -184,7 +232,7 @@ def main():
         # Outros Recursos
         st.subheader("5. Outros Recursos")
         st.write("Controle de áudio embutido com Streamlit para explicações.")
-        st.write("Disponibilidade de download dos resultados como arquivo CSV.")
+        st.write("Disponibilidade de download dos resultados como arquivo CSV e Excel.")
 
 if __name__ == '__main__':
     main()
