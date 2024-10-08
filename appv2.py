@@ -88,6 +88,15 @@ def main():
         sentences_arcaico = df[df['Idioma'] == 'Português Arcaico']['Texto Original'].tolist()
         sentences_moderno = df['Tradução para o Português Moderno'].tolist()
 
+        # Dados Processados
+        st.subheader("1. Dados Processados")
+        st.write("**Entrada:**")
+        st.write("Frases em Dzubukuá, Português Arcaico e Português Moderno, extraídas de um arquivo CSV.")
+        st.write("Texto original e traduções organizados em colunas.")
+        st.write("**Pré-Processamento:**")
+        st.write("Tokenização de frases.")
+        st.write("Geração de vetores semânticos e lexicais.")
+
         # Similaridade Fonológica com IPA
         st.info("Calculando transcrições fonéticas simplificadas...")
         transcricoes_dzubukua = calcular_transcricao_ipa(sentences_dzubukua)
@@ -123,6 +132,46 @@ def main():
         st.write("**Dzubukuá:**", sintaxe_dzubukua)
         st.write("**Português Arcaico:**", sintaxe_arcaico)
         st.write("**Português Moderno:**", sintaxe_moderno)
+
+        # Metodologias Utilizadas e Resultados Calculados
+        st.subheader("2. Metodologias Utilizadas e Resultados Calculados")
+        st.write("**Similaridade Semântica:**")
+        st.write("Usando o Sentence-BERT para gerar embeddings de frases e calcular a similaridade de cosseno.")
+        st.write("Resultados fornecem uma medida da semelhança semântica entre frases em diferentes idiomas.")
+        st.write("**Similaridade Lexical:**")
+        st.write("N-gramas e Coeficiente de Sorensen-Dice para analisar a semelhança estrutural das palavras.")
+        st.write("Word2Vec para calcular a similaridade lexical baseada no contexto.")
+        st.write("**Similaridade Fonológica:**")
+        st.write("Utilizou-se Soundex e Distância de Levenshtein para medir a semelhança dos sons das palavras.")
+
+        # Análises Estatísticas Realizadas
+        st.subheader("3. Análises Estatísticas Realizadas")
+        st.write("**Correlação:**")
+        st.write("Calculou-se as correlações de Pearson, Spearman e Kendall entre as medidas de similaridade (semântica, lexical e fonológica).")
+        st.write("**Regressão Linear e Múltipla:**")
+        st.write("Regressão linear entre Dzubukuá e Português Moderno (semântica) e regressão múltipla usando medidas adicionais para prever relações entre os idiomas.")
+        st.write("**ANOVA (Análise de Variância):**")
+        st.write("Comparou as médias das similaridades para identificar diferenças significativas entre os idiomas.")
+        st.write("**Testes de Hipóteses:**")
+        st.write("Realizou testes t para verificar diferenças significativas entre as medidas de similaridade.")
+        st.write("**Ajuste q-Exponencial:**")
+        st.write("Ajustou uma distribuição q-exponencial para descrever a distribuição das similaridades.")
+
+        # Visualizações e Clusterização
+        st.subheader("4. Visualizações e Clusterização")
+        st.write("**Análise de Componentes Principais (PCA):**")
+        st.write("Reduziu a dimensionalidade dos dados para identificar padrões.")
+        st.write("**Clusterização (K-Means e DBSCAN):**")
+        st.write("Aplicou K-Means e DBSCAN para segmentar as frases em clusters com base nas medidas de similaridade.")
+        st.write("Visualizações com PCA foram geradas para exibir a segmentação dos clusters.")
+        st.write("**Gráficos:**")
+        st.write("Mapas de calor de correlações, dendrograma para análises hierárquicas, e gráficos de regressão linear.")
+        st.write("Gráficos interativos usando Plotly.")
+
+        # Outros Recursos
+        st.subheader("5. Outros Recursos")
+        st.write("Controle de áudio embutido com Streamlit para explicações.")
+        st.write("Disponibilidade de download dos resultados como arquivo CSV.")
 
 if __name__ == '__main__':
     main()
