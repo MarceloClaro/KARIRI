@@ -213,6 +213,30 @@ def calcular_similaridade_word2vec(sentences_dzubukua, sentences_arcaico, senten
 
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
 
+# Função para calcular similaridade fonológica
+def calcular_similaridade_fonologica(sentences_dzubukua, sentences_arcaico, sentences_moderno):
+    def average_levenshtein_similarity(s1_list, s2_list):
+        similarities = []
+        for s1, s2 in zip(s1_list, s2_list):
+            s1_phonetic = ''.join(jellyfish.soundex(s1))
+            s2_phonetic = ''.join(jellyfish.soundex(s2))
+            dist = jellyfish.levenshtein_distance(s1_phonetic, s2_phonetic)
+            max_len = max(len(s1_phonetic), len(s2_phonetic))
+            similarity = 1 - (dist / max_len) if max_len > 0 else 1
+            similarities.append(similarity)
+        return similarities
+
+    min_length = min(len(sentences_dzubukua), len(sentences_arcaico), len(sentences_moderno))
+    sentences_dzubukua = sentences_dzubukua[:min_length]
+    sentences_arcaico = sentences_arcaico[:min_length]
+    sentences_moderno = sentences_moderno[:min_length]
+
+    similarity_arcaico_dzubukua_phon = average_levenshtein_similarity(sentences_dzubukua, sentences_arcaico)
+    similarity_moderno_dzubukua_phon = average_levenshtein_similarity(sentences_dzubukua, sentences_moderno)
+    similarity_arcaico_moderno_phon = average_levenshtein_similarity(sentences_arcaico, sentences_moderno)
+
+    return similarity_arcaico_dzubukua_phon, similarity_moderno_dzubukua_phon, similarity_arcaico_moderno_phon
+
 # Função para salvar o DataFrame
 def salvar_dataframe(similarity_df):
     csv = similarity_df.to_csv(index=False).encode('utf-8')
