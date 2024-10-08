@@ -160,6 +160,21 @@ def main():
         st.markdown("**Correlação de Pearson**")
         st.dataframe(correlation_pearson)
 
+        # Mapa de calor das correlações
+        st.subheader("Mapa de Calor das Correlações")
+        fig, ax = plt.subplots(figsize=(10, 8))
+        sns.heatmap(correlation_pearson, annot=True, cmap='coolwarm', ax=ax)
+        st.pyplot(fig)
+
+        # Análise de Componentes Principais (PCA)
+        st.subheader("Análise de Componentes Principais (PCA)")
+        pca = PCA(n_components=2)
+        pca_result = pca.fit_transform(df[['Similaridade de Cosseno', 'Word2Vec', 'N-gramas']])
+        df['PCA1'] = pca_result[:, 0]
+        df['PCA2'] = pca_result[:, 1]
+        fig_pca = px.scatter(df, x='PCA1', y='PCA2', color='Idioma', title='Visualização PCA')
+        st.plotly_chart(fig_pca)
+
         # Regressão Linear e Múltipla
         st.subheader("Análise de Regressão Múltipla")
         X = df[['Similaridade de Cosseno', 'Word2Vec', 'N-gramas']]
@@ -168,6 +183,11 @@ def main():
         model.fit(X, y)
         df['Análise de Regressão Múltipla'] = model.predict(X)
         st.dataframe(df[['Similaridade de Cosseno', 'Word2Vec', 'N-gramas', 'Distância de Levenshtein', 'Análise de Regressão Múltipla']])
+
+        # Gráfico de Regressão Linear
+        st.subheader("Gráfico de Regressão Linear")
+        fig_reg = px.scatter(df, x='Similaridade de Cosseno', y='Distância de Levenshtein', trendline='ols', title='Regressão Linear: Similaridade de Cosseno vs Distância de Levenshtein')
+        st.plotly_chart(fig_reg)
 
         # ANOVA (Análise de Variância)
         st.subheader("ANOVA (Análise de Variância)")
@@ -178,7 +198,15 @@ def main():
         st.subheader("Clusterização com K-Means")
         kmeans = KMeans(n_clusters=3)
         df['Cluster'] = kmeans.fit_predict(df[['Similaridade de Cosseno', 'Word2Vec', 'N-gramas']])
-        st.dataframe(df[['Similaridade de Cosseno', 'Word2Vec', 'N-gramas', 'Cluster']])
+        fig_kmeans = px.scatter(df, x='PCA1', y='PCA2', color='Cluster', title='Clusterização com K-Means')
+        st.plotly_chart(fig_kmeans)
+
+        # Dendrograma para Análise Hierárquica
+        st.subheader("Dendrograma para Análise Hierárquica")
+        linked = dendrogram(dendrogram(linkage(df[['Similaridade de Cosseno', 'Word2Vec', 'N-gramas']], method='ward')))
+        fig_dend, ax = plt.subplots(figsize=(10, 8))
+        dendrogram(linked, ax=ax)
+        st.pyplot(fig_dend)
 
         # Outros Recursos e Download
         st.subheader("Baixar Dados Calculados")
