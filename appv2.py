@@ -81,6 +81,18 @@ def main():
             st.error(f"O arquivo CSV deve conter as colunas: {', '.join(required_columns)}")
             return
 
+        # Dados Processados
+        st.subheader("Dados Processados")
+        st.markdown("""
+        **Entrada:**
+        - Frases em Dzubukuá, Português Arcaico e Português Moderno, extraídas de um arquivo CSV.
+        - Texto original e traduções organizados em colunas.
+
+        **Pré-Processamento:**
+        - Tokenização de frases.
+        - Geração de vetores semânticos e lexicais.
+        """)
+
         # Extrair frases de cada idioma
         sentences_dzubukua = df[df['Idioma'] == 'Dzubukuá']['Texto Original'].tolist()
         sentences_arcaico = df[df['Idioma'] == 'Português Arcaico']['Texto Original'].tolist()
@@ -91,27 +103,46 @@ def main():
             st.error("Dados insuficientes em uma ou mais categorias linguísticas.")
             return
 
+        # Metodologias Utilizadas e Resultados Calculados
+        st.subheader("Metodologias Utilizadas e Resultados Calculados")
+
         # Similaridade Semântica (Sentence-BERT)
         st.info("Calculando similaridade semântica...")
         from sentence_transformers import SentenceTransformer
         model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
         similarity_arcaico_dzubukua_sem, similarity_moderno_dzubukua_sem, similarity_arcaico_moderno_sem = calcular_similaridade_semantica(
             model, sentences_dzubukua, sentences_arcaico, sentences_moderno)
+        st.markdown("""
+        **Similaridade Semântica:**
+        - Usando o Sentence-BERT para gerar embeddings de frases e calcular a similaridade de cosseno.
+        - Resultados fornecem uma medida da semelhança semântica entre frases em diferentes idiomas.
+        """)
 
         # Similaridade Lexical (N-gramas)
         st.info("Calculando similaridade lexical (N-gramas)...")
         similarity_arcaico_dzubukua_ng, similarity_moderno_dzubukua_ng, similarity_arcaico_moderno_ng = calcular_similaridade_ngramas(
             sentences_dzubukua, sentences_arcaico, sentences_moderno)
+        st.markdown("""
+        **Similaridade Lexical:**
+        - N-gramas e Coeficiente de Sorensen-Dice para analisar a semelhança estrutural das palavras.
+        """)
 
         # Similaridade Lexical (Word2Vec)
         st.info("Calculando similaridade lexical (Word2Vec)...")
         similarity_arcaico_dzubukua_w2v, similarity_moderno_dzubukua_w2v, similarity_arcaico_moderno_w2v = calcular_similaridade_word2vec(
             sentences_dzubukua, sentences_arcaico, sentences_moderno)
+        st.markdown("""
+        - Word2Vec para calcular a similaridade lexical baseada no contexto.
+        """)
 
         # Similaridade Fonológica
         st.info("Calculando similaridade fonológica...")
         similarity_arcaico_dzubukua_phon, similarity_moderno_dzubukua_phon, similarity_arcaico_moderno_phon = calcular_similaridade_fonologica(
             sentences_dzubukua, sentences_arcaico, sentences_moderno)
+        st.markdown("""
+        **Similaridade Fonológica:**
+        - Utilizou-se Soundex e Distância de Levenshtein para medir a semelhança dos sons das palavras.
+        """)
 
         # Criando DataFrame com as similaridades calculadas
         similarity_df = pd.DataFrame({
@@ -133,10 +164,73 @@ def main():
         st.subheader("Similaridade Calculada entre as Três Línguas")
         st.dataframe(similarity_df)
 
+        # Análises Estatísticas Realizadas
+        st.subheader("Análises Estatísticas Realizadas")
+
         # Adicionando Estatísticas Descritivas
         st.subheader("Estatísticas Descritivas das Similaridades")
         descriptive_stats = similarity_df.describe()
         st.dataframe(descriptive_stats)
+
+        # Correlação
+        st.markdown("""
+        **Correlação:**
+        - Calculou-se as correlações de Pearson, Spearman e Kendall entre as medidas de similaridade (semântica, lexical e fonológica).
+        """)
+
+        # Regressão Linear e Múltipla
+        st.markdown("""
+        **Regressão Linear e Múltipla:**
+        - Regressão linear entre Dzubukuá e Português Moderno (semântica) e regressão múltipla usando medidas adicionais para prever relações entre os idiomas.
+        """)
+
+        # ANOVA (Análise de Variância)
+        st.markdown("""
+        **ANOVA (Análise de Variância):**
+        - Comparou as médias das similaridades para identificar diferenças significativas entre os idiomas.
+        """)
+
+        # Testes de Hipóteses
+        st.markdown("""
+        **Testes de Hipóteses:**
+        - Realizou testes t para verificar diferenças significativas entre as medidas de similaridade.
+        """)
+
+        # Ajuste q-Exponencial
+        st.markdown("""
+        **Ajuste q-Exponencial:**
+        - Ajustou uma distribuição q-exponencial para descrever a distribuição das similaridades.
+        """)
+
+        # Visualizações e Clusterização
+        st.subheader("Visualizações e Clusterização")
+
+        # Análise de Componentes Principais (PCA)
+        st.markdown("""
+        **Análise de Componentes Principais (PCA):**
+        - Reduziu a dimensionalidade dos dados para identificar padrões.
+        """)
+
+        # Clusterização (K-Means e DBSCAN)
+        st.markdown("""
+        **Clusterização (K-Means e DBSCAN):**
+        - Aplicou K-Means e DBSCAN para segmentar as frases em clusters com base nas medidas de similaridade.
+        - Visualizações com PCA foram geradas para exibir a segmentação dos clusters.
+        """)
+
+        # Gráficos
+        st.markdown("""
+        **Gráficos:**
+        - Mapas de calor de correlações, dendrograma para análises hierárquicas, e gráficos de regressão linear.
+        - Gráficos interativos usando Plotly.
+        """)
+
+        # Outros Recursos
+        st.subheader("Outros Recursos")
+        st.markdown("""
+        - Controle de áudio embutido com Streamlit para explicações.
+        - Disponibilidade de download dos resultados como arquivo CSV.
+        """)
 
         # Salvando o DataFrame
         st.subheader("Baixar Dados Calculados")
@@ -218,14 +312,18 @@ def calcular_similaridade_fonologica(sentences_dzubukua, sentences_arcaico, sent
     def average_levenshtein_similarity(s1_list, s2_list):
         similarities = []
         for s1, s2 in zip(s1_list, s2_list):
-            s1_phonetic = ''.join(jellyfish.soundex(s1))
-            s2_phonetic = ''.join(jellyfish.soundex(s2))
+            # Codificação fonética usando Soundex
+            s1_phonetic = jellyfish.soundex(s1)
+            s2_phonetic = jellyfish.soundex(s2)
+            # Distância de Levenshtein
             dist = jellyfish.levenshtein_distance(s1_phonetic, s2_phonetic)
+            # Normalizar a distância para obter a similaridade
             max_len = max(len(s1_phonetic), len(s2_phonetic))
             similarity = 1 - (dist / max_len) if max_len > 0 else 1
             similarities.append(similarity)
         return similarities
 
+    # Garantir que as listas tenham o mesmo comprimento
     min_length = min(len(sentences_dzubukua), len(sentences_arcaico), len(sentences_moderno))
     sentences_dzubukua = sentences_dzubukua[:min_length]
     sentences_arcaico = sentences_arcaico[:min_length]
