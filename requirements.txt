@@ -16,3 +16,4 @@ ete3
 statsmodels 
 Levenshtein
 qinfer
+openpyxl 
