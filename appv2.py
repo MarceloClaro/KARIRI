@@ -1,33 +1,21 @@
 # Importação das bibliotecas necessárias
 import os
 import logging
-import base64
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
 import seaborn as sns
-import plotly.express as px
-import plotly.graph_objects as go
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.decomposition import PCA
 import numpy as np
 from gensim.models import Word2Vec
 from sklearn.feature_extraction.text import CountVectorizer
 import scipy.stats as stats
-from scipy.cluster.hierarchy import dendrogram
 import jellyfish
 
 # Bibliotecas adicionais
 import statsmodels.api as sm
-from statsmodels.stats.outliers_influence import variance_inflation_factor
-from sklearn.cluster import KMeans, DBSCAN
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import silhouette_score
-from scipy.stats import f_oneway  # Para ANOVA
-from scipy.optimize import curve_fit  # Para q-Exponencial
-
-# Importação do SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
 from sentence_transformers import SentenceTransformer
+from scipy.stats import f_oneway  # Para ANOVA
 
 # Configuração do logging
 logging.basicConfig(level=logging.INFO)
@@ -108,7 +96,7 @@ def processar_dados(df):
     sentences_arcaico = sentences_arcaico[:min_length]
     sentences_moderno = sentences_moderno[:min_length]
 
-    # Criar DataFrame para armazenar os dados alinhados
+    # Criar DataFrame para armazenar os dados
     data = pd.DataFrame({
         'Dzubukuá': sentences_dzubukua,
         'Português Arcaico': sentences_arcaico,
@@ -116,25 +104,21 @@ def processar_dados(df):
     })
 
     # Tokenização das frases
-    data['Tokenização Dzubukuá'] = data['Dzubukuá'].astype(str).apply(lambda x: x.split())
-    data['Tokenização Arcaico'] = data['Português Arcaico'].astype(str).apply(lambda x: x.split())
-    data['Tokenização Moderno'] = data['Português Moderno'].astype(str).apply(lambda x: x.split())
+    data['Tokenização'] = data['Dzubukuá'].astype(str).apply(lambda x: x.split())
 
     return data
 
 # Função para calcular as similaridades
 def calcular_similaridades(data):
     """Calcula as similaridades e adiciona ao DataFrame."""
-    st.info("Calculando Distância de Levenshtein...")
+    st.info("Calculando Soundex e Distância de Levenshtein...")
+
+    # Soundex
+    data['Soundex'] = data['Dzubukuá'].apply(lambda x: jellyfish.soundex(x))
 
     # Distância de Levenshtein entre Dzubukuá e Português Moderno
     data['Distância de Levenshtein Dzubukuá-Moderno'] = data.apply(
         lambda row: jellyfish.levenshtein_distance(row['Dzubukuá'], row['Português Moderno']), axis=1
-    )
-
-    # Distância de Levenshtein entre Português Arcaico e Português Moderno
-    data['Distância de Levenshtein Arcaico-Moderno'] = data.apply(
-        lambda row: jellyfish.levenshtein_distance(row['Português Arcaico'], row['Português Moderno']), axis=1
     )
 
     st.info("Calculando Similaridade de Cosseno...")
@@ -144,44 +128,29 @@ def calcular_similaridades(data):
 
     # Gerar embeddings
     embeddings_dzubukua = model.encode(data['Dzubukuá'].tolist())
-    embeddings_arcaico = model.encode(data['Português Arcaico'].tolist())
     embeddings_moderno = model.encode(data['Português Moderno'].tolist())
 
     # Similaridade de Cosseno entre Dzubukuá e Português Moderno
-    data['Similaridade de Cosseno Dzubukuá-Moderno'] = [cosine_similarity([embeddings_dzubukua[i]], [embeddings_moderno[i]])[0][0] for i in range(len(data))]
-
-    # Similaridade de Cosseno entre Português Arcaico e Português Moderno
-    data['Similaridade de Cosseno Arcaico-Moderno'] = [cosine_similarity([embeddings_arcaico[i]], [embeddings_moderno[i]])[0][0] for i in range(len(data))]
+    data['Similaridade de Cosseno'] = [cosine_similarity([embeddings_dzubukua[i]], [embeddings_moderno[i]])[0][0] for i in range(len(data))]
 
     st.info("Calculando Word2Vec...")
 
     # Treinamento do modelo Word2Vec
-    sentences = data['Tokenização Dzubukuá'].tolist() + data['Tokenização Arcaico'].tolist() + data['Tokenização Moderno'].tolist()
+    sentences = data['Tokenização'].tolist()
     model_w2v = Word2Vec(sentences, vector_size=100, window=5, min_count=1, workers=4)
 
-    # Obter vetores médios para cada frase
-    data['Word2Vec Dzubukuá'] = data['Tokenização Dzubukuá'].apply(
+    # Adicionar os vetores Word2Vec ao DataFrame
+    data['Word2Vec'] = data['Tokenização'].apply(
         lambda tokens: np.mean([model_w2v.wv[token] for token in tokens if token in model_w2v.wv], axis=0)
-    )
-    data['Word2Vec Arcaico'] = data['Tokenização Arcaico'].apply(
-        lambda tokens: np.mean([model_w2v.wv[token] for token in tokens if token in model_w2v.wv], axis=0)
-    )
-    data['Word2Vec Moderno'] = data['Tokenização Moderno'].apply(
-        lambda tokens: np.mean([model_w2v.wv[token] for token in tokens if token in model_w2v.wv], axis=0)
+        if any(token in model_w2v.wv for token in tokens) else np.zeros(model_w2v.vector_size)
     )
 
     st.info("Calculando N-gramas...")
 
-    # N-gramas para cada idioma
+    # N-gramas
     vectorizer = CountVectorizer(analyzer='char_wb', ngram_range=(2, 2))
-
-    X_ngram_dzubukua = vectorizer.fit_transform(data['Dzubukuá'])
-    X_ngram_arcaico = vectorizer.fit_transform(data['Português Arcaico'])
-    X_ngram_moderno = vectorizer.fit_transform(data['Português Moderno'])
-
-    data['N-gramas Dzubukuá'] = list(X_ngram_dzubukua.toarray())
-    data['N-gramas Arcaico'] = list(X_ngram_arcaico.toarray())
-    data['N-gramas Moderno'] = list(X_ngram_moderno.toarray())
+    X_ngram = vectorizer.fit_transform(data['Dzubukuá'])
+    data['N-gramas'] = list(X_ngram.toarray())
 
     return data
 
@@ -190,19 +159,19 @@ def analises_estatisticas(data):
     """Realiza análises estatísticas e adiciona ao DataFrame."""
     st.info("Calculando Correlações...")
 
-    # Correlação de Pearson entre Similaridades de Cosseno
-    pearson_corr = data['Similaridade de Cosseno Dzubukuá-Moderno'].corr(data['Similaridade de Cosseno Arcaico-Moderno'])
+    # Correlação de Pearson entre Similaridade de Cosseno e Distância de Levenshtein
+    pearson_corr = data['Similaridade de Cosseno'].corr(data['Distância de Levenshtein Dzubukuá-Moderno'])
     data['Correlação de Pearson'] = [pearson_corr] * len(data)
 
     # Correlação de Kendall
-    kendall_corr = data['Similaridade de Cosseno Dzubukuá-Moderno'].corr(data['Similaridade de Cosseno Arcaico-Moderno'], method='kendall')
+    kendall_corr = data['Similaridade de Cosseno'].corr(data['Distância de Levenshtein Dzubukuá-Moderno'], method='kendall')
     data['Correlação de Kendall'] = [kendall_corr] * len(data)
 
     st.info("Realizando Análise de Regressão Múltipla...")
 
     # Regressão Múltipla
-    X = data[['Distância de Levenshtein Dzubukuá-Moderno', 'Distância de Levenshtein Arcaico-Moderno']]
-    y = data['Similaridade de Cosseno Dzubukuá-Moderno']
+    X = data[['Similaridade de Cosseno', 'Distância de Levenshtein Dzubukuá-Moderno']]
+    y = data['Similaridade de Cosseno']  # Como exemplo
     X = sm.add_constant(X)
     model_reg = sm.OLS(y, X).fit()
     data['Análise de Regressão Múltipla'] = model_reg.predict(X)
@@ -211,18 +180,17 @@ def analises_estatisticas(data):
 
     # ANOVA
     f_val, p_val = f_oneway(
-        data['Similaridade de Cosseno Dzubukuá-Moderno'],
-        data['Similaridade de Cosseno Arcaico-Moderno']
+        data['Similaridade de Cosseno']
     )
     data['ANOVA'] = [p_val] * len(data)
 
     st.info("Calculando Margens de Erro...")
 
-    # Margens de Erro para a Similaridade de Cosseno Dzubukuá-Moderno
+    # Margens de Erro para a Similaridade de Cosseno
     confidence_level = 0.95
     degrees_freedom = len(data) - 1
-    sample_mean = data['Similaridade de Cosseno Dzubukuá-Moderno'].mean()
-    sample_standard_error = stats.sem(data['Similaridade de Cosseno Dzubukuá-Moderno'])
+    sample_mean = data['Similaridade de Cosseno'].mean()
+    sample_standard_error = stats.sem(data['Similaridade de Cosseno'])
     confidence_interval = stats.t.interval(
         confidence_level, degrees_freedom, sample_mean, sample_standard_error
     )
@@ -237,60 +205,42 @@ def analises_linguisticas(data):
     st.info("Realizando Análise Fonológica...")
 
     # Análise Fonológica (Simplificada)
-    data['Análise Fonológica Dzubukuá'] = data['Dzubukuá'].apply(
-        lambda x: f"Análise fonológica de '{x}'"
-    )
-    data['Análise Fonológica Arcaico'] = data['Português Arcaico'].apply(
+    data['Análise Fonológica'] = data['Dzubukuá'].apply(
         lambda x: f"Análise fonológica de '{x}'"
     )
 
     st.info("Realizando Análise Morfológica...")
 
     # Análise Morfológica (Simplificada)
-    data['Análise Morfológica Dzubukuá'] = data['Tokenização Dzubukuá'].apply(
-        lambda tokens: f"Análise morfológica de {tokens}"
-    )
-    data['Análise Morfológica Arcaico'] = data['Tokenização Arcaico'].apply(
+    data['Análise Morfológica'] = data['Tokenização'].apply(
         lambda tokens: f"Análise morfológica de {tokens}"
     )
 
     st.info("Realizando Análise Sintática...")
 
     # Análise Sintática (Simplificada)
-    data['Análise Sintática Dzubukuá'] = data['Dzubukuá'].apply(
-        lambda x: f"Análise sintática de '{x}'"
-    )
-    data['Análise Sintática Arcaico'] = data['Português Arcaico'].apply(
+    data['Análise Sintática'] = data['Dzubukuá'].apply(
         lambda x: f"Análise sintática de '{x}'"
     )
 
     st.info("Gerando Glossário Cultural...")
 
     # Glossário Cultural (Simplificado)
-    data['Glossário Cultural Dzubukuá'] = data['Dzubukuá'].apply(
-        lambda x: f"Termos culturais em '{x}'"
-    )
-    data['Glossário Cultural Arcaico'] = data['Português Arcaico'].apply(
+    data['Glossário Cultural'] = data['Dzubukuá'].apply(
         lambda x: f"Termos culturais em '{x}'"
     )
 
     st.info("Criando Justificativa da Tradução...")
 
     # Justificativa da Tradução (Simplificada)
-    data['Justificativa da Tradução Dzubukuá'] = data.apply(
+    data['Justificativa da Tradução'] = data.apply(
         lambda row: f"Justificativa para a tradução de '{row['Dzubukuá']}' para '{row['Português Moderno']}'", axis=1
-    )
-    data['Justificativa da Tradução Arcaico'] = data.apply(
-        lambda row: f"Justificativa para a tradução de '{row['Português Arcaico']}' para '{row['Português Moderno']}'", axis=1
     )
 
     st.info("Analisando Etimologia...")
 
     # Etimologia (Simplificada)
-    data['Etimologia Dzubukuá'] = data['Dzubukuá'].apply(
-        lambda x: f"Etimologia de '{x}'"
-    )
-    data['Etimologia Arcaico'] = data['Português Arcaico'].apply(
+    data['Etimologia'] = data['Dzubukuá'].apply(
         lambda x: f"Etimologia de '{x}'"
     )
 
