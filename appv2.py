@@ -148,7 +148,7 @@ def main():
         """)
 
         # Adicionando resultados ao DataFrame
-        df['Similaridade de Cosseno'] = similarity_arcaico_dzubukua_sem + list(similarity_moderno_dzubukua_sem) + list(similarity_arcaico_moderno_sem)
+        df['Similaridade de Cosseno'] = list(similarity_arcaico_dzubukua_sem) + list(similarity_moderno_dzubukua_sem) + list(similarity_arcaico_moderno_sem)
         df['Word2Vec'] = list(similarity_arcaico_dzubukua_w2v) + list(similarity_moderno_dzubukua_w2v) + list(similarity_arcaico_moderno_w2v)
         df['N-gramas'] = list(similarity_arcaico_dzubukua_ng) + list(similarity_moderno_dzubukua_ng) + list(similarity_arcaico_moderno_ng)
         df['Soundex'] = list(similarity_arcaico_dzubukua_phon)
