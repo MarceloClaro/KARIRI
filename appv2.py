@@ -7,35 +7,31 @@ import base64
 
 # Bibliotecas de terceiros
 import pandas as pd
+import numpy as np
 import streamlit as st
 import matplotlib.pyplot as plt
 import seaborn as sns
-import numpy as np
-import jellyfish
-import scipy.stats as stats
-from scipy.cluster.hierarchy import dendrogram
-from scipy.optimize import curve_fit  # Para q-Exponencial
+import plotly.graph_objects as go
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.decomposition import PCA
+from gensim.models import Word2Vec
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.cluster import KMeans, DBSCAN
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import silhouette_score
-from gensim.models import Word2Vec
-from sentence_transformers import SentenceTransformer
-import plotly.express as px
-import plotly.graph_objects as go
+import jellyfish
+import scipy.stats as stats
+from scipy.cluster.hierarchy import dendrogram
+from scipy.optimize import curve_fit
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
-from scipy.stats import f_oneway  # Para ANOVA
+from scipy.stats import f_oneway
+from sklearn.linear_model import LinearRegression  # Importação adicional
 
 # Configuração do logging
 logging.basicConfig(level=logging.INFO)
 
 # Configuração do Streamlit
-st.set_page_config(page_title="Geomaker +IA", layout="wide")
-
-# Verificar e carregar ícone
 icon_path = "logo.png"
 if os.path.exists(icon_path):
     st.set_page_config(page_title="Geomaker +IA", page_icon=icon_path, layout="wide")
@@ -61,20 +57,12 @@ else:
 with st.sidebar.expander("Pesquisa compreenda:"):
     st.markdown("""
     # **Análise Comparativa de Idiomas: Dzubukuá, Português Arcaico e Português Moderno**
-
-    ## **Resumo**
-
-    Este estudo apresenta uma análise comparativa entre três idiomas: **Dzubukuá** (uma língua extinta), **Português Arcaico** e **Português Moderno**. O objetivo principal é investigar as similaridades e diferenças entre esses idiomas em termos de semântica, léxico e fonologia, utilizando técnicas avançadas de Processamento de Linguagem Natural (PLN) e métodos estatísticos. Foram utilizadas metodologias como Sentence-BERT, Word2Vec, análise de N-gramas e medidas fonéticas. Os resultados indicam influências históricas entre os idiomas e contribuem para a compreensão da evolução linguística.
-
     [Conteúdo adicional...]
     """)
 
 with st.sidebar.expander("Insights metodológicos"):
     st.markdown("""
     ### **Introdução**
-
-    Este aplicativo foi desenvolvido para realizar um estudo linguístico profundo comparando três idiomas: **Dzubukuá** (uma língua em risco de extinção), **Português Arcaico** e **Português Moderno**.
-
     [Conteúdo adicional...]
     """)
 
@@ -129,9 +117,8 @@ if play_button and selected_mp3:
         except Exception as e:
             st.sidebar.error(f"Erro ao carregar o arquivo: {str(e)}")
 
-# Funções auxiliares (defina todas antes do main)
+# Funções auxiliares
 
-# Função para calcular similaridade semântica usando Sentence-BERT
 def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico, sentences_moderno):
     """Calcula a similaridade semântica usando o modelo Sentence-BERT."""
     min_length = min(len(sentences_dzubukua), len(sentences_arcaico), len(sentences_moderno))
@@ -149,11 +136,8 @@ def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico
 
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
 
-# Função para calcular similaridade de N-gramas
 def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentences_moderno, n=3):
     """Calcula a similaridade lexical usando N-gramas e Coeficiente de Sorensen-Dice."""
-    from sklearn.feature_extraction.text import CountVectorizer
-
     def ngramas(sentences, n):
         vectorizer = CountVectorizer(ngram_range=(n, n), analyzer='char_wb', binary=True).fit(sentences)
         ngram_matrix = vectorizer.transform(sentences).toarray()
@@ -179,7 +163,6 @@ def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentenc
 
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
 
-# Função para calcular a similaridade usando Word2Vec
 def calcular_similaridade_word2vec(sentences_dzubukua, sentences_arcaico, sentences_moderno):
     """Calcula a similaridade lexical usando Word2Vec."""
     tokenized_sentences = [sentence.split() for sentence in sentences_dzubukua + sentences_arcaico + sentences_moderno]
@@ -209,11 +192,8 @@ def calcular_similaridade_word2vec(sentences_dzubukua, sentences_arcaico, senten
 
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
 
-# Função para calcular similaridade fonológica
 def calcular_similaridade_fonologica(sentences_dzubukua, sentences_arcaico, sentences_moderno):
     """Calcula a similaridade fonológica usando codificação fonética e distância de Levenshtein."""
-    import jellyfish
-
     def average_levenshtein_similarity(s1_list, s2_list):
         similarities = []
         for s1, s2 in zip(s1_list, s2_list):
@@ -238,7 +218,7 @@ def calcular_similaridade_fonologica(sentences_dzubukua, sentences_arcaico, sent
 
 # Outras funções auxiliares (ex: regressão, PCA, clustering, etc.) devem ser definidas aqui
 
-# Função principal para rodar a aplicação no Streamlit
+# Função principal
 def main():
     st.title('Análises Avançadas de Similaridade Linguística para Línguas Kariri-Dzubukuá, Português Arcaico e Português Moderno')
 
@@ -247,6 +227,10 @@ def main():
 
     if uploaded_file is not None:
         df = pd.read_csv(uploaded_file)
+
+        # Exibir a tabela completa do dataset
+        st.subheader("Tabela Completa do Dataset")
+        st.dataframe(df)
 
         # Verificar se as colunas necessárias existem
         required_columns = ['Idioma', 'Texto Original', 'Tradução para o Português Moderno']
@@ -270,6 +254,7 @@ def main():
 
         # Similaridade Semântica (Sentence-BERT)
         st.info("Calculando similaridade semântica...")
+        from sentence_transformers import SentenceTransformer
         model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
         similarity_arcaico_dzubukua_sem, similarity_moderno_dzubukua_sem, similarity_arcaico_moderno_sem = calcular_similaridade_semantica(
             model, sentences_dzubukua, sentences_arcaico, sentences_moderno)
