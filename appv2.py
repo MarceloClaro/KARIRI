@@ -190,6 +190,29 @@ def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentenc
 
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
 
+# Função para calcular similaridade usando Word2Vec
+def calcular_similaridade_word2vec(sentences_dzubukua, sentences_arcaico, sentences_moderno):
+    tokenized_sentences = [sentence.split() for sentence in (sentences_dzubukua + sentences_arcaico + sentences_moderno)]
+    model = Word2Vec(sentences=tokenized_sentences, vector_size=100, window=5, min_count=1, workers=4)
+
+    def sentence_vector(sentence, model):
+        words = sentence.split()
+        word_vectors = [model.wv[word] for word in words if word in model.wv]
+        if word_vectors:
+            return np.mean(word_vectors, axis=0)
+        else:
+            return np.zeros(model.vector_size)
+
+    vectors_dzubukua = [sentence_vector(sentence, model) for sentence in sentences_dzubukua]
+    vectors_arcaico = [sentence_vector(sentence, model) for sentence in sentences_arcaico]
+    vectors_moderno = [sentence_vector(sentence, model) for sentence in sentences_moderno]
+
+    similarity_arcaico_dzubukua = cosine_similarity(vectors_dzubukua, vectors_arcaico).diagonal()
+    similarity_moderno_dzubukua = cosine_similarity(vectors_dzubukua, vectors_moderno).diagonal()
+    similarity_arcaico_moderno = cosine_similarity(vectors_arcaico, vectors_moderno).diagonal()
+
+    return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
+
 # Função para salvar o DataFrame
 def salvar_dataframe(similarity_df):
     csv = similarity_df.to_csv(index=False).encode('utf-8')
