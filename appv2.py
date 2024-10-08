@@ -1,262 +1,325 @@
-# Importação das bibliotecas necessárias
+# Importar as bibliotecas necessárias
+
+# Bibliotecas padrão
 import os
 import logging
+import base64
+
+# Bibliotecas de terceiros
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
-from gensim.models import Word2Vec
-from sklearn.feature_extraction.text import CountVectorizer
-import scipy.stats as stats
 import jellyfish
-
-# Bibliotecas adicionais
-import statsmodels.api as sm
+import scipy.stats as stats
+from scipy.cluster.hierarchy import dendrogram
+from scipy.optimize import curve_fit  # Para q-Exponencial
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.decomposition import PCA
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.cluster import KMeans, DBSCAN
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import silhouette_score
+from gensim.models import Word2Vec
 from sentence_transformers import SentenceTransformer
+import plotly.express as px
+import plotly.graph_objects as go
+import statsmodels.api as sm
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 from scipy.stats import f_oneway  # Para ANOVA
 
 # Configuração do logging
 logging.basicConfig(level=logging.INFO)
 
 # Configuração do Streamlit
-st.set_page_config(page_title="Análise Linguística Avançada", layout="wide")
+st.set_page_config(page_title="Geomaker +IA", layout="wide")
 
-# Título da aplicação
-st.title('Análise Linguística Avançada para Dzubukuá, Português Arcaico e Português Moderno')
+# Verificar e carregar ícone
+icon_path = "logo.png"
+if os.path.exists(icon_path):
+    st.set_page_config(page_title="Geomaker +IA", page_icon=icon_path, layout="wide")
+    logging.info(f"Ícone {icon_path} carregado com sucesso.")
+else:
+    st.set_page_config(page_title="Geomaker +IA", layout="wide")
+    logging.warning(f"Ícone {icon_path} não encontrado, carregando sem favicon.")
 
-# Função principal
-def main():
-    # Seção 1: Carregamento dos Dados
-    st.header("Seção 1: Carregamento dos Dados")
-    if st.checkbox("Deseja carregar o arquivo CSV?"):
-        uploaded_file = st.file_uploader("Faça o upload do arquivo CSV", type="csv")
-        if uploaded_file is not None:
-            # Leitura do arquivo CSV
-            try:
-                df = pd.read_csv(uploaded_file, encoding='utf-8')
-            except UnicodeDecodeError:
-                df = pd.read_csv(uploaded_file, encoding='latin-1')
-            st.success("Arquivo carregado com sucesso!")
-        else:
-            st.warning("Por favor, faça o upload de um arquivo CSV.")
+# Layout da página
+if os.path.exists('capa.png'):
+    st.image('capa.png', caption='Laboratório de Educação e Inteligência Artificial - Geomaker. "A melhor forma de prever o futuro é inventá-lo." - Alan Kay', use_column_width='always')
+else:
+    st.warning("Imagem 'capa.png' não encontrada.")
 
-    # Seção 2: Verificação das Colunas Necessárias
-    if 'df' in locals() and st.checkbox("Deseja verificar as colunas necessárias?"):
-        required_columns = ['Idioma', 'Texto Original', 'Tradução para o Português Moderno']
-        if not all(column in df.columns for column in required_columns):
-            st.error(f"O arquivo CSV deve conter as colunas: {', '.join(required_columns)}")
-            return
-        else:
-            st.success("Todas as colunas necessárias estão presentes.")
-            st.subheader("Dados Carregados")
-            st.dataframe(df.head())
+# Barra lateral
+st.sidebar.title("Geomaker +IA")
+if os.path.exists("logo.png"):
+    st.sidebar.image("logo.png", width=200)
+else:
+    st.sidebar.text("Imagem do logotipo não encontrada.")
 
-    # Seção 3: Processamento dos Dados
-    if 'df' in locals() and st.checkbox("Deseja processar os dados?"):
-        data = processar_dados(df)
-        st.success("Dados processados com sucesso!")
-        st.dataframe(data.head())
+# Expanders com informações adicionais
+with st.sidebar.expander("Pesquisa compreenda:"):
+    st.markdown("""
+    # **Análise Comparativa de Idiomas: Dzubukuá, Português Arcaico e Português Moderno**
 
-    # Seção 4: Cálculo das Similaridades
-    if 'data' in locals() and st.checkbox("Deseja calcular as similaridades?"):
-        data = calcular_similaridades(data)
-        st.success("Similaridades calculadas com sucesso!")
-        st.dataframe(data.head())
+    ## **Resumo**
 
-    # Seção 5: Análises Estatísticas
-    if 'data' in locals() and st.checkbox("Deseja realizar análises estatísticas?"):
-        data = analises_estatisticas(data)
-        st.success("Análises estatísticas concluídas!")
-        st.dataframe(data.head())
+    Este estudo apresenta uma análise comparativa entre três idiomas: **Dzubukuá** (uma língua extinta), **Português Arcaico** e **Português Moderno**. O objetivo principal é investigar as similaridades e diferenças entre esses idiomas em termos de semântica, léxico e fonologia, utilizando técnicas avançadas de Processamento de Linguagem Natural (PLN) e métodos estatísticos. Foram utilizadas metodologias como Sentence-BERT, Word2Vec, análise de N-gramas e medidas fonéticas. Os resultados indicam influências históricas entre os idiomas e contribuem para a compreensão da evolução linguística.
 
-    # Seção 6: Análises Linguísticas
-    if 'data' in locals() and st.checkbox("Deseja realizar análises linguísticas?"):
-        data = analises_linguisticas(data)
-        st.success("Análises linguísticas concluídas!")
-        st.dataframe(data.head())
+    [Conteúdo adicional...]
+    """)
 
-    # Seção 7: Download dos Dados
-    if 'data' in locals() and st.checkbox("Deseja baixar os dados processados?"):
-        salvar_dataframe(data)
-        st.success("Dados prontos para download!")
+with st.sidebar.expander("Insights metodológicos"):
+    st.markdown("""
+    ### **Introdução**
 
-# Função para processar os dados
-def processar_dados(df):
-    """Processa os dados carregados e prepara para análises."""
-    # Extrair frases de cada idioma
-    sentences_dzubukua = df[df['Idioma'] == 'Dzubukuá']['Texto Original'].dropna().tolist()
-    sentences_arcaico = df[df['Idioma'] == 'Português Arcaico']['Texto Original'].dropna().tolist()
-    sentences_moderno = df[df['Idioma'] == 'Português Moderno']['Texto Original'].dropna().tolist()
+    Este aplicativo foi desenvolvido para realizar um estudo linguístico profundo comparando três idiomas: **Dzubukuá** (uma língua em risco de extinção), **Português Arcaico** e **Português Moderno**.
 
-    # Ajustar o tamanho das listas para serem iguais
+    [Conteúdo adicional...]
+    """)
+
+# Contato
+if os.path.exists("eu.ico"):
+    st.sidebar.image("eu.ico", width=80)
+else:
+    st.sidebar.text("Imagem do contato não encontrada.")
+
+st.sidebar.write("""
+Projeto Geomaker + IA
+
+https://doi.org/10.5281/zenodo.13856575
+- Professor: Marcelo Claro.
+Contatos: marceloclaro@gmail.com
+Whatsapp: (88)981587145
+Instagram: [marceloclaro.geomaker](https://www.instagram.com/marceloclaro.geomaker/)
+""")
+
+# Controle de Áudio
+st.sidebar.title("Controle de Áudio")
+mp3_files = {
+    "Áudio explicativo 1": "kariri.mp3",
+}
+
+selected_mp3 = st.sidebar.radio("Escolha um áudio explicativo:", options=list(mp3_files.keys()))
+loop = st.sidebar.checkbox("Repetir áudio")
+play_button = st.sidebar.button("Play")
+audio_placeholder = st.sidebar.empty()
+
+def check_file_exists(mp3_path):
+    if not os.path.exists(mp3_path):
+        st.sidebar.error(f"Arquivo {mp3_path} não encontrado.")
+        return False
+    return True
+
+if play_button and selected_mp3:
+    mp3_path = mp3_files[selected_mp3]
+    if check_file_exists(mp3_path):
+        try:
+            with open(mp3_path, "rb") as audio_file:
+                audio_bytes = audio_file.read()
+                audio_base64 = base64.b64encode(audio_bytes).decode('utf-8')
+                loop_attr = "loop" if loop else ""
+                audio_html = f"""
+                <audio id="audio-player" controls autoplay {loop_attr}>
+                  <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
+                  Seu navegador não suporta o elemento de áudio.
+                </audio>
+                """
+                audio_placeholder.markdown(audio_html, unsafe_allow_html=True)
+        except Exception as e:
+            st.sidebar.error(f"Erro ao carregar o arquivo: {str(e)}")
+
+# Funções auxiliares (defina todas antes do main)
+
+# Função para calcular similaridade semântica usando Sentence-BERT
+def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico, sentences_moderno):
+    """Calcula a similaridade semântica usando o modelo Sentence-BERT."""
     min_length = min(len(sentences_dzubukua), len(sentences_arcaico), len(sentences_moderno))
     sentences_dzubukua = sentences_dzubukua[:min_length]
     sentences_arcaico = sentences_arcaico[:min_length]
     sentences_moderno = sentences_moderno[:min_length]
 
-    # Criar DataFrame para armazenar os dados
-    data = pd.DataFrame({
-        'Dzubukuá': sentences_dzubukua,
-        'Português Arcaico': sentences_arcaico,
-        'Português Moderno': sentences_moderno
-    })
+    embeddings_dzubukua = model.encode(sentences_dzubukua, batch_size=32, normalize_embeddings=True)
+    embeddings_arcaico = model.encode(sentences_arcaico, batch_size=32, normalize_embeddings=True)
+    embeddings_moderno = model.encode(sentences_moderno, batch_size=32, normalize_embeddings=True)
 
-    # Tokenização das frases
-    data['Tokenização'] = data['Dzubukuá'].astype(str).apply(lambda x: x.split())
+    similarity_arcaico_dzubukua = [cosine_similarity([embeddings_dzubukua[i]], [embeddings_arcaico[i]])[0][0] for i in range(min_length)]
+    similarity_moderno_dzubukua = [cosine_similarity([embeddings_dzubukua[i]], [embeddings_moderno[i]])[0][0] for i in range(min_length)]
+    similarity_arcaico_moderno = [cosine_similarity([embeddings_arcaico[i]], [embeddings_moderno[i]])[0][0] for i in range(min_length)]
 
-    return data
+    return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
 
-# Função para calcular as similaridades
-def calcular_similaridades(data):
-    """Calcula as similaridades e adiciona ao DataFrame."""
-    st.info("Calculando Soundex e Distância de Levenshtein...")
+# Função para calcular similaridade de N-gramas
+def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentences_moderno, n=3):
+    """Calcula a similaridade lexical usando N-gramas e Coeficiente de Sorensen-Dice."""
+    from sklearn.feature_extraction.text import CountVectorizer
 
-    # Soundex
-    data['Soundex'] = data['Dzubukuá'].apply(lambda x: jellyfish.soundex(x))
+    def ngramas(sentences, n):
+        vectorizer = CountVectorizer(ngram_range=(n, n), analyzer='char_wb', binary=True).fit(sentences)
+        ngram_matrix = vectorizer.transform(sentences).toarray()
+        return ngram_matrix
 
-    # Distância de Levenshtein entre Dzubukuá e Português Moderno
-    data['Distância de Levenshtein Dzubukuá-Moderno'] = data.apply(
-        lambda row: jellyfish.levenshtein_distance(row['Dzubukuá'], row['Português Moderno']), axis=1
-    )
+    ngramas_dzubukua = ngramas(sentences_dzubukua, n)
+    ngramas_arcaico = ngramas(sentences_arcaico, n)
+    ngramas_moderno = ngramas(sentences_moderno, n)
 
-    st.info("Calculando Similaridade de Cosseno...")
+    min_length = min(len(ngramas_dzubukua), len(ngramas_arcaico), len(ngramas_moderno))
+    ngramas_dzubukua = ngramas_dzubukua[:min_length]
+    ngramas_arcaico = ngramas_arcaico[:min_length]
+    ngramas_moderno = ngramas_moderno[:min_length]
 
-    # Modelo Sentence-BERT
-    model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
+    def sorensen_dice(a, b):
+        intersection = np.sum(np.minimum(a, b))
+        total = np.sum(a) + np.sum(b)
+        return 2 * intersection / total if total > 0 else 0
 
-    # Gerar embeddings
-    embeddings_dzubukua = model.encode(data['Dzubukuá'].tolist())
-    embeddings_moderno = model.encode(data['Português Moderno'].tolist())
+    similarity_arcaico_dzubukua = [sorensen_dice(ngramas_dzubukua[i], ngramas_arcaico[i]) for i in range(min_length)]
+    similarity_moderno_dzubukua = [sorensen_dice(ngramas_dzubukua[i], ngramas_moderno[i]) for i in range(min_length)]
+    similarity_arcaico_moderno = [sorensen_dice(ngramas_arcaico[i], ngramas_moderno[i]) for i in range(min_length)]
 
-    # Similaridade de Cosseno entre Dzubukuá e Português Moderno
-    data['Similaridade de Cosseno'] = [cosine_similarity([embeddings_dzubukua[i]], [embeddings_moderno[i]])[0][0] for i in range(len(data))]
+    return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
 
-    st.info("Calculando Word2Vec...")
+# Função para calcular a similaridade usando Word2Vec
+def calcular_similaridade_word2vec(sentences_dzubukua, sentences_arcaico, sentences_moderno):
+    """Calcula a similaridade lexical usando Word2Vec."""
+    tokenized_sentences = [sentence.split() for sentence in sentences_dzubukua + sentences_arcaico + sentences_moderno]
 
-    # Treinamento do modelo Word2Vec
-    sentences = data['Tokenização'].tolist()
-    model_w2v = Word2Vec(sentences, vector_size=100, window=5, min_count=1, workers=4)
+    model = Word2Vec(sentences=tokenized_sentences, vector_size=100, window=5, min_count=1, workers=4)
 
-    # Adicionar os vetores Word2Vec ao DataFrame
-    data['Word2Vec'] = data['Tokenização'].apply(
-        lambda tokens: np.mean([model_w2v.wv[token] for token in tokens if token in model_w2v.wv], axis=0)
-        if any(token in model_w2v.wv for token in tokens) else np.zeros(model_w2v.vector_size)
-    )
+    def sentence_vector(sentence, model):
+        words = sentence.split()
+        word_vectors = [model.wv[word] for word in words if word in model.wv]
+        if word_vectors:
+            return np.mean(word_vectors, axis=0)
+        else:
+            return np.zeros(model.vector_size)
 
-    st.info("Calculando N-gramas...")
+    min_length = min(len(sentences_dzubukua), len(sentences_arcaico), len(sentences_moderno))
+    sentences_dzubukua = sentences_dzubukua[:min_length]
+    sentences_arcaico = sentences_arcaico[:min_length]
+    sentences_moderno = sentences_moderno[:min_length]
 
-    # N-gramas
-    vectorizer = CountVectorizer(analyzer='char_wb', ngram_range=(2, 2))
-    X_ngram = vectorizer.fit_transform(data['Dzubukuá'])
-    data['N-gramas'] = list(X_ngram.toarray())
+    vectors_dzubukua = [sentence_vector(sentence, model) for sentence in sentences_dzubukua]
+    vectors_arcaico = [sentence_vector(sentence, model) for sentence in sentences_arcaico]
+    vectors_moderno = [sentence_vector(sentence, model) for sentence in sentences_moderno]
 
-    return data
+    similarity_arcaico_dzubukua = [cosine_similarity([vectors_dzubukua[i]], [vectors_arcaico[i]])[0][0] for i in range(min_length)]
+    similarity_moderno_dzubukua = [cosine_similarity([vectors_dzubukua[i]], [vectors_moderno[i]])[0][0] for i in range(min_length)]
+    similarity_arcaico_moderno = [cosine_similarity([vectors_arcaico[i]], [vectors_moderno[i]])[0][0] for i in range(min_length)]
 
-# Função para realizar análises estatísticas
-def analises_estatisticas(data):
-    """Realiza análises estatísticas e adiciona ao DataFrame."""
-    st.info("Calculando Correlações...")
+    return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
 
-    # Correlação de Pearson entre Similaridade de Cosseno e Distância de Levenshtein
-    pearson_corr = data['Similaridade de Cosseno'].corr(data['Distância de Levenshtein Dzubukuá-Moderno'])
-    data['Correlação de Pearson'] = [pearson_corr] * len(data)
+# Função para calcular similaridade fonológica
+def calcular_similaridade_fonologica(sentences_dzubukua, sentences_arcaico, sentences_moderno):
+    """Calcula a similaridade fonológica usando codificação fonética e distância de Levenshtein."""
+    import jellyfish
 
-    # Correlação de Kendall
-    kendall_corr = data['Similaridade de Cosseno'].corr(data['Distância de Levenshtein Dzubukuá-Moderno'], method='kendall')
-    data['Correlação de Kendall'] = [kendall_corr] * len(data)
+    def average_levenshtein_similarity(s1_list, s2_list):
+        similarities = []
+        for s1, s2 in zip(s1_list, s2_list):
+            s1_phonetic = jellyfish.soundex(s1)
+            s2_phonetic = jellyfish.soundex(s2)
+            dist = jellyfish.levenshtein_distance(s1_phonetic, s2_phonetic)
+            max_len = max(len(s1_phonetic), len(s2_phonetic))
+            similarity = 1 - (dist / max_len) if max_len > 0 else 1
+            similarities.append(similarity)
+        return similarities
 
-    st.info("Realizando Análise de Regressão Múltipla...")
+    min_length = min(len(sentences_dzubukua), len(sentences_arcaico), len(sentences_moderno))
+    sentences_dzubukua = sentences_dzubukua[:min_length]
+    sentences_arcaico = sentences_arcaico[:min_length]
+    sentences_moderno = sentences_moderno[:min_length]
 
-    # Regressão Múltipla
-    X = data[['Similaridade de Cosseno', 'Distância de Levenshtein Dzubukuá-Moderno']]
-    y = data['Similaridade de Cosseno']  # Como exemplo
-    X = sm.add_constant(X)
-    model_reg = sm.OLS(y, X).fit()
-    data['Análise de Regressão Múltipla'] = model_reg.predict(X)
+    similarity_arcaico_dzubukua_phon = average_levenshtein_similarity(sentences_dzubukua, sentences_arcaico)
+    similarity_moderno_dzubukua_phon = average_levenshtein_similarity(sentences_dzubukua, sentences_moderno)
+    similarity_arcaico_moderno_phon = average_levenshtein_similarity(sentences_arcaico, sentences_moderno)
 
-    st.info("Realizando ANOVA...")
+    return similarity_arcaico_dzubukua_phon, similarity_moderno_dzubukua_phon, similarity_arcaico_moderno_phon
 
-    # ANOVA
-    f_val, p_val = f_oneway(
-        data['Similaridade de Cosseno']
-    )
-    data['ANOVA'] = [p_val] * len(data)
+# Outras funções auxiliares (ex: regressão, PCA, clustering, etc.) devem ser definidas aqui
 
-    st.info("Calculando Margens de Erro...")
+# Função principal para rodar a aplicação no Streamlit
+def main():
+    st.title('Análises Avançadas de Similaridade Linguística para Línguas Kariri-Dzubukuá, Português Arcaico e Português Moderno')
 
-    # Margens de Erro para a Similaridade de Cosseno
-    confidence_level = 0.95
-    degrees_freedom = len(data) - 1
-    sample_mean = data['Similaridade de Cosseno'].mean()
-    sample_standard_error = stats.sem(data['Similaridade de Cosseno'])
-    confidence_interval = stats.t.interval(
-        confidence_level, degrees_freedom, sample_mean, sample_standard_error
-    )
-    margin_of_error = (confidence_interval[1] - confidence_interval[0]) / 2
-    data['Margens de Erro'] = [margin_of_error] * len(data)
+    # Upload do arquivo CSV
+    uploaded_file = st.file_uploader("Faça o upload do arquivo CSV", type="csv")
 
-    return data
+    if uploaded_file is not None:
+        df = pd.read_csv(uploaded_file)
 
-# Função para realizar análises linguísticas
-def analises_linguisticas(data):
-    """Realiza análises fonológicas, morfológicas, sintáticas, etimológicas e culturais."""
-    st.info("Realizando Análise Fonológica...")
+        # Verificar se as colunas necessárias existem
+        required_columns = ['Idioma', 'Texto Original', 'Tradução para o Português Moderno']
+        if not all(column in df.columns for column in required_columns):
+            st.error(f"O arquivo CSV deve conter as colunas: {', '.join(required_columns)}")
+            return
 
-    # Análise Fonológica (Simplificada)
-    data['Análise Fonológica'] = data['Dzubukuá'].apply(
-        lambda x: f"Análise fonológica de '{x}'"
-    )
+        # Extrair frases de cada idioma
+        sentences_dzubukua = df[df['Idioma'] == 'Dzubukuá']['Texto Original'].dropna().tolist()
+        sentences_arcaico = df[df['Idioma'] == 'Português Arcaico']['Texto Original'].dropna().tolist()
+        sentences_moderno = df[df['Idioma'] == 'Português Moderno']['Texto Original'].dropna().tolist()
 
-    st.info("Realizando Análise Morfológica...")
+        # Caso não haja frases em Português Moderno na coluna 'Texto Original', usar a coluna de 'Tradução'
+        if not sentences_moderno:
+            sentences_moderno = df['Tradução para o Português Moderno'].dropna().tolist()
 
-    # Análise Morfológica (Simplificada)
-    data['Análise Morfológica'] = data['Tokenização'].apply(
-        lambda tokens: f"Análise morfológica de {tokens}"
-    )
+        # Certificar-se de que há dados suficientes para análise
+        if not sentences_dzubukua or not sentences_arcaico or not sentences_moderno:
+            st.error("Dados insuficientes em uma ou mais categorias linguísticas.")
+            return
 
-    st.info("Realizando Análise Sintática...")
+        # Similaridade Semântica (Sentence-BERT)
+        st.info("Calculando similaridade semântica...")
+        model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
+        similarity_arcaico_dzubukua_sem, similarity_moderno_dzubukua_sem, similarity_arcaico_moderno_sem = calcular_similaridade_semantica(
+            model, sentences_dzubukua, sentences_arcaico, sentences_moderno)
 
-    # Análise Sintática (Simplificada)
-    data['Análise Sintática'] = data['Dzubukuá'].apply(
-        lambda x: f"Análise sintática de '{x}'"
-    )
+        # Similaridade Lexical (N-gramas)
+        st.info("Calculando similaridade lexical (N-gramas)...")
+        similarity_arcaico_dzubukua_ng, similarity_moderno_dzubukua_ng, similarity_arcaico_moderno_ng = calcular_similaridade_ngramas(
+            sentences_dzubukua, sentences_arcaico, sentences_moderno)
 
-    st.info("Gerando Glossário Cultural...")
+        # Similaridade Lexical (Word2Vec)
+        st.info("Calculando similaridade lexical (Word2Vec)...")
+        similarity_arcaico_dzubukua_w2v, similarity_moderno_dzubukua_w2v, similarity_arcaico_moderno_w2v = calcular_similaridade_word2vec(
+            sentences_dzubukua, sentences_arcaico, sentences_moderno)
 
-    # Glossário Cultural (Simplificado)
-    data['Glossário Cultural'] = data['Dzubukuá'].apply(
-        lambda x: f"Termos culturais em '{x}'"
-    )
+        # Similaridade Fonológica
+        st.info("Calculando similaridade fonológica...")
+        similarity_arcaico_dzubukua_phon, similarity_moderno_dzubukua_phon, similarity_arcaico_moderno_phon = calcular_similaridade_fonologica(
+            sentences_dzubukua, sentences_arcaico, sentences_moderno)
 
-    st.info("Criando Justificativa da Tradução...")
+        # Criando DataFrame com as similaridades calculadas
+        similarity_df = pd.DataFrame({
+            'Dzubukuá - Arcaico (Semântica)': similarity_arcaico_dzubukua_sem,
+            'Dzubukuá - Moderno (Semântica)': similarity_moderno_dzubukua_sem,
+            'Arcaico - Moderno (Semântica)': similarity_arcaico_moderno_sem,
+            'Dzubukuá - Arcaico (N-gramas)': similarity_arcaico_dzubukua_ng,
+            'Dzubukuá - Moderno (N-gramas)': similarity_moderno_dzubukua_ng,
+            'Arcaico - Moderno (N-gramas)': similarity_arcaico_moderno_ng,
+            'Dzubukuá - Arcaico (Word2Vec)': similarity_arcaico_dzubukua_w2v,
+            'Dzubukuá - Moderno (Word2Vec)': similarity_moderno_dzubukua_w2v,
+            'Arcaico - Moderno (Word2Vec)': similarity_arcaico_moderno_w2v,
+            'Dzubukuá - Arcaico (Fonológica)': similarity_arcaico_dzubukua_phon,
+            'Dzubukuá - Moderno (Fonológica)': similarity_moderno_dzubukua_phon,
+            'Arcaico - Moderno (Fonológica)': similarity_arcaico_moderno_phon
+        })
 
-    # Justificativa da Tradução (Simplificada)
-    data['Justificativa da Tradução'] = data.apply(
-        lambda row: f"Justificativa para a tradução de '{row['Dzubukuá']}' para '{row['Português Moderno']}'", axis=1
-    )
+        # Exibir o DataFrame das similaridades
+        st.subheader("Similaridade Calculada entre as Três Línguas")
+        st.dataframe(similarity_df)
 
-    st.info("Analisando Etimologia...")
+        # [Chamar as demais funções de análise e visualização aqui...]
 
-    # Etimologia (Simplificada)
-    data['Etimologia'] = data['Dzubukuá'].apply(
-        lambda x: f"Etimologia de '{x}'"
-    )
+        # Perguntar se o usuário deseja baixar os resultados como CSV
+        if st.checkbox("Deseja baixar os resultados como CSV?"):
+            csv = similarity_df.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                label="Baixar Similaridades em CSV",
+                data=csv,
+                file_name='similaridades_linguisticas.csv',
+                mime='text/csv',
+            )
 
-    return data
-
-# Função para salvar o DataFrame
-def salvar_dataframe(data):
-    """Permite o download do DataFrame em formato CSV."""
-    csv = data.to_csv(index=False).encode('utf-8')
-    st.download_button(
-        label="Baixar Dados Calculados em CSV",
-        data=csv,
-        file_name='dados_calculados.csv',
-        mime='text/csv',
-    )
-
-# Executar a aplicação
 if __name__ == '__main__':
     main()
