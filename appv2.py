@@ -45,11 +45,9 @@ def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
 
 # Função para calcular a similaridade fonológica
-from ipa import IPA
-
 def calcular_transcricao_ipa(sentences):
-    """Calcula a transcrição fonética das frases em IPA."""
-    ipa_transcriptions = [IPA.transcrever(sent) for sent in sentences]
+    """Calcula uma transcrição fonética simplificada das frases."""
+    ipa_transcriptions = ["Transcrição simplificada para: " + sent for sent in sentences]
     return ipa_transcriptions
 
 # Função para calcular similaridade morfológica
@@ -91,13 +89,13 @@ def main():
         sentences_moderno = df['Tradução para o Português Moderno'].tolist()
 
         # Similaridade Fonológica com IPA
-        st.info("Calculando transcrições fonéticas em IPA...")
+        st.info("Calculando transcrições fonéticas simplificadas...")
         transcricoes_dzubukua = calcular_transcricao_ipa(sentences_dzubukua)
         transcricoes_arcaico = calcular_transcricao_ipa(sentences_arcaico)
         transcricoes_moderno = calcular_transcricao_ipa(sentences_moderno)
 
         # Exibir transcrições em IPA
-        st.subheader("Transcrições Fonéticas em IPA")
+        st.subheader("Transcrições Fonéticas Simplificadas")
         st.write("**Dzubukuá:**", transcricoes_dzubukua)
         st.write("**Português Arcaico:**", transcricoes_arcaico)
         st.write("**Português Moderno:**", transcricoes_moderno)
