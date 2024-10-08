@@ -149,11 +149,11 @@ def main():
 
         # Garantir que todas as listas tenham o mesmo comprimento do DataFrame
         min_length = len(df)
-        df['Similaridade de Cosseno'] = similarity_arcaico_dzubukua_sem[:min_length]
-        df['Word2Vec'] = similarity_arcaico_dzubukua_w2v[:min_length]
-        df['N-gramas'] = similarity_arcaico_dzubukua_ng[:min_length]
-        df['Soundex'] = similarity_arcaico_dzubukua_phon[:min_length]
-        df['Distância de Levenshtein'] = similarity_moderno_dzubukua_phon[:min_length]
+        df['Similaridade de Cosseno'] = list(similarity_arcaico_dzubukua_sem)[:min_length]
+        df['Word2Vec'] = list(similarity_arcaico_dzubukua_w2v)[:min_length]
+        df['N-gramas'] = list(similarity_arcaico_dzubukua_ng)[:min_length]
+        df['Soundex'] = list(similarity_arcaico_dzubukua_phon)[:min_length]
+        df['Distância de Levenshtein'] = list(similarity_moderno_dzubukua_phon)[:min_length]
 
         # Correlação
         st.subheader("Correlação entre Medidas de Similaridade")
