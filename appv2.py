@@ -12,7 +12,7 @@ from gensim.models import Word2Vec
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LinearRegression
 import scipy.stats as stats
-from scipy.cluster.hierarchy import dendrogram
+from scipy.cluster.hierarchy import dendrogram, linkage
 import jellyfish
 
 # Bibliotecas adicionais para as novas implementações
@@ -148,11 +148,11 @@ def main():
         """)
 
         # Adicionando resultados ao DataFrame
-        df['Similaridade de Cosseno'] = similarity_arcaico_dzubukua_sem + similarity_moderno_dzubukua_sem + similarity_arcaico_moderno_sem
-        df['Word2Vec'] = similarity_arcaico_dzubukua_w2v + similarity_moderno_dzubukua_w2v + similarity_arcaico_moderno_w2v
-        df['N-gramas'] = similarity_arcaico_dzubukua_ng + similarity_moderno_dzubukua_ng + similarity_arcaico_moderno_ng
-        df['Soundex'] = similarity_arcaico_dzubukua_phon
-        df['Distância de Levenshtein'] = similarity_moderno_dzubukua_phon
+        df['Similaridade de Cosseno'] = similarity_arcaico_dzubukua_sem + list(similarity_moderno_dzubukua_sem) + list(similarity_arcaico_moderno_sem)
+        df['Word2Vec'] = list(similarity_arcaico_dzubukua_w2v) + list(similarity_moderno_dzubukua_w2v) + list(similarity_arcaico_moderno_w2v)
+        df['N-gramas'] = list(similarity_arcaico_dzubukua_ng) + list(similarity_moderno_dzubukua_ng) + list(similarity_arcaico_moderno_ng)
+        df['Soundex'] = list(similarity_arcaico_dzubukua_phon)
+        df['Distância de Levenshtein'] = list(similarity_moderno_dzubukua_phon)
 
         # Correlação
         st.subheader("Correlação entre Medidas de Similaridade")
@@ -203,7 +203,7 @@ def main():
 
         # Dendrograma para Análise Hierárquica
         st.subheader("Dendrograma para Análise Hierárquica")
-        linked = dendrogram(dendrogram(linkage(df[['Similaridade de Cosseno', 'Word2Vec', 'N-gramas']], method='ward')))
+        linked = linkage(df[['Similaridade de Cosseno', 'Word2Vec', 'N-gramas']], method='ward')
         fig_dend, ax = plt.subplots(figsize=(10, 8))
         dendrogram(linked, ax=ax)
         st.pyplot(fig_dend)
