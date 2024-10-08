@@ -103,6 +103,9 @@ def main():
             st.error("Dados insuficientes em uma ou mais categorias linguísticas.")
             return
 
+        # Tokenização das frases
+        df['Tokenização'] = df['Texto Original'].apply(lambda x: x.split())
+
         # Metodologias Utilizadas e Resultados Calculados
         st.subheader("Metodologias Utilizadas e Resultados Calculados")
 
@@ -144,97 +147,42 @@ def main():
         - Utilizou-se Soundex e Distância de Levenshtein para medir a semelhança dos sons das palavras.
         """)
 
-        # Criando DataFrame com as similaridades calculadas
-        similarity_df = pd.DataFrame({
-            'Dzubukuá - Arcaico (Semântica)': similarity_arcaico_dzubukua_sem,
-            'Dzubukuá - Moderno (Semântica)': similarity_moderno_dzubukua_sem,
-            'Arcaico - Moderno (Semântica)': similarity_arcaico_moderno_sem,
-            'Dzubukuá - Arcaico (N-gramas)': similarity_arcaico_dzubukua_ng,
-            'Dzubukuá - Moderno (N-gramas)': similarity_moderno_dzubukua_ng,
-            'Arcaico - Moderno (N-gramas)': similarity_arcaico_moderno_ng,
-            'Dzubukuá - Arcaico (Word2Vec)': similarity_arcaico_dzubukua_w2v,
-            'Dzubukuá - Moderno (Word2Vec)': similarity_moderno_dzubukua_w2v,
-            'Arcaico - Moderno (Word2Vec)': similarity_arcaico_moderno_w2v,
-            'Dzubukuá - Arcaico (Fonológica)': similarity_arcaico_dzubukua_phon,
-            'Dzubukuá - Moderno (Fonológica)': similarity_moderno_dzubukua_phon,
-            'Arcaico - Moderno (Fonológica)': similarity_arcaico_moderno_phon
-        })
-
-        # Exibir o DataFrame das similaridades
-        st.subheader("Similaridade Calculada entre as Três Línguas")
-        st.dataframe(similarity_df)
-
-        # Análises Estatísticas Realizadas
-        st.subheader("Análises Estatísticas Realizadas")
-
-        # Adicionando Estatísticas Descritivas
-        st.subheader("Estatísticas Descritivas das Similaridades")
-        descriptive_stats = similarity_df.describe()
-        st.dataframe(descriptive_stats)
+        # Adicionando resultados ao DataFrame
+        df['Similaridade de Cosseno'] = similarity_arcaico_dzubukua_sem + similarity_moderno_dzubukua_sem + similarity_arcaico_moderno_sem
+        df['Word2Vec'] = similarity_arcaico_dzubukua_w2v + similarity_moderno_dzubukua_w2v + similarity_arcaico_moderno_w2v
+        df['N-gramas'] = similarity_arcaico_dzubukua_ng + similarity_moderno_dzubukua_ng + similarity_arcaico_moderno_ng
+        df['Soundex'] = similarity_arcaico_dzubukua_phon
+        df['Distância de Levenshtein'] = similarity_moderno_dzubukua_phon
 
         # Correlação
-        st.markdown("""
-        **Correlação:**
-        - Calculou-se as correlações de Pearson, Spearman e Kendall entre as medidas de similaridade (semântica, lexical e fonológica).
-        """)
+        st.subheader("Correlação entre Medidas de Similaridade")
+        correlation_pearson = df.corr(method='pearson')
+        st.markdown("**Correlação de Pearson**")
+        st.dataframe(correlation_pearson)
 
         # Regressão Linear e Múltipla
-        st.markdown("""
-        **Regressão Linear e Múltipla:**
-        - Regressão linear entre Dzubukuá e Português Moderno (semântica) e regressão múltipla usando medidas adicionais para prever relações entre os idiomas.
-        """)
+        st.subheader("Análise de Regressão Múltipla")
+        X = df[['Similaridade de Cosseno', 'Word2Vec', 'N-gramas']]
+        y = df['Distância de Levenshtein']
+        model = LinearRegression()
+        model.fit(X, y)
+        df['Análise de Regressão Múltipla'] = model.predict(X)
+        st.dataframe(df[['Similaridade de Cosseno', 'Word2Vec', 'N-gramas', 'Distância de Levenshtein', 'Análise de Regressão Múltipla']])
 
         # ANOVA (Análise de Variância)
-        st.markdown("""
-        **ANOVA (Análise de Variância):**
-        - Comparou as médias das similaridades para identificar diferenças significativas entre os idiomas.
-        """)
+        st.subheader("ANOVA (Análise de Variância)")
+        f_val, p_val = f_oneway(df['Similaridade de Cosseno'], df['Word2Vec'], df['N-gramas'])
+        st.markdown(f"F-Valor: {f_val}, P-Valor: {p_val}")
 
-        # Testes de Hipóteses
-        st.markdown("""
-        **Testes de Hipóteses:**
-        - Realizou testes t para verificar diferenças significativas entre as medidas de similaridade.
-        """)
+        # Clusterização (K-Means)
+        st.subheader("Clusterização com K-Means")
+        kmeans = KMeans(n_clusters=3)
+        df['Cluster'] = kmeans.fit_predict(df[['Similaridade de Cosseno', 'Word2Vec', 'N-gramas']])
+        st.dataframe(df[['Similaridade de Cosseno', 'Word2Vec', 'N-gramas', 'Cluster']])
 
-        # Ajuste q-Exponencial
-        st.markdown("""
-        **Ajuste q-Exponencial:**
-        - Ajustou uma distribuição q-exponencial para descrever a distribuição das similaridades.
-        """)
-
-        # Visualizações e Clusterização
-        st.subheader("Visualizações e Clusterização")
-
-        # Análise de Componentes Principais (PCA)
-        st.markdown("""
-        **Análise de Componentes Principais (PCA):**
-        - Reduziu a dimensionalidade dos dados para identificar padrões.
-        """)
-
-        # Clusterização (K-Means e DBSCAN)
-        st.markdown("""
-        **Clusterização (K-Means e DBSCAN):**
-        - Aplicou K-Means e DBSCAN para segmentar as frases em clusters com base nas medidas de similaridade.
-        - Visualizações com PCA foram geradas para exibir a segmentação dos clusters.
-        """)
-
-        # Gráficos
-        st.markdown("""
-        **Gráficos:**
-        - Mapas de calor de correlações, dendrograma para análises hierárquicas, e gráficos de regressão linear.
-        - Gráficos interativos usando Plotly.
-        """)
-
-        # Outros Recursos
-        st.subheader("Outros Recursos")
-        st.markdown("""
-        - Controle de áudio embutido com Streamlit para explicações.
-        - Disponibilidade de download dos resultados como arquivo CSV.
-        """)
-
-        # Salvando o DataFrame
+        # Outros Recursos e Download
         st.subheader("Baixar Dados Calculados")
-        salvar_dataframe(similarity_df)
+        salvar_dataframe(df)
 
 # Função para calcular similaridade semântica usando Sentence-BERT
 def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico, sentences_moderno):
