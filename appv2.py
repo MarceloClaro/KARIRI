@@ -21,7 +21,7 @@ import jellyfish
 # Bibliotecas adicionais para as novas implementações
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
-from sklearn.cluster import KMeans, DBSCAN
+from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import silhouette_score
 from scipy.stats import f_oneway  # Para ANOVA
@@ -79,15 +79,15 @@ def main():
         except UnicodeDecodeError:
             df = pd.read_csv(uploaded_file, encoding='latin-1')
 
-        # Exibir a tabela completa do dataset
-        st.subheader("Tabela Completa do Dataset")
-        st.dataframe(df)
-
         # Verificar se as colunas necessárias existem
         required_columns = ['Idioma', 'Texto Original', 'Tradução para o Português Moderno']
         if not all(column in df.columns for column in required_columns):
             st.error(f"O arquivo CSV deve conter as colunas: {', '.join(required_columns)}")
             return
+
+        # Exibir a tabela completa do dataset
+        st.subheader("Tabela Completa do Dataset")
+        st.dataframe(df)
 
         # Dados Processados
         st.subheader("Dados Processados")
@@ -104,7 +104,7 @@ def main():
         # Extrair frases de cada idioma
         sentences_dzubukua = df[df['Idioma'] == 'Dzubukuá']['Texto Original'].dropna().tolist()
         sentences_arcaico = df[df['Idioma'] == 'Português Arcaico']['Texto Original'].dropna().tolist()
-        sentences_moderno = df['Tradução para o Português Moderno'].dropna().tolist()
+        sentences_moderno = df[df['Idioma'] == 'Português Moderno']['Texto Original'].dropna().tolist()
 
         # Certificar-se de que há dados suficientes para análise
         if not sentences_dzubukua or not sentences_arcaico or not sentences_moderno:
@@ -117,8 +117,15 @@ def main():
         sentences_arcaico = sentences_arcaico[:min_length]
         sentences_moderno = sentences_moderno[:min_length]
 
+        # Criar DataFrame para armazenar os dados
+        data = pd.DataFrame({
+            'Dzubukuá': sentences_dzubukua,
+            'Português Arcaico': sentences_arcaico,
+            'Português Moderno': sentences_moderno
+        })
+
         # Tokenização das frases
-        df['Tokenização'] = df['Texto Original'].astype(str).apply(lambda x: x.split())
+        data['Tokenização'] = data['Dzubukuá'].astype(str).apply(lambda x: x.split())
 
         # Metodologias Utilizadas e Resultados Calculados
         st.subheader("Metodologias Utilizadas e Resultados Calculados")
@@ -165,36 +172,43 @@ def main():
         - Utilizou-se Soundex e Distância de Levenshtein para medir a semelhança dos sons das palavras.
         """)
 
-        # Criar DataFrame de similaridades
-        similarity_df = pd.DataFrame({
-            'Idioma Dzubukuá': sentences_dzubukua,
-            'Idioma Português Arcaico': sentences_arcaico,
-            'Idioma Português Moderno': sentences_moderno,
-            'Similaridade Semântica (Arcaico-Dzubukuá)': similarity_arcaico_dzubukua_sem,
-            'Similaridade Semântica (Moderno-Dzubukuá)': similarity_moderno_dzubukua_sem,
-            'Similaridade Semântica (Arcaico-Moderno)': similarity_arcaico_moderno_sem,
-            'Similaridade N-gramas (Arcaico-Dzubukuá)': similarity_arcaico_dzubukua_ng,
-            'Similaridade N-gramas (Moderno-Dzubukuá)': similarity_moderno_dzubukua_ng,
-            'Similaridade N-gramas (Arcaico-Moderno)': similarity_arcaico_moderno_ng,
-            'Similaridade Word2Vec (Arcaico-Dzubukuá)': similarity_arcaico_dzubukua_w2v,
-            'Similaridade Word2Vec (Moderno-Dzubukuá)': similarity_moderno_dzubukua_w2v,
-            'Similaridade Word2Vec (Arcaico-Moderno)': similarity_arcaico_moderno_w2v,
-            'Similaridade Fonológica (Arcaico-Dzubukuá)': similarity_arcaico_dzubukua_phon,
-            'Similaridade Fonológica (Moderno-Dzubukuá)': similarity_moderno_dzubukua_phon,
-            'Similaridade Fonológica (Arcaico-Moderno)': similarity_arcaico_moderno_phon,
-        })
+        # Adicionar as similaridades ao DataFrame
+        data['Similaridade Semântica (Dzubukuá-Arcaico)'] = similarity_arcaico_dzubukua_sem
+        data['Similaridade Semântica (Dzubukuá-Moderno)'] = similarity_moderno_dzubukua_sem
+        data['Similaridade Semântica (Arcaico-Moderno)'] = similarity_arcaico_moderno_sem
 
+        data['Similaridade N-gramas (Dzubukuá-Arcaico)'] = similarity_arcaico_dzubukua_ng
+        data['Similaridade N-gramas (Dzubukuá-Moderno)'] = similarity_moderno_dzubukua_ng
+        data['Similaridade N-gramas (Arcaico-Moderno)'] = similarity_arcaico_moderno_ng
+
+        data['Similaridade Word2Vec (Dzubukuá-Arcaico)'] = similarity_arcaico_dzubukua_w2v
+        data['Similaridade Word2Vec (Dzubukuá-Moderno)'] = similarity_moderno_dzubukua_w2v
+        data['Similaridade Word2Vec (Arcaico-Moderno)'] = similarity_arcaico_moderno_w2v
+
+        data['Similaridade Fonológica (Dzubukuá-Arcaico)'] = similarity_arcaico_dzubukua_phon
+        data['Similaridade Fonológica (Dzubukuá-Moderno)'] = similarity_moderno_dzubukua_phon
+        data['Similaridade Fonológica (Arcaico-Moderno)'] = similarity_arcaico_moderno_phon
+
+        # Exibir o DataFrame com as similaridades
         st.subheader("Tabela de Similaridades")
-        st.dataframe(similarity_df)
+        st.dataframe(data)
 
         # Correlação
-        st.subheader("Correlação entre Medidas de Similaridade")
-        correlation_pearson = similarity_df.select_dtypes(include=[np.number]).corr(method='pearson')
+        st.subheader("Análise de Correlação")
+        numeric_cols = data.select_dtypes(include=[np.number]).columns
+
+        # Correlação de Pearson
         st.markdown("**Correlação de Pearson**")
+        correlation_pearson = data[numeric_cols].corr(method='pearson')
         st.dataframe(correlation_pearson)
 
+        # Correlação de Kendall
+        st.markdown("**Correlação de Kendall**")
+        correlation_kendall = data[numeric_cols].corr(method='kendall')
+        st.dataframe(correlation_kendall)
+
         # Mapa de calor das correlações
-        st.subheader("Mapa de Calor das Correlações")
+        st.subheader("Mapa de Calor das Correlações (Pearson)")
         fig, ax = plt.subplots(figsize=(12, 10))
         sns.heatmap(correlation_pearson, annot=True, cmap='coolwarm', ax=ax)
         st.pyplot(fig)
@@ -202,50 +216,61 @@ def main():
         # Análise de Componentes Principais (PCA)
         st.subheader("Análise de Componentes Principais (PCA)")
         pca = PCA(n_components=2)
-        features = similarity_df.select_dtypes(include=[np.number]).columns
-        pca_result = pca.fit_transform(similarity_df[features])
-        similarity_df['PCA1'] = pca_result[:, 0]
-        similarity_df['PCA2'] = pca_result[:, 1]
-        fig_pca = px.scatter(similarity_df, x='PCA1', y='PCA2', color='Idioma Dzubukuá', title='Visualização PCA')
+        features = data.select_dtypes(include=[np.number]).columns
+        pca_result = pca.fit_transform(data[features])
+        data['PCA1'] = pca_result[:, 0]
+        data['PCA2'] = pca_result[:, 1]
+        fig_pca = px.scatter(data, x='PCA1', y='PCA2', title='Visualização PCA')
         st.plotly_chart(fig_pca)
 
-        # Regressão Linear e Múltipla
+        # Análise de Regressão Múltipla
         st.subheader("Análise de Regressão Múltipla")
-        X = similarity_df[['Similaridade Semântica (Arcaico-Dzubukuá)', 'Similaridade N-gramas (Arcaico-Dzubukuá)', 'Similaridade Word2Vec (Arcaico-Dzubukuá)']]
-        y = similarity_df['Similaridade Fonológica (Arcaico-Dzubukuá)']
-        model = LinearRegression()
-        model.fit(X, y)
-        similarity_df['Predição Regressão'] = model.predict(X)
-        st.dataframe(similarity_df[['Similaridade Semântica (Arcaico-Dzubukuá)', 'Similaridade N-gramas (Arcaico-Dzubukuá)', 'Similaridade Word2Vec (Arcaico-Dzubukuá)', 'Similaridade Fonológica (Arcaico-Dzubukuá)', 'Predição Regressão']])
+        X = data[['Similaridade Semântica (Dzubukuá-Arcaico)', 'Similaridade N-gramas (Dzubukuá-Arcaico)', 'Similaridade Word2Vec (Dzubukuá-Arcaico)']]
+        y = data['Similaridade Fonológica (Dzubukuá-Arcaico)']
+        model = sm.OLS(y, sm.add_constant(X)).fit()
+        data['Predição Regressão'] = model.predict(sm.add_constant(X))
+        st.write(model.summary())
 
         # Gráfico de Regressão Linear
         st.subheader("Gráfico de Regressão Linear")
-        fig_reg = px.scatter(similarity_df, x='Similaridade Semântica (Arcaico-Dzubukuá)', y='Similaridade Fonológica (Arcaico-Dzubukuá)', trendline='ols', title='Regressão Linear: Similaridade Semântica vs Similaridade Fonológica')
+        fig_reg = px.scatter(data, x='Similaridade Semântica (Dzubukuá-Arcaico)', y='Similaridade Fonológica (Dzubukuá-Arcaico)', trendline='ols', title='Regressão Linear: Similaridade Semântica vs Similaridade Fonológica')
         st.plotly_chart(fig_reg)
 
         # ANOVA (Análise de Variância)
         st.subheader("ANOVA (Análise de Variância)")
-        f_val, p_val = f_oneway(similarity_df['Similaridade Semântica (Arcaico-Dzubukuá)'], similarity_df['Similaridade N-gramas (Arcaico-Dzubukuá)'], similarity_df['Similaridade Word2Vec (Arcaico-Dzubukuá)'])
+        f_val, p_val = f_oneway(data['Similaridade Semântica (Dzubukuá-Arcaico)'], data['Similaridade N-gramas (Dzubukuá-Arcaico)'], data['Similaridade Word2Vec (Dzubukuá-Arcaico)'])
         st.markdown(f"F-Valor: {f_val:.4f}, P-Valor: {p_val:.4f}")
+
+        # Margens de Erro
+        st.subheader("Margens de Erro")
+        confidence_interval = stats.t.interval(
+            alpha=0.95, df=len(y)-1,
+            loc=np.mean(y - data['Predição Regressão']),
+            scale=stats.sem(y - data['Predição Regressão'])
+        )
+        st.markdown(f"Intervalo de Confiança (95%): {confidence_interval}")
 
         # Clusterização (K-Means)
         st.subheader("Clusterização com K-Means")
+        scaler = StandardScaler()
+        scaled_features = scaler.fit_transform(data[features])
         kmeans = KMeans(n_clusters=3, random_state=42)
-        similarity_df['Cluster'] = kmeans.fit_predict(similarity_df[features])
-        fig_kmeans = px.scatter(similarity_df, x='PCA1', y='PCA2', color='Cluster', title='Clusterização com K-Means')
+        data['Cluster'] = kmeans.fit_predict(scaled_features)
+        fig_kmeans = px.scatter(data, x='PCA1', y='PCA2', color='Cluster', title='Clusterização com K-Means')
         st.plotly_chart(fig_kmeans)
 
         # Dendrograma para Análise Hierárquica
         st.subheader("Dendrograma para Análise Hierárquica")
-        linked = linkage(similarity_df[features], method='ward')
+        linked = linkage(scaled_features, method='ward')
         fig_dend, ax = plt.subplots(figsize=(12, 8))
         dendrogram(linked, ax=ax)
         st.pyplot(fig_dend)
 
-        # Outros Recursos e Download
+        # Baixar Dados Calculados
         st.subheader("Baixar Dados Calculados")
-        salvar_dataframe(similarity_df)
+        salvar_dataframe(data)
 
+# Funções para calcular as similaridades
 def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico, sentences_moderno):
     all_sentences = sentences_dzubukua + sentences_arcaico + sentences_moderno
     embeddings = model.encode(all_sentences, batch_size=32, normalize_embeddings=True)
@@ -258,9 +283,9 @@ def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico
     embeddings_arcaico = embeddings[len_dzubukua:len_dzubukua + len_arcaico]
     embeddings_moderno = embeddings[len_dzubukua + len_arcaico:]
 
-    similarity_arcaico_dzubukua = [cosine_similarity([embeddings_dzubukua[i]], [embeddings_arcaico[i]])[0][0] for i in range(len(embeddings_dzubukua))]
-    similarity_moderno_dzubukua = [cosine_similarity([embeddings_dzubukua[i]], [embeddings_moderno[i]])[0][0] for i in range(len(embeddings_dzubukua))]
-    similarity_arcaico_moderno = [cosine_similarity([embeddings_arcaico[i]], [embeddings_moderno[i]])[0][0] for i in range(len(embeddings_dzubukua))]
+    similarity_arcaico_dzubukua = [cosine_similarity([embeddings_dzubukua[i]], [embeddings_arcaico[i]])[0][0] for i in range(len_dzubukua))]
+    similarity_moderno_dzubukua = [cosine_similarity([embeddings_dzubukua[i]], [embeddings_moderno[i]])[0][0] for i in range(len_dzubukua))]
+    similarity_arcaico_moderno = [cosine_similarity([embeddings_arcaico[i]], [embeddings_moderno[i]])[0][0] for i in range(len_dzubukua))]
 
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
 
@@ -309,7 +334,7 @@ def calcular_similaridade_word2vec(sentences_dzubukua, sentences_arcaico, senten
 
     similarity_arcaico_dzubukua = [cosine_similarity([vectors_dzubukua[i]], [vectors_arcaico[i]])[0][0] for i in range(len(vectors_dzubukua))]
     similarity_moderno_dzubukua = [cosine_similarity([vectors_dzubukua[i]], [vectors_moderno[i]])[0][0] for i in range(len(vectors_dzubukua))]
-    similarity_arcaico_moderno = [cosine_similarity([vectors_arcaico[i]], [vectors_moderno[i]])[0][0] for i in range(len(vectors_dzubukua))]
+    similarity_arcaico_moderno = [cosine_similarity([vectors_arcaico[i]], [vectors_moderno[i]])[0][0] for i in range(len(vectors_arcaico))]
 
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
 
@@ -324,7 +349,7 @@ def calcular_similaridade_fonologica(sentences_dzubukua, sentences_arcaico, sent
                 max_len = max(len(s1_phonetic), len(s2_phonetic))
                 similarity = 1 - (dist / max_len) if max_len > 0 else 1
                 similarities.append(similarity)
-            except Exception as e:
+            except Exception:
                 similarities.append(0)
         return similarities
 
@@ -334,12 +359,12 @@ def calcular_similaridade_fonologica(sentences_dzubukua, sentences_arcaico, sent
 
     return similarity_arcaico_dzubukua_phon, similarity_moderno_dzubukua_phon, similarity_arcaico_moderno_phon
 
-def salvar_dataframe(similarity_df):
-    csv = similarity_df.to_csv(index=False).encode('utf-8')
+def salvar_dataframe(data):
+    csv = data.to_csv(index=False).encode('utf-8')
     st.download_button(
-        label="Baixar Similaridades em CSV",
+        label="Baixar Dados Calculados em CSV",
         data=csv,
-        file_name='similaridades_linguisticas.csv',
+        file_name='dados_calculados.csv',
         mime='text/csv',
     )
 
