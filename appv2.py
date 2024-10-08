@@ -97,6 +97,19 @@ def main():
         st.write("Tokenização de frases.")
         st.write("Geração de vetores semânticos e lexicais.")
 
+        # Similaridade Semântica (Sentence-BERT)
+        st.info("Calculando similaridade semântica...")
+        from sentence_transformers import SentenceTransformer
+        model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
+        similarity_arcaico_dzubukua_sem, similarity_moderno_dzubukua_sem, similarity_arcaico_moderno_sem = calcular_similaridade_semantica(
+            model, sentences_dzubukua, sentences_arcaico, sentences_moderno)
+
+        # Exibir resultados de similaridade semântica
+        st.subheader("Similaridade Semântica Calculada")
+        st.write("**Dzubukuá - Português Arcaico:**", similarity_arcaico_dzubukua_sem)
+        st.write("**Dzubukuá - Português Moderno:**", similarity_moderno_dzubukua_sem)
+        st.write("**Português Arcaico - Português Moderno:**", similarity_arcaico_moderno_sem)
+
         # Similaridade Fonológica com IPA
         st.info("Calculando transcrições fonéticas simplificadas...")
         transcricoes_dzubukua = calcular_transcricao_ipa(sentences_dzubukua)
@@ -164,7 +177,7 @@ def main():
         st.write("**Clusterização (K-Means e DBSCAN):**")
         st.write("Aplicou K-Means e DBSCAN para segmentar as frases em clusters com base nas medidas de similaridade.")
         st.write("Visualizações com PCA foram geradas para exibir a segmentação dos clusters.")
-        st.write("**Gráficos:**")
+        st.write("**Gráficos:")
         st.write("Mapas de calor de correlações, dendrograma para análises hierárquicas, e gráficos de regressão linear.")
         st.write("Gráficos interativos usando Plotly.")
 
