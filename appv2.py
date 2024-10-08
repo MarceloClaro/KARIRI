@@ -147,12 +147,13 @@ def main():
         - Utilizou-se Soundex e Distância de Levenshtein para medir a semelhança dos sons das palavras.
         """)
 
-        # Adicionando resultados ao DataFrame
-        df['Similaridade de Cosseno'] = list(similarity_arcaico_dzubukua_sem) + list(similarity_moderno_dzubukua_sem) + list(similarity_arcaico_moderno_sem)
-        df['Word2Vec'] = list(similarity_arcaico_dzubukua_w2v) + list(similarity_moderno_dzubukua_w2v) + list(similarity_arcaico_moderno_w2v)
-        df['N-gramas'] = list(similarity_arcaico_dzubukua_ng) + list(similarity_moderno_dzubukua_ng) + list(similarity_arcaico_moderno_ng)
-        df['Soundex'] = list(similarity_arcaico_dzubukua_phon)
-        df['Distância de Levenshtein'] = list(similarity_moderno_dzubukua_phon)
+        # Garantir que todas as listas tenham o mesmo comprimento do DataFrame
+        min_length = len(df)
+        df['Similaridade de Cosseno'] = similarity_arcaico_dzubukua_sem[:min_length]
+        df['Word2Vec'] = similarity_arcaico_dzubukua_w2v[:min_length]
+        df['N-gramas'] = similarity_arcaico_dzubukua_ng[:min_length]
+        df['Soundex'] = similarity_arcaico_dzubukua_phon[:min_length]
+        df['Distância de Levenshtein'] = similarity_moderno_dzubukua_phon[:min_length]
 
         # Correlação
         st.subheader("Correlação entre Medidas de Similaridade")
