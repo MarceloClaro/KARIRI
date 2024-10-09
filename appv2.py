@@ -70,21 +70,23 @@ def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico
 
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
 
-# Função para calcular similaridade de N-gramas
+# [As importações e outras funções permanecem as mesmas]
+
+# Função corrigida para calcular similaridade de N-gramas
 def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentences_moderno, n=2):
     """Calcula a similaridade lexical usando N-gramas e Coeficiente de Sorensen-Dice."""
     from sklearn.feature_extraction.text import CountVectorizer
 
-    # Função para gerar N-gramas binários
-    def ngramas(sentences, n):
-        vectorizer = CountVectorizer(ngram_range=(n, n), analyzer='char_wb', binary=True).fit(sentences)
-        ngram_matrix = vectorizer.transform(sentences).toarray()
-        return ngram_matrix
+    # Combine todas as frases para criar um vocabulário comum
+    all_sentences = sentences_dzubukua + sentences_arcaico + sentences_moderno
 
-    # Gerar N-gramas para cada conjunto de frases
-    ngramas_dzubukua = ngramas(sentences_dzubukua, n)
-    ngramas_arcaico = ngramas(sentences_arcaico, n)
-    ngramas_moderno = ngramas(sentences_moderno, n)
+    # Constrói o vectorizer com base em todas as frases
+    vectorizer = CountVectorizer(ngram_range=(n, n), analyzer='char_wb', binary=True).fit(all_sentences)
+
+    # Transforma cada conjunto de frases usando o vectorizer comum
+    ngramas_dzubukua = vectorizer.transform(sentences_dzubukua).toarray()
+    ngramas_arcaico = vectorizer.transform(sentences_arcaico).toarray()
+    ngramas_moderno = vectorizer.transform(sentences_moderno).toarray()
 
     # Garantir que o número de frases seja o mesmo entre todos os conjuntos
     num_frases = min(len(ngramas_dzubukua), len(ngramas_arcaico), len(ngramas_moderno))
@@ -114,6 +116,10 @@ def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentenc
     ]
 
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
+
+# [O restante do código permanece inalterado, incluindo a função main()]
+
+# Certifique-se de substituir a função anterior pela versão corrigida acima.
 
 # Função para calcular a similaridade usando Word2Vec
 def calcular_similaridade_word2vec(sentences_dzubukua, sentences_arcaico, sentences_moderno):
