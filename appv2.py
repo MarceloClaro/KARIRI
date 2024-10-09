@@ -136,32 +136,48 @@ def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico
 
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
 
+# Função para calcular similaridade de N-gramas
 def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentences_moderno, n=3):
     """Calcula a similaridade lexical usando N-gramas e Coeficiente de Sorensen-Dice."""
-    def ngramas(sentences, n):
-        vectorizer = CountVectorizer(ngram_range=(n, n), analyzer='char_wb', binary=True).fit(sentences)
-        ngram_matrix = vectorizer.transform(sentences).toarray()
-        return ngram_matrix
+    from sklearn.feature_extraction.text import CountVectorizer
 
-    ngramas_dzubukua = ngramas(sentences_dzubukua, n)
-    ngramas_arcaico = ngramas(sentences_arcaico, n)
-    ngramas_moderno = ngramas(sentences_moderno, n)
+    # Combinar todas as frases para ajustar o vectorizer
+    all_sentences = sentences_dzubukua + sentences_arcaico + sentences_moderno
+    vectorizer = CountVectorizer(ngram_range=(n, n), analyzer='char_wb', binary=True)
+    vectorizer.fit(all_sentences)
 
+    # Gerar N-gramas para cada conjunto de frases usando o mesmo vectorizer
+    ngramas_dzubukua = vectorizer.transform(sentences_dzubukua).toarray()
+    ngramas_arcaico = vectorizer.transform(sentences_arcaico).toarray()
+    ngramas_moderno = vectorizer.transform(sentences_moderno).toarray()
+
+    # Garantir que o número de frases seja o mesmo entre todos os conjuntos
     min_length = min(len(ngramas_dzubukua), len(ngramas_arcaico), len(ngramas_moderno))
     ngramas_dzubukua = ngramas_dzubukua[:min_length]
     ngramas_arcaico = ngramas_arcaico[:min_length]
     ngramas_moderno = ngramas_moderno[:min_length]
 
+    # Agora, os vetores de N-gramas têm a mesma dimensão e podem ser comparados
     def sorensen_dice(a, b):
         intersection = np.sum(np.minimum(a, b))
         total = np.sum(a) + np.sum(b)
         return 2 * intersection / total if total > 0 else 0
 
-    similarity_arcaico_dzubukua = [sorensen_dice(ngramas_dzubukua[i], ngramas_arcaico[i]) for i in range(min_length)]
-    similarity_moderno_dzubukua = [sorensen_dice(ngramas_dzubukua[i], ngramas_moderno[i]) for i in range(min_length)]
-    similarity_arcaico_moderno = [sorensen_dice(ngramas_arcaico[i], ngramas_moderno[i]) for i in range(min_length)]
+    similarity_arcaico_dzubukua = [
+        sorensen_dice(ngramas_dzubukua[i], ngramas_arcaico[i]) 
+        for i in range(min_length)
+    ]
+    similarity_moderno_dzubukua = [
+        sorensen_dice(ngramas_dzubukua[i], ngramas_moderno[i]) 
+        for i in range(min_length)
+    ]
+    similarity_arcaico_moderno = [
+        sorensen_dice(ngramas_arcaico[i], ngramas_moderno[i]) 
+        for i in range(min_length)
+    ]
 
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
+
 
 def calcular_similaridade_word2vec(sentences_dzubukua, sentences_arcaico, sentences_moderno):
     """Calcula a similaridade lexical usando Word2Vec."""
