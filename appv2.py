@@ -26,7 +26,7 @@ from scipy.optimize import curve_fit
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from scipy.stats import f_oneway
-from sklearn.linear_model import LinearRegression  # Importação adicional
+from sklearn.linear_model import LinearRegression
 
 # Configuração do logging
 logging.basicConfig(level=logging.INFO)
@@ -136,7 +136,6 @@ def calcular_similaridade_semantica(model, sentences_dzubukua, sentences_arcaico
 
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
 
-# Função para calcular similaridade de N-gramas
 def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentences_moderno, n=3):
     """Calcula a similaridade lexical usando N-gramas e Coeficiente de Sorensen-Dice."""
     from sklearn.feature_extraction.text import CountVectorizer
@@ -177,7 +176,6 @@ def calcular_similaridade_ngramas(sentences_dzubukua, sentences_arcaico, sentenc
     ]
 
     return similarity_arcaico_dzubukua, similarity_moderno_dzubukua, similarity_arcaico_moderno
-
 
 def calcular_similaridade_word2vec(sentences_dzubukua, sentences_arcaico, sentences_moderno):
     """Calcula a similaridade lexical usando Word2Vec."""
@@ -232,7 +230,69 @@ def calcular_similaridade_fonologica(sentences_dzubukua, sentences_arcaico, sent
 
     return similarity_arcaico_dzubukua_phon, similarity_moderno_dzubukua_phon, similarity_arcaico_moderno_phon
 
-# Outras funções auxiliares (ex: regressão, PCA, clustering, etc.) devem ser definidas aqui
+# Funções adicionais para análises e visualizações
+
+def calcular_correlacoes(similarity_df):
+    """Calcula as correlações entre as variáveis de similaridade."""
+    corr_matrix = similarity_df.corr()
+    return corr_matrix
+
+def plotar_matriz_correlacao(corr_matrix):
+    """Plota a matriz de correlação."""
+    fig, ax = plt.subplots(figsize=(12, 10))
+    sns.heatmap(corr_matrix, annot=True, fmt=".2f", cmap='coolwarm', ax=ax)
+    ax.set_title('Matriz de Correlação das Similaridades', fontsize=16)
+    st.pyplot(fig)
+
+def realizar_pca(similarity_df):
+    """Realiza PCA e plota os resultados."""
+    pca = PCA(n_components=2)
+    components = pca.fit_transform(similarity_df)
+    explained_variance = pca.explained_variance_ratio_
+
+    fig, ax = plt.subplots()
+    scatter = ax.scatter(components[:, 0], components[:, 1], c='blue', alpha=0.5)
+    ax.set_xlabel(f'Componente Principal 1 ({explained_variance[0]*100:.2f}%)')
+    ax.set_ylabel(f'Componente Principal 2 ({explained_variance[1]*100:.2f}%)')
+    ax.set_title('Análise de Componentes Principais (PCA)')
+    st.pyplot(fig)
+
+def realizar_clustering(similarity_df):
+    """Realiza clustering KMeans e plota os resultados."""
+    scaler = StandardScaler()
+    scaled_data = scaler.fit_transform(similarity_df)
+
+    kmeans = KMeans(n_clusters=3, random_state=42)
+    labels = kmeans.fit_predict(scaled_data)
+
+    pca = PCA(n_components=2)
+    components = pca.fit_transform(scaled_data)
+
+    fig, ax = plt.subplots()
+    scatter = ax.scatter(components[:, 0], components[:, 1], c=labels, cmap='viridis', alpha=0.5)
+    ax.set_xlabel('Componente Principal 1')
+    ax.set_ylabel('Componente Principal 2')
+    ax.set_title('Clustering KMeans')
+    st.pyplot(fig)
+
+def realizar_regressao(similarity_df):
+    """Realiza regressão linear entre duas variáveis de similaridade."""
+    X = similarity_df[['Dzubukuá - Arcaico (Semântica)']]
+    y = similarity_df['Dzubukuá - Moderno (Semântica)']
+    model = LinearRegression()
+    model.fit(X, y)
+    y_pred = model.predict(X)
+
+    fig, ax = plt.subplots()
+    ax.scatter(X, y, color='blue', label='Dados reais')
+    ax.plot(X, y_pred, color='red', label='Regressão Linear')
+    ax.set_xlabel('Similaridade Dzubukuá - Arcaico (Semântica)')
+    ax.set_ylabel('Similaridade Dzubukuá - Moderno (Semântica)')
+    ax.set_title('Regressão Linear')
+    ax.legend()
+    st.pyplot(fig)
+
+    st.write(f"Coeficiente de determinação (R²): {model.score(X, y):.4f}")
 
 # Função principal
 def main():
@@ -310,7 +370,24 @@ def main():
         st.subheader("Similaridade Calculada entre as Três Línguas")
         st.dataframe(similarity_df)
 
-        # [Chamar as demais funções de análise e visualização aqui...]
+        # Análises e Visualizações
+
+        # Cálculo e plotagem da matriz de correlação
+        st.subheader("Matriz de Correlação das Similaridades")
+        corr_matrix = calcular_correlacoes(similarity_df)
+        plotar_matriz_correlacao(corr_matrix)
+
+        # Análise de Componentes Principais (PCA)
+        st.subheader("Análise de Componentes Principais (PCA)")
+        realizar_pca(similarity_df)
+
+        # Clustering KMeans
+        st.subheader("Clustering KMeans")
+        realizar_clustering(similarity_df)
+
+        # Regressão Linear
+        st.subheader("Regressão Linear entre Similaridades Semânticas")
+        realizar_regressao(similarity_df)
 
         # Perguntar se o usuário deseja baixar os resultados como CSV
         if st.checkbox("Deseja baixar os resultados como CSV?"):
