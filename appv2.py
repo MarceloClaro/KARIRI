@@ -139,6 +139,10 @@ def main():
         if 'analysis_step' not in st.session_state:
             st.session_state['analysis_step'] = 0
 
+
+
+        
+
         # Função para avançar para a próxima análise
         def next_analysis():
             st.session_state['analysis_step'] += 1
@@ -223,5 +227,84 @@ def mapas_de_correlacoes(similarity_df):
     pearson_corr_phon, spearman_corr_phon, kendall_corr_phon = calcular_correlacoes_avancadas(phonological_df)
     grafico_matriz_correlacao(pearson_corr_phon, spearman_corr_phon, kendall_corr_phon)
 
+# [Importações e código anterior permanecem os mesmos]
+
+# Função para gerar DataFrame de n-gramas
+def gerar_dataframe_ngramas(sentences_dzubukua, sentences_arcaico, sentences_moderno):
+    """Gera um DataFrame contendo os n-gramas (unigrama, bigrama, trigrama) para cada frase."""
+    from sklearn.feature_extraction.text import CountVectorizer
+
+    # Função auxiliar para gerar n-gramas de um conjunto de frases
+    def extrair_ngramas(sentences, n, idioma):
+        vectorizer = CountVectorizer(ngram_range=(n, n), analyzer='word')
+        X = vectorizer.fit_transform(sentences)
+        ngram_names = vectorizer.get_feature_names_out()
+        df_ngrams = pd.DataFrame(X.toarray(), columns=ngram_names)
+        df_ngrams['Idioma'] = idioma
+        df_ngrams['N-grama'] = f'{n}-grama'
+        return df_ngrams
+
+    # Gerar DataFrames de n-gramas para cada idioma e para cada n
+    n_values = [1, 2, 3]  # unigrama, bigrama, trigrama
+    dataframes = []
+
+    for n in n_values:
+        df_dzubukua = extrair_ngramas(sentences_dzubukua, n, 'Dzubukuá')
+        df_arcaico = extrair_ngramas(sentences_arcaico, n, 'Português Arcaico')
+        df_moderno = extrair_ngramas(sentences_moderno, n, 'Português Moderno')
+
+        dataframes.extend([df_dzubukua, df_arcaico, df_moderno])
+
+    # Concatenar todos os DataFrames
+    df_ngramas = pd.concat(dataframes, ignore_index=True)
+
+    return df_ngramas
+
+# Modificar a função main() para incluir a geração do DataFrame de n-gramas
+def main():
+    st.title('Análises Avançadas de Similaridade Linguística para Línguas Kariri-Dzubukuá, Português Arcaico e Português Moderno')
+
+    # Upload do arquivo CSV
+    uploaded_file = st.file_uploader("Faça o upload do arquivo CSV", type="csv")
+
+    if uploaded_file is not None:
+        df = pd.read_csv(uploaded_file)
+
+        # Exibir a tabela completa do dataset
+        st.subheader("Tabela Completa do Dataset")
+        st.dataframe(df)
+
+        # Verificar se as colunas necessárias existem
+        required_columns = ['Idioma', 'Texto Original', 'Tradução para o Português Moderno']
+        if not all(column in df.columns for column in required_columns):
+            st.error(f"O arquivo CSV deve conter as colunas: {', '.join(required_columns)}")
+            return
+
+        # Extrair frases de cada idioma
+        sentences_dzubukua = df[df['Idioma'] == 'Dzubukuá']['Texto Original'].dropna().tolist()
+        sentences_arcaico = df[df['Idioma'] == 'Português Arcaico']['Texto Original'].dropna().tolist()
+        sentences_moderno = df[df['Idioma'] == 'Português Moderno']['Texto Original'].dropna().tolist()
+
+        # Caso não haja frases em Português Moderno na coluna 'Texto Original', usar a coluna de 'Tradução'
+        if not sentences_moderno:
+            sentences_moderno = df['Tradução para o Português Moderno'].dropna().tolist()
+
+        # Certificar-se de que há dados suficientes para análise
+        if not sentences_dzubukua or not sentences_arcaico or not sentences_moderno:
+            st.error("Dados insuficientes em uma ou mais categorias linguísticas.")
+            return
+
+        # Gerar o DataFrame de n-gramas
+        st.subheader("DataFrame de N-gramas (Unigrama, Bigrama, Trigrama)")
+        df_ngramas = gerar_dataframe_ngramas(sentences_dzubukua, sentences_arcaico, sentences_moderno)
+        st.dataframe(df_ngramas)
+
+        # [O restante do código permanece o mesmo]
+
+        # Aqui você pode continuar com as outras análises, como cálculo de similaridades, etc.
+
+# [Restante do código permanece inalterado]
+
 if __name__ == '__main__':
     main()
+
