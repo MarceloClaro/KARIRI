@@ -1,6 +1,25 @@
 # KARIRI
 TRADUÇÃO 
+Claro! Aqui está a tradução:
 
+---
+
+**KARIRI** é um projeto em Python que fornece um conjunto de funções para analisar e processar dados textuais. O projeto está organizado em vários módulos, incluindo carregamento de dados, similaridade semântica, similaridade lexical, similaridade fonológica, análise de correlação, análise de regressão, ANOVA, PCA, agrupamento, mapas de calor e dendrogramas.
+
+### Principais Pontos de Função
+- Carrega dados de diferentes fontes
+- Calcula similaridade semântica, lexical e fonológica entre textos
+- Realiza análises estatísticas como correlações, regressão linear e ANOVA
+- Implementa técnicas de visualização como PCA, agrupamento, mapas de calor e dendrogramas
+
+### Stack Tecnológico
+- Python
+- Bibliotecas como NumPy, SciPy, Scikit-learn, Matplotlib, Seaborn
+
+### Licença
+Não especificada
+
+---
 
 '''
 projeto/
