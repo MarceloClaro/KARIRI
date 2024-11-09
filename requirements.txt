@@ -17,3 +17,8 @@ statsmodels
 Levenshtein
 qinfer
 openpyxl 
+pytesseract
+tesseract-ocr
+pillow
+openai
+jiwer
