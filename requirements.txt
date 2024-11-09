@@ -13,11 +13,11 @@ gensim
 spacy 
 networkx 
 ete3 
-statsmodels 
-Levenshtein
 qinfer
-openpyxl 
-
+jellyfish>=0.8
+statsmodels>=0.12
+Levenshtein>=0.12
+openpyxl>=3.0
 libleptonica-dev
 pillow
 openai
