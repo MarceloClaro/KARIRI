@@ -17,9 +17,10 @@ statsmodels
 Levenshtein
 qinfer
 openpyxl 
-pytesseract
-tesseract-ocr
+tesseract-ocr 
+libleptonica-dev
 pillow
 openai
 jiwer
 fpdf
+pytesseract
