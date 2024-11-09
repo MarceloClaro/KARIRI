@@ -17,7 +17,7 @@ statsmodels
 Levenshtein
 qinfer
 openpyxl 
-tesseract-ocr 
+
 libleptonica-dev
 pillow
 openai
