@@ -1,5 +1,4 @@
-sudo apt update
-sudo apt install libtesseract-dev libleptonica-dev
+
 
 import streamlit as st
 import pytesseract
