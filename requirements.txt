@@ -22,3 +22,4 @@ tesseract-ocr
 pillow
 openai
 jiwer
+fpdf
