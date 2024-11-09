@@ -18,8 +18,6 @@ jellyfish>=0.8
 statsmodels>=0.12
 Levenshtein>=0.12
 openpyxl>=3.0
-libtesseract-dev 
-libleptonica-dev
 pillow
 openai
 jiwer
